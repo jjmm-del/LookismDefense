@@ -1,13 +1,26 @@
 using UnityEngine;
+using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class UnitEntity : MonoBehaviour
 {
-    private UnitData _unitData;
+    [SerializeField]private UnitData unitData;
+    public UnitData Data => unitData;
+
+    private NavMeshAgent agent;
     private float lastAttackTime;
-    public UnitData Data => _unitData;
-    public void Initialize(UnitData unitData)
+
+    private void Awake()
     {
-        _unitData = unitData;
+        agent = GetComponent<NavMeshAgent>();
+    }
+    public void Initialize(UnitData data)
+    {
+        unitData = data;
+        if (agent != null)
+        {
+            agent.speed = unitData.MoveSpeed;
+        }
     }
 
     private void Update()
@@ -22,6 +35,14 @@ public class UnitEntity : MonoBehaviour
     private void PerformAttack()
     {
         Debug.Log("1");
+    }
+
+    public void MoveTo(Vector3 destination)
+    {
+        if (agent != null)
+        {
+            agent.SetDestination(destination);
+        }
     }
 }
 
