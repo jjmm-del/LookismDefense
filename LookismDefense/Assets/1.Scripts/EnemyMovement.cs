@@ -3,21 +3,23 @@ using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float arrivalThreshold = 0.1f; //웨이포인트 도달 판정
 
-    private Transform[] pathPoints;
+    private float currentMoveSpeed; //받아온 이동 속도를 저장할 변수
+    private Transform[] pathPoints; 
     private int currentPointIndex = 0;
     private bool isInitialized = false;
 
-    public void Initialize(Transform[] path)
+    //초기화
+    public void Initialize(float speed, Transform[] path)
     {
+        currentMoveSpeed = speed;
         pathPoints = path;
         currentPointIndex = 0;
         
         //시작 위치를 첫 번째 웨이포인트로 강제 이동
-        if (pathPoints.Length > 0)
+        if (pathPoints != null && pathPoints.Length > 0)
         {
             transform.position = pathPoints[0].position;
             isInitialized = true;
@@ -40,7 +42,7 @@ public class EnemyMovement : MonoBehaviour
         Vector3 direction = targetPoint.position - transform.position;
         
         //이동 (MoveTowards 사용)
-        transform.position = Vector3.MoveTowards(transform.position, targetPoint.position, moveSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, targetPoint.position, currentMoveSpeed * Time.deltaTime);
         
         //회전(적이 진행방향을 보게함)
         if (direction != Vector3.zero)
