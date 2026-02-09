@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 0}
-  m_Name: 1.LeeJinSung
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  entityName: "1.\uC774\uC9C4\uC131"
-  moveSpeed: 3
-  prefab: {fileID: 3465978985654731351, guid: 21b965aff3f05e740895b7fcbd812478, type: 3}
-  round: 1
-  maxHealth: 100
-  defense: 0
-  dropGold: 0
+  m_Name: Normal_PHS
+  m_EditorClassIdentifier: Assembly-CSharp::UnitData
+  entityName: "\uD754\uD568 \uBC15\uD615\uC11D"
+  moveSpeed: 2
+  prefab: {fileID: 2429226078545084339, guid: 913073ed4b2c1ab4da8d2d46c4c0980e, type: 3}
+  tier: 1
+  attackDamage: 10
+  attackRange: 5
+  attackSpeed: 1

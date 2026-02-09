@@ -15,7 +15,7 @@ public class EnemyEntity : MonoBehaviour
     }
 
     //Spawner(WaveManager)가 적을 생성한 직후 호출하는 함수
-    public void SetUp(EnemyData data, Transform[] path)
+    public void Setup(EnemyData data, Transform[] path)
     {
         this.enemyData = data;
         

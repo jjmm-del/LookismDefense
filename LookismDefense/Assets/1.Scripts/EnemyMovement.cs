@@ -58,18 +58,9 @@ public class EnemyMovement : MonoBehaviour
             //마지막 지점 도달 시 (라이프 차감 및 자폭)
             if (currentPointIndex >= pathPoints.Length)
             {
-                ReachDestination();
+                currentPointIndex = 0;
             }
         }
         
-    }
-
-    private void ReachDestination()
-    {
-        //게임 매니저에게 라이프 차감 요청
-        GameManager.Instance.OnEnemyLeak();
-        
-        //적 삭제
-        Destroy(gameObject);
     }
 }

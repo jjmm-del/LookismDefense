@@ -104,4 +104,30 @@ public class RTSController : MonoBehaviour
             }
         }
     }
+	// 드래그 박스를 화면에 그리기 위한 변수 (기존 변수 활용)
+    private void OnGUI()
+    {
+        if (isDragging)
+        {
+            Vector2 currentMousePosition = Mouse.current.position.ReadValue();
+            // GUI 좌표계는 Y축이 반대이므로 변환 필요
+            Vector2 guiStart = new Vector2(startMousePosition.x, Screen.height - startMousePosition.y);
+            Vector2 guiCurrent = new Vector2(currentMousePosition.x, Screen.height - currentMousePosition.y);
+
+            Rect rect = new Rect(
+                Mathf.Min(guiStart.x, guiCurrent.x),
+                Mathf.Min(guiStart.y, guiCurrent.y),
+                Mathf.Abs(guiStart.x - guiCurrent.x),
+                Mathf.Abs(guiStart.y - guiCurrent.y)
+            );
+
+            // 반투명한 박스 그리기
+            GUI.color = new Color(0, 1, 0, 0.3f); // 녹색 반투명
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            
+            // 테두리 (선택 사항)
+            GUI.color = Color.green;
+            GUI.Box(rect, ""); 
+        }
+	}
 }
