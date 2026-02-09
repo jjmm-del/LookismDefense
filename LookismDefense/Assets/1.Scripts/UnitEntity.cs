@@ -34,7 +34,7 @@ public class UnitEntity : MonoBehaviour
 
     private void PerformAttack()
     {
-        Debug.Log("1");
+        //Debug.Log($"[UnitEntity] {unitData.EntityName}이 공격");
     }
 
     public void MoveTo(Vector3 destination)

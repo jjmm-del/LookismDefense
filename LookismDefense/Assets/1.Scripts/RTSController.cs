@@ -8,11 +8,24 @@ public class RTSController : MonoBehaviour
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private LayerMask groundLayer;
     
+    //임시로 조합매니저 추가
+    [SerializeField] private CombinationManager combinationManager;
+    
     private List<UnitEntity> selectedUnits = new List<UnitEntity>();
 
     private Vector2 startMousePosition;
     private bool isDragging;
 
+    private void Update()
+    {
+        if (Keyboard.current.cKey.wasPressedThisFrame)
+        {
+            if (selectedUnits.Count == 2 && combinationManager != null)
+            {
+                combinationManager.TryCombine(selectedUnits);
+            }
+        }
+    }
     public void OnSelect(InputAction.CallbackContext context)
     {
         if (context.started)
