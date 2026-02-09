@@ -17,6 +17,6 @@ MonoBehaviour:
   prefab: {fileID: 3465978985654731351, guid: 21b965aff3f05e740895b7fcbd812478, type: 3}
   round: 1
   type: 0
-  maxHealth: 500
+  maxHealth: 100
   defense: 0
   dropGold: 0

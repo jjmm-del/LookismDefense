@@ -23,7 +23,7 @@ public class UnitData : EntityData
     public int Tier => tier;
     public float AttackDamage => attackDamage;
     public int AttackRange => attackRange;
-    public float AttackSpped => attackSpeed;
+    public float AttackSpeed => attackSpeed;
 }
 
 

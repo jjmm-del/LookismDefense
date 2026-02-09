@@ -151,3 +151,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitEntity
   unitData: {fileID: 0}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128

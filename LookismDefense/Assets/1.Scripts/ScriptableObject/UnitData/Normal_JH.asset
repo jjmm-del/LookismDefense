@@ -18,4 +18,4 @@ MonoBehaviour:
   tier: 1
   attackDamage: 15
   attackRange: 8
-  attackSpeed: 2
+  attackSpeed: 1
