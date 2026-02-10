@@ -7,14 +7,19 @@ public class RTSController : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask enemyLayer;
     
     //임시로 조합매니저 추가
     [SerializeField] private CombinationManager combinationManager;
     
-    private List<UnitEntity> selectedUnits = new List<UnitEntity>();
-
+    private List<UnitEntity> selectedUnits = new List<UnitEntity>(); // 선택된 유닛
+    private EnemyEntity selectedEnemy; // 선택된 적 유닛(상태 확인용)
+    
     private Vector2 startMousePosition;
     private bool isDragging;
+
+    // 공격 명령 대기 상태 (A키 누르면 true)
+    private bool isAttackCommandPending = false;
 
     private void Update()
     {
@@ -26,6 +31,34 @@ public class RTSController : MonoBehaviour
             }
         }
     }
+
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isAttackCommandPending = true;
+            Debug.Log("공격모드 : 목표를 좌클릭 하세요");
+            // 추가 마우스 커서의 모양을 공격 모양으로 변경하는 로직
+        }
+    }
+
+    public void OnStop(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isAttackCommandPending = false;
+            foreach (UnitEntity unit in selectedUnits) unit.OrderStop();
+        }
+    }
+
+    public void OnHold(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            foreach (UnitEntity unit in selectedUnits) unit.OrderHold();
+        }
+    }
+    
     public void OnSelect(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -36,24 +69,33 @@ public class RTSController : MonoBehaviour
         else if (context.canceled)
         {
             isDragging = false;
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+
+            if (isAttackCommandPending)
+            {
+                ExecuteAttackCommand(mousePosition);
+                isAttackCommandPending = false;
+                return;
+            }
             PerformSelection(Mouse.current.position.ReadValue());
         }
     }
-
-    public void OnMove(InputAction.CallbackContext context)
+    
+    public void OnSmartCommand(InputAction.CallbackContext context)
     {
         if (context.performed && selectedUnits.Count > 0)
         {
-            MoveSelectedUnits();
+            isAttackCommandPending = false;
+            ExecuteSmartCommand();
         }
     }
-
+    
     private void PerformSelection(Vector2 endMousePosition)
     {
         selectedUnits.Clear();
         if (Vector2.Distance(startMousePosition, endMousePosition) < 10f)
         {
-            selectSingleUnit();
+            selectSingle(endMousePosition);
         }
         else
         {
@@ -61,17 +103,33 @@ public class RTSController : MonoBehaviour
         }
     }
 
-    private void selectSingleUnit()
+    private void selectSingle(Vector2 screenPos)
     {
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, unitLayer))
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, 100f, unitLayer))
         {
             UnitEntity unit = hit.collider.GetComponent<UnitEntity>();
 			if(unit != null)
-			{
-				selectedUnits.Add(unit); //누락되었던 핵심 코드
+            {
+                ClearSelection(); // 기존 선택 해제
+				selectedUnits.Add(unit);
             	Debug.Log($"{unit.Data.EntityName}선택됨");
 			}
+        }
+        else if (Physics.Raycast(ray, out hit, 100f, enemyLayer))
+        {
+            EnemyEntity enemy = hit.collider.GetComponent<EnemyEntity>();
+            if (enemy != null)
+            {
+                ClearSelection();
+                selectedEnemy = enemy;
+                Debug.Log($"적 유닛{enemy.Data.EntityName} 선택됨");
+            }
+        }
+        else
+        {
+            ClearSelection();
         }
     }
 
@@ -110,14 +168,48 @@ public class RTSController : MonoBehaviour
         Debug.Log($"드래그로 {selectedUnits.Count}개의 유닛이 선택되었습니다.");
     }
 
-    private void MoveSelectedUnits()
+
+    private void ExecuteAttackCommand(Vector2 screenPos)
+    {
+        Ray ray = mainCamera.ScreenPointToRay(screenPos);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100f, enemyLayer))
+        {
+            EnemyEntity enemy = hit.collider.GetComponent<EnemyEntity>();
+            if (enemy != null)
+            {
+                foreach (UnitEntity unit in selectedUnits) unit.OrderAttackTarget(enemy);
+                Debug.Log("타겟 공격 명령");
+            }
+        }
+        else if (Physics.Raycast(ray, out hit, 100f, groundLayer))
+        {
+            foreach (UnitEntity unit in selectedUnits) unit.OrderAttackMove(hit.point);
+            Debug.Log("어택땅");
+        }
+    }
+    private void ExecuteSmartCommand()
     {
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
+        RaycastHit hit;
+        // 적 우클릭 -> 공격
+        if (Physics.Raycast(ray, out hit, 100f, enemyLayer))
+        {
+            EnemyEntity enemy = hit.collider.GetComponent<EnemyEntity>();
+            if (enemy != null)
+            {
+                foreach (UnitEntity unit in selectedUnits)
+                {
+                    unit.OrderAttackTarget(enemy);
+                }
+            }
+        }
+        else if (Physics.Raycast(ray, out hit, 100f, groundLayer))
         {
             foreach (UnitEntity unit in selectedUnits)
             {
-                unit.MoveTo(hit.point);
+                unit.OrderMove(hit.point);
             }
         }
     }
@@ -147,4 +239,11 @@ public class RTSController : MonoBehaviour
             GUI.Box(rect, ""); 
         }
 	}
+
+    private void ClearSelection()
+    {
+        selectedUnits.Clear();
+        selectedEnemy = null;
+        //(추가)UI 닫기 등 처리
+    }
 }
