@@ -67,7 +67,11 @@ public class RTSController : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, unitLayer))
         {
             UnitEntity unit = hit.collider.GetComponent<UnitEntity>();
-            Debug.Log($"{unit.Data.EntityName}선택됨");
+			if(unit != null)
+			{
+				selectedUnits.Add(unit); //누락되었던 핵심 코드
+            	Debug.Log($"{unit.Data.EntityName}선택됨");
+			}
         }
     }
 
