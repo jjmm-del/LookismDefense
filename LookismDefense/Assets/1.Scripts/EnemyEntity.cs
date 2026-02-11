@@ -6,6 +6,8 @@ public class EnemyEntity : MonoBehaviour
     [SerializeField] private EnemyData enemyData;
     public EnemyData Data => enemyData;
 
+    [SerializeField] private EnemyHealthBar healthBar;
+
     private EnemyMovement movement;
     // 실시간 체력 관리
     private float currentHealth;
@@ -24,14 +26,12 @@ public class EnemyEntity : MonoBehaviour
         this.enemyData = data;
 
         currentHealth = data.MaxHealth;
-        
+        GameManager.Instance.RegisterEnemy(this);
         //enemyMovement에게 "이 속도로, 이 길을 따라가라"고 명령
         if (movement != null)
         {
             movement.Initialize(data.MoveSpeed, path);
         }
-        //체력 초기화 등 추가 로직 가능
-        //currentHealth = data.MaxHealth;
     }
 
     public void OnDamage(float damage)
@@ -43,6 +43,10 @@ public class EnemyEntity : MonoBehaviour
         currentHealth -= actualDamage;
         
         //UI 표시용(체력바 등 나중에 구현)
+        if (healthBar != null)
+        {
+            healthBar.UpdateHealth(currentHealth, enemyData.MaxHealth);
+        }
         Debug.Log($"{enemyData.EntityName}피격! 남은 체력: {currentHealth}");
         //(선택, 추가) 피격 효과음이나 이펙트 재생 위치
         //SoundManager.Instance.PlayHurtSound();

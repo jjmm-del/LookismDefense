@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
 using System.Collections.Generic;
+using Screen = UnityEngine.Screen;
+
 public class RTSController : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
@@ -115,7 +117,8 @@ public class RTSController : MonoBehaviour
                 ClearSelection(); // 기존 선택 해제
 				selectedUnits.Add(unit);
             	Debug.Log($"{unit.Data.EntityName}선택됨");
-			}
+                UIManager.Instance.ShowUnitInfo(unit.Data);
+            }
         }
         else if (Physics.Raycast(ray, out hit, 100f, enemyLayer))
         {
@@ -125,11 +128,13 @@ public class RTSController : MonoBehaviour
                 ClearSelection();
                 selectedEnemy = enemy;
                 Debug.Log($"적 유닛{enemy.Data.EntityName} 선택됨");
+                UIManager.Instance.ShowEnemyInfo(enemy.Data, enemy.CurrentHealth);
             }
         }
         else
         {
             ClearSelection();
+            UIManager.Instance.HideInfoPanel();
         }
     }
 

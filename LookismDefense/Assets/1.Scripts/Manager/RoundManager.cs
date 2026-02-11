@@ -34,6 +34,8 @@ public class RoundManager : MonoBehaviour
                 StartNextRound();
             }
         }
+
+        UIManager.Instance.UpdateRoundTime(roundTimer);
     }
 
     private void StartNextRound()
@@ -57,6 +59,7 @@ public class RoundManager : MonoBehaviour
         //WaveManager에게 현재 라운드에 맞는 적 소환 요청
         //(WaveManager의 SpawnWaveRoutine을 수정하건, 여기서 직접 함수를 호출해야 함
         waveManager.StartWave(currentRound);
+        UIManager.Instance.UpdateWaveName(currentRound.ToString());
         
         //특정 라운드(예: 10, 20, 30, ...)는 보스 라운드 처리
         if (currentRound % 10 == 0)
