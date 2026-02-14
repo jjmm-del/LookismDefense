@@ -12,6 +12,10 @@ public class GameManager : MonoBehaviour
     private DifficultyData currentDifficulty;
     public DifficultyData CurrentDifficulty => currentDifficulty;
     
+    //플레이어 소유 유닛 리스트
+    private List<UnitEntity> playerUnits = new List<UnitEntity>();
+    public List<UnitEntity> PlayerUnits => playerUnits; //외부(조합 매니저 등) 에서 접근용
+    
     //현재 필드에 존재하는 적 리스트(라인사 체크용)
     private List<EnemyEntity> activeEnemies = new List<EnemyEntity>();
     
@@ -74,6 +78,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void RegisterUnit(UnitEntity unit)
+    {
+        if (!playerUnits.Contains(unit))
+        {
+            playerUnits.Add(unit);
+        }
+    }
+
+    public void UnregisterUnit(UnitEntity unit)
+    {
+        if (playerUnits.Contains(unit))
+        {
+            playerUnits.Remove(unit);
+        }
+    }
+    
+    
+    
     // --- 1. 라인사 관리(유닛 등록/해제) ---
     public void RegisterEnemy(EnemyEntity enemy)
     {
@@ -99,7 +121,7 @@ public class GameManager : MonoBehaviour
             BossDeafeated();
         }
     }
-
+    
     // --- 2. 스토리사 관련 ---
     public void CheckStoryCondition(int currentRound)
     {

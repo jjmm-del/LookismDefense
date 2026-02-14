@@ -48,6 +48,16 @@ public class UnitEntity : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        //태어날 때 게임매니저에 나를 등록
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterUnit(this);
+            Debug.Log($"{this.unitData.name} 등록");
+        }
+    }
+    
     private void Update()
     {
         switch (currentState)
@@ -232,6 +242,13 @@ public class UnitEntity : MonoBehaviour
     {
         currentAttackSpeed += amount;
     }
-    
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UnregisterUnit(this);
+        }
+    }
 }
 

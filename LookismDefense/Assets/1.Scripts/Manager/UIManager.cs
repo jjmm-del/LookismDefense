@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attackSpeedText;
     [SerializeField] private Image portraitImage; // 유닛 초상화 (나중에 추가)
 
+    [SerializeField] private Transform recipeContents; // ScrollView의 Content
+    [SerializeField] private GameObject recipeButtonPrefab; //위에서 만든 버튼 프리팹
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -61,11 +64,13 @@ public class UIManager : MonoBehaviour
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitData data)
     {
+        UpdateRecipeList(data);
         unitInfoPanel.SetActive(true);
         nameText.text = data.EntityName;
         damageText.text = $"DMG:{data.AttackDamage}";
         attackSpeedText.text = $"ASP:{data.AttackSpeed}";
         //portraitImage.sprite = data.Icon; //아이콘이 있다면
+        
     }
 
     public void ShowEnemyInfo(EnemyData data, float currentHp)
@@ -79,5 +84,24 @@ public class UIManager : MonoBehaviour
     public void HideInfoPanel()
     {
         unitInfoPanel.SetActive(false);
+    }
+
+    public void UpdateRecipeList(UnitData unit)
+    {
+        // 1. 기존 버튼 싹 지우기
+        foreach (Transform child in recipeContents)
+        {
+            Destroy(child.gameObject);
+        }
+        // 2. 이 유닛과 관련된 레시피 가져오기
+        List<CombinationRecipe> recipes = CombinationManager.Instance.GetRecipesForUnit(unit);
+        
+        // 3. 버튼 생성하기
+        foreach (CombinationRecipe recipe in recipes)
+        {
+            GameObject buttonObj = Instantiate(recipeButtonPrefab, recipeContents);
+            buttonObj.GetComponent<RecipeButtonUI>().Setup(recipe);
+
+        }
     }
 }

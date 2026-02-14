@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
 using System.Collections.Generic;
-using Screen = UnityEngine.Screen;
+using UnityEngine.EventSystems;
 
 public class RTSController : MonoBehaviour
 {
@@ -22,18 +22,7 @@ public class RTSController : MonoBehaviour
 
     // 공격 명령 대기 상태 (A키 누르면 true)
     private bool isAttackCommandPending = false;
-
-    private void Update()
-    {
-        if (Keyboard.current.cKey.wasPressedThisFrame)
-        {
-            if (selectedUnits.Count == 2 && combinationManager != null)
-            {
-                combinationManager.TryCombine(selectedUnits);
-            }
-        }
-    }
-
+    
     public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -63,6 +52,7 @@ public class RTSController : MonoBehaviour
     
     public void OnSelect(InputAction.CallbackContext context)
     {
+        if (EventSystem.current.IsPointerOverGameObject()) return;
         if (context.started)
         {
             startMousePosition = Mouse.current.position.ReadValue();
@@ -85,6 +75,8 @@ public class RTSController : MonoBehaviour
     
     public void OnSmartCommand(InputAction.CallbackContext context)
     {
+        if (EventSystem.current.IsPointerOverGameObject()) return;
+        
         if (context.performed && selectedUnits.Count > 0)
         {
             isAttackCommandPending = false;
