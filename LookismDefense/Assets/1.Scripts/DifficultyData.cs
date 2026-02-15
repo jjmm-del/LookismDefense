@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName= "DifficultySettings", menuName = "LookismDefense/DifficultySettings")]
+[CreateAssetMenu(menuName = "LookismDefense/DifficultySettings")]
 public class DifficultyData : ScriptableObject
 {
     [Header("Game Over Conditions")]
