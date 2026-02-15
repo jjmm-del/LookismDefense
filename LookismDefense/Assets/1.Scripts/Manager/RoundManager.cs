@@ -4,7 +4,8 @@ public class RoundManager : MonoBehaviour
 {
     [Header("Round Settings")]
     [SerializeField] private float roundDuration = 60f; //한 라운드 시간
-    [SerializeField] private int maxRounds = 50; //전체 라운드 수 -> 난이도 별 라운드 수 수정 예정
+
+    private int maxRounds;
     
     [Header("References")]
     [SerializeField] private WaveManager waveManager;
@@ -15,6 +16,18 @@ public class RoundManager : MonoBehaviour
     
     private void Start()
     {
+        if(GameManager.Instance != null && GameManager.Instance.CurrentDifficulty != null)
+        {
+            maxRounds = GameManager.Instance.CurrentDifficulty.MaxRounds;
+            Debug.Log($"현재 난이도 설정에 따라 {maxRounds}라운드로 설정 되었습니다.");
+        }
+        else
+        {
+            maxRounds = 50; //난이도 데이터가 없을 경우 기본값
+            Debug.LogWarning("난이도 데이터를 불러 올 수 없어 기본 50라운드로 설정");
+        }
+        
+        
         //게임 시작 시 1라운드 시작
         StartNextRound();
     }
@@ -29,13 +42,20 @@ public class RoundManager : MonoBehaviour
             roundTimer -= Time.deltaTime;
             
             //시간이 다 되면 다음 라운드
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateRoundTime(roundTimer);
+            }
+            
+            
             if (roundTimer <= 0)
             {
                 StartNextRound();
             }
+            
         }
 
-        UIManager.Instance.UpdateRoundTime(roundTimer);
+        
     }
 
     private void StartNextRound()

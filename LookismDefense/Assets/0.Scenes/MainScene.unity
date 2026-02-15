@@ -951,8 +951,8 @@ MonoBehaviour:
   spawnAreaCenter: {fileID: 1499065471}
   spawnAreaSize: {x: 5, y: 5}
   tier1Units:
-  - {fileID: 11400000, guid: c03a01b307339274bbe9d1529f172992, type: 2}
-  - {fileID: 11400000, guid: eca6151845a9ba242b7a01e59114102e, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!4 &146023912
 Transform:
   m_ObjectHideFlags: 0
@@ -2862,7 +2862,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundManager
   roundDuration: 60
-  maxRounds: 50
   waveManager: {fileID: 1765106971}
 --- !u!4 &661533865
 Transform:
@@ -3583,7 +3582,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombinationManager
   allRecipes:
-  - {fileID: 11400000, guid: f805205bc393292418daddcf665de8fa, type: 2}
+  - {fileID: 0}
 --- !u!4 &967354940
 Transform:
   m_ObjectHideFlags: 0
@@ -4574,7 +4573,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   difficultyPresets:
-  - {fileID: 11400000, guid: 9a1755acf9f9d9e4883d21008cc11e28, type: 2}
+  - {fileID: 0}
 --- !u!4 &1262867978
 Transform:
   m_ObjectHideFlags: 0
@@ -6019,7 +6018,7 @@ MonoBehaviour:
   spawnPoint: {fileID: 2137532832}
   waves:
   - waveName: 1
-    enemyData: {fileID: 11400000, guid: 4d3a79d7cafc75842801bfe2362f2229, type: 2}
+    enemyData: {fileID: 0}
     count: 40
     spawnInterval: 1
 --- !u!4 &1765106972
