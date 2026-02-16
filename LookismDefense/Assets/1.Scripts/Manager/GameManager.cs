@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public enum CurrencyType
 {
@@ -9,7 +10,7 @@ public enum CurrencyType
     RandomSpecial,          //특별함 랜덤
     RandomRare,             //희귀함 랜덤
     RandomLegendary,        //전설적인 랜덤
-    SelectSpecialtyGoods,   //특수재화
+    SelectSpecialtyGoods   //특수재화
 }
 
 public class GameManager : MonoBehaviour
@@ -63,11 +64,16 @@ public class GameManager : MonoBehaviour
         {
             SetDifficulty(0);
         }
-
+        //1. 모든 재화 0으로 초기화
         foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)));
         {
             currencyRepository[type] = 0;
         }
+        // 2. 초기 자금 지급
+        AddCurrency(CurrencyType.Gold, startGold);
+        AddCurrency(CurrencyType.RandomCommon, startChoice);
+        //테스트용 선택권 지급
+        AddCurrency(CurrencyType.ChoiceCommon, 1);
     }
 
     private void Update()
@@ -141,8 +147,43 @@ public class GameManager : MonoBehaviour
             BossDeafeated();
         }
     }
+
+    //---재화 공동 관련 ---
+    // 1. 재화 개수 확인
+    public int GetCurrency(CurrencyType type)
+    {
+        return currencyRepository.ContainsKey(type) ? currencyRepository[type]:0;
+    }
+    // 2. 재화 획득
+    public void AddCurrency(CurrencyType type, int amount)
+    {
+        currencyRepository[type] += amount;
+
+        //UI갱신 (UIManager에 해당 함수 만들어서 연결)
+        //UIManager.Instance.UpdateCurrencyUI(type,currencyRepository[type]
+        Debug.Log($"{type} 획득: +{amount}(현재:{currencyRepository[type]})");
+    }
+    //3. 재화 사용
+    public void SpendCurrency(CurrencyType type, int amount)
+    {
+        if(GetCurrencyType(type)>= amount)
+        {
+            currencyRepository[type] -= amount;
+
+            //UI갱신
+            //UIManager.Instance.UpdateCurrencyUI
+            Debug.Log("재화 사용");
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+ 
+
     
-    // --- 2. 스토리사 관련 ---
+    // --- 스토리사 관련 ---
     public void CheckStoryCondition(int currentRound)
     {
         if (currentRound == 40)
