@@ -11,7 +11,8 @@ public class UnitSpawnManager : MonoBehaviour
     
     [Header("Gacha Data")]
     [SerializeField] private List<UnitData> tier1Units; //
-
+    [SerializeField] private List<UnitData> tier2Units; //
+    
     public void SpawnRandomUnit()
     {
         if (tier1Units.Count <= 0)

@@ -1,12 +1,30 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+public enum CurrencyType
+{
+    Gold,                   //골드
+    RandomCommon,           //흔함 랜덤
+    SelectCommon,           //흔함 선택
+    RandomSpecial,          //특별함 랜덤
+    RandomRare,             //희귀함 랜덤
+    RandomLegendary,        //전설적인 랜덤
+    SelectSpecialtyGoods,   //특수재화
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     
     [Header("Settings")]
     [SerializeField] private DifficultyData[] difficultyPresets; //에디터에서 Easy, Normal, Hard
+    
+    private Dictionary<CurrencyType, int> currencyRepository = new Dictionary<CurrencyType, int>();
+    // 게임 시스템 변수
+    [Header("Debug/Resources")]
+    [SerializeField] private int startGold = 10;   // 초기 골드 (난이도 별로 다르게 할 수도 있음)
+    [SerializeField] private int startChoice = 10; //랜덤 흔함
+    //public int CurrentGold => currentGold;
 
     //현재 적용된 난이도 (외부에서는 프로퍼티로 정보 가져간다)
     private DifficultyData currentDifficulty;
@@ -19,10 +37,7 @@ public class GameManager : MonoBehaviour
     //현재 필드에 존재하는 적 리스트(라인사 체크용)
     private List<EnemyEntity> activeEnemies = new List<EnemyEntity>();
     
-    // 게임 시스템 변수
-    private int currentGold = 100; // 초기 골드 (난이도 별로 다르게 할 수도 있음)
-    public int CurrentGold => currentGold;
-
+    
     //보스전 관련
     private bool isBossRound = false;
     private float bossTimer = 0f;
@@ -47,6 +62,11 @@ public class GameManager : MonoBehaviour
         if (difficultyPresets != null && difficultyPresets.Length > 0)
         {
             SetDifficulty(0);
+        }
+
+        foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)));
+        {
+            currencyRepository[type] = 0;
         }
     }
 

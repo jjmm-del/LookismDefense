@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ceed9a2cc930de40a2d96bd4257055b, type: 3}
   m_Name: "\uC548\uD754\uD568_\uCC44\uC6D0\uC11D"
   m_EditorClassIdentifier: Assembly-CSharp::CombinationRecipe
-  recipeName: 
+  recipeName: "\uC548\uD754\uD568_\uCC44\uC6D0\uC11D"
   ingredients:
-  - unit: {fileID: 0}
-    count: 0
-  resultUnit: {fileID: 0}
+  - unit: {fileID: 11400000, guid: 1801d37c2b50409479427469f0cc96bc, type: 2}
+    count: 1
+  - unit: {fileID: 11400000, guid: 2deb8f7e68971ce419a622f3e65dc604, type: 2}
+    count: 1
+  resultUnit: {fileID: 11400000, guid: f706b0d77ddc0e748864d43291e556eb, type: 2}

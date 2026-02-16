@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2688b2eee2dcbb843a620603c878db39, type: 3}
   m_Name: "1.\uC591\uC544\uCE58 \uC774\uC9C4\uC131"
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
-  entityName: 
-  moveSpeed: 0
-  prefab: {fileID: 0}
-  round: 0
+  entityName: "1. \uC591\uC544\uCE58 \uC774\uC9C4\uC131"
+  moveSpeed: 1
+  prefab: {fileID: 3465978985654731351, guid: 21b965aff3f05e740895b7fcbd812478, type: 3}
+  round: 1
   type: 0
-  maxHealth: 0
+  maxHealth: 100
   defense: 0
-  dropGold: 0
+  dropGold: 5
