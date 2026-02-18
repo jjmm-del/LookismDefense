@@ -6,7 +6,7 @@ public class CombinationManager : MonoBehaviour
 {
     public static CombinationManager Instance { get; private set; }
     [SerializeField] private List<CombinationRecipe> allRecipes;
-
+    [SerializeField] private Transform CombinationZone;
     //현재 플레이어가 보유한 유닛 리스트(GameManger 등에서 관리하는 리스트 참조)
     //여기서는 예시로 로컬 리스트를 사용한다고 가정
     // private List<UnitEntity> myUnits;
@@ -53,7 +53,7 @@ public class CombinationManager : MonoBehaviour
         ConsumeIngredients(recipe);
         
         // 3. 결과 유닛 생성
-        SpawnResultUnit(recipe.ResultUnit, Vector3.zero);
+        SpawnResultUnit(recipe.ResultUnit, CombinationZone.position);
     }
 
     private bool HasEnoughIngredients(CombinationRecipe recipe)

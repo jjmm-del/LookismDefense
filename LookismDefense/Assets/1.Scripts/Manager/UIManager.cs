@@ -26,7 +26,11 @@ public class UIManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
     }
-    
+
+    private void Start()
+    {
+        HideInfoPanel();
+    }
     //--- 상단 정보 갱신 ---
     public void UpdateRoundTime(float time)
     {

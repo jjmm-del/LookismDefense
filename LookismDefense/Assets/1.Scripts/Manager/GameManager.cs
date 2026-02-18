@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
 
 public enum CurrencyType
 {
@@ -10,7 +9,7 @@ public enum CurrencyType
     RandomSpecial,          //특별함 랜덤
     RandomRare,             //희귀함 랜덤
     RandomLegendary,        //전설적인 랜덤
-    SelectSpecialtyGoods   //특수재화
+    SelectSpecialtyGoods    //특수재화
 }
 
 public class GameManager : MonoBehaviour
@@ -23,7 +22,7 @@ public class GameManager : MonoBehaviour
     private Dictionary<CurrencyType, int> currencyRepository = new Dictionary<CurrencyType, int>();
     // 게임 시스템 변수
     [Header("Debug/Resources")]
-    [SerializeField] private int startGold = 10;   // 초기 골드 (난이도 별로 다르게 할 수도 있음)
+    [SerializeField] private int startGold = 500;   // 초기 골드 (난이도 별로 다르게 할 수도 있음)
     [SerializeField] private int startChoice = 10; //랜덤 흔함
     //public int CurrentGold => currentGold;
 
@@ -46,6 +45,7 @@ public class GameManager : MonoBehaviour
     //스토리 관련(예시:1단계부터 시작)
     private int currentStoryStep = 1;
     
+    
 
     private void Awake()
     {
@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviour
             SetDifficulty(0);
         }
         //1. 모든 재화 0으로 초기화
-        foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)));
+        foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)))
         {
             currencyRepository[type] = 0;
         }
@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour
         AddCurrency(CurrencyType.Gold, startGold);
         AddCurrency(CurrencyType.RandomCommon, startChoice);
         //테스트용 선택권 지급
-        AddCurrency(CurrencyType.ChoiceCommon, 1);
+        AddCurrency(CurrencyType.SelectCommon, 1);
     }
 
     private void Update()
@@ -89,7 +89,7 @@ public class GameManager : MonoBehaviour
                 TriggerGameOver("보스 제한 시간 초과!(보스사");
             }
         }
-        UIManager.Instance.UpdateGold(currentGold);
+        //UIManager.Instance.UpdateGold();
         UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
     }
 
@@ -152,7 +152,7 @@ public class GameManager : MonoBehaviour
     // 1. 재화 개수 확인
     public int GetCurrency(CurrencyType type)
     {
-        return currencyRepository.ContainsKey(type) ? currencyRepository[type]:0;
+        return currencyRepository.ContainsKey(type) ? currencyRepository[type] : 0;
     }
     // 2. 재화 획득
     public void AddCurrency(CurrencyType type, int amount)
@@ -164,9 +164,9 @@ public class GameManager : MonoBehaviour
         Debug.Log($"{type} 획득: +{amount}(현재:{currencyRepository[type]})");
     }
     //3. 재화 사용
-    public void SpendCurrency(CurrencyType type, int amount)
+    public bool SpendCurrency(CurrencyType type, int amount)
     {
-        if(GetCurrencyType(type)>= amount)
+        if(GetCurrency(type)>= amount)
         {
             currencyRepository[type] -= amount;
 
@@ -177,6 +177,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            Debug.Log($"[실패] {type}이 부족합니다");
             return false;
         }
     }
