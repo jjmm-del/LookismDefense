@@ -7,6 +7,7 @@ public class EnemyEntity : MonoBehaviour
     public EnemyData Data => enemyData;
 
     [SerializeField] private EnemyHealthBar healthBar;
+    [SerializeField] private GameObject selectionIndicator;
 
     private EnemyMovement movement;
     // 실시간 체력 관리
@@ -69,5 +70,13 @@ public class EnemyEntity : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    public void SetSelected(bool isSelected)
+    {
+        if (selectionIndicator != null)
+        {
+            selectionIndicator.SetActive(isSelected);
+        }
     }
 }

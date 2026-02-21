@@ -89,7 +89,7 @@ public class RTSController : MonoBehaviour
         selectedUnits.Clear();
         if (Vector2.Distance(startMousePosition, endMousePosition) < 10f)
         {
-            selectSingle(endMousePosition);
+            selectSingle();
         }
         else
         {
@@ -97,7 +97,7 @@ public class RTSController : MonoBehaviour
         }
     }
 
-    private void selectSingle(Vector2 screenPos)
+    private void selectSingle()
     {
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         RaycastHit hit;
@@ -108,6 +108,7 @@ public class RTSController : MonoBehaviour
             {
                 ClearSelection(); // 기존 선택 해제
 				selectedUnits.Add(unit);
+                unit.SetSelected(true);
             	Debug.Log($"{unit.Data.EntityName}선택됨");
                 UIManager.Instance.ShowUnitInfo(unit.Data);
             }
@@ -119,6 +120,7 @@ public class RTSController : MonoBehaviour
             {
                 ClearSelection();
                 selectedEnemy = enemy;
+                enemy.SetSelected(true);
                 Debug.Log($"적 유닛{enemy.Data.EntityName} 선택됨");
                 UIManager.Instance.ShowEnemyInfo(enemy.Data, enemy.CurrentHealth);
             }
@@ -132,6 +134,8 @@ public class RTSController : MonoBehaviour
 
     private void SelectMultipleUnits(Vector2 start, Vector2 end)
     {
+        ClearSelection();
+        
         //1. 드래그 박스의 크기와 위치 계산(어느 방향으로 드래그하든 사각형이 정상적으로 만들어 지도록 함)
         float minX = Mathf.Min(start.x, end.x);
         float minY = Mathf.Min(start.y, end.y);
@@ -157,6 +161,7 @@ public class RTSController : MonoBehaviour
             if (selectionRect.Contains(screenPosition))
             {
                 selectedUnits.Add(unit);
+                unit.SetSelected(true);
                 
                 //(선택 사항) 시각적 피드백: 유닛 발 밑에 선택 원 등을 켜주는 메서드 호출
                 //Unit.OnSelected();
@@ -239,9 +244,28 @@ public class RTSController : MonoBehaviour
 
     private void ClearSelection()
     {
+        // 리스트를 비우기 전에, 현재 담겨있는 모든 유닛의 원을 꺼줍니다.
+        foreach (UnitEntity unit in selectedUnits)
+        {
+            if (unit != null)
+            {
+                unit.SetSelected(false);
+            }
+        }
         selectedUnits.Clear();
+        
+        if (selectedEnemy != null)
+        {
+            selectedEnemy.SetSelected(false);
+        }
+
         selectedEnemy = null;
+        
         //(추가)UI 닫기 등 처리
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideInfoPanel();
+        }
     }
     
 }
