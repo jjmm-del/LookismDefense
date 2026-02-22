@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
-
+using System.Collections.Generic;
 public enum UnitState
 {
     Idle, // 대기( 사거리 내 적 자동 공격)
@@ -22,6 +22,7 @@ public class UnitEntity : MonoBehaviour
     [SerializeField] private GameObject selectionIndicator; //초록색 원
     
     private NavMeshAgent agent;
+    private AbilityController abilityController;
     private float lastAttackTime;
     private Transform currentTarget; //현재 공격 대상
 
@@ -36,21 +37,29 @@ public class UnitEntity : MonoBehaviour
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        abilityController = GetComponent<AbilityController>();
     }
     public void Initialize(UnitData data)
     {
+        // [초기화 ] 유닛 데이터
         unitData = data;
 
-        // [초기화] 생성시 유닛 데이터의 기본 스탯을 가져옴;
+        // [초기화] 생성시 유닛 데이터의 기본 스탯;
         currentAttackDamage = unitData.AttackDamage;
         currentAttackRange = unitData.AttackRange;
         currentAttackSpeed = unitData.AttackSpeed;
         
+        // [초기화] 이동속도
         if (agent != null)
         {
             agent.speed = unitData.MoveSpeed;
             // [중요] 멈추는 거리를 사거리보다 약간 짧게 설정하여 확실히 공격 범위 안에 들게함)
             
+        }
+        // [초기화] 유닛 특수능력
+        if (abilityController != null)
+        {
+            abilityController.Initialize(data.Abilities);
         }
     }
 
@@ -249,14 +258,27 @@ public class UnitEntity : MonoBehaviour
     {
         if (currentTarget == null) return;
         
-        // 2. 적의 컴포넌트를 가져와서 때림
+        // 업그레이드 적용 데미지 계산
+        float baseFinalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, unitData.Tier);
+        
+        // 공격할 타겟 리스트 만들기
+        List<EnemyEntity> targetToHit = new List<EnemyEntity>();
+        
+        
         EnemyEntity enemy = currentTarget.GetComponent<EnemyEntity>();
         if (enemy != null)
         {
-            // 데미지 공식 적용(업그레이드 포함)
-            float finalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, unitData.Tier);
-            //float finalDamage = currentAttackDamage; //임시
-            enemy.OnDamage(finalDamage);
+            
+            
+            // 특수능력 적용
+            float realFinalDamage = baseFinalDamage;
+            if (abilityController != null)
+            {
+                realFinalDamage = abilityController.ProcessOnHitAbilities(enemy, baseFinalDamage);
+            }
+            
+            //적에게 피해 입히기
+            enemy.OnDamage(realFinalDamage);
             
             //(선택, 추가) 이펙트, 타격음 추가
             //EffectManager.Instance.PlayHitEffect(currentTarget.Position);

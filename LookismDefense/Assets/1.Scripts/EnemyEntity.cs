@@ -12,6 +12,11 @@ public class EnemyEntity : MonoBehaviour
     private EnemyMovement movement;
     // 실시간 체력 관리
     private float currentHealth;
+    private float stunTimer = 0f;
+    private bool isStunned = false;
+    
+    
+    
     public float CurrentHealth => currentHealth;
     
     
@@ -21,6 +26,21 @@ public class EnemyEntity : MonoBehaviour
         movement = GetComponent<EnemyMovement>();
     }
 
+    private void Update()
+    {
+        if (isStunned)
+        {
+            stunTimer -= Time.deltaTime;
+            if (stunTimer <= 0)
+            {
+                isStunned = false;
+                if (movement != null)
+                {
+                    movement.ResumeMovement();
+                }
+            }
+        }
+    }
     //Spawner(WaveManager)가 적을 생성한 직후 호출하는 함수
     public void Setup(EnemyData data, Transform[] path)
     {
@@ -32,6 +52,20 @@ public class EnemyEntity : MonoBehaviour
         if (movement != null)
         {
             movement.Initialize(data.MoveSpeed, path);
+        }
+    }
+
+    public void ApplyStun(float duration)
+    {
+        //이미 스턴 중이라면 더 긴 시간으로 갱신
+        if (duration > stunTimer)
+        {
+            stunTimer = duration;
+            isStunned = true;
+            if (movement != null)
+            {
+                movement.StopMovement();
+            }
         }
     }
 

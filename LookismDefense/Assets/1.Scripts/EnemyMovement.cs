@@ -11,6 +11,9 @@ public class EnemyMovement : MonoBehaviour
     private int currentPointIndex = 0;
     private bool isInitialized = false;
 
+    //스턴 등으로 멈춰있는지 확인하는 변수
+    private bool isStopped = false;
+
     //초기화
     public void Initialize(float speed, Transform[] path)
     {
@@ -28,7 +31,7 @@ public class EnemyMovement : MonoBehaviour
 
     private void Update()
     {
-        if (!isInitialized || pathPoints == null) return;
+        if (!isInitialized || pathPoints == null || isStopped) return;
 
         MoveAlongPath();
     }
@@ -61,6 +64,25 @@ public class EnemyMovement : MonoBehaviour
                 currentPointIndex = 0;
             }
         }
-        
+    }
+    
+    // --- 외부 호출 함수(스턴, 이감) ---
+    // 이동 멈춤 (스턴)
+    public void StopMovement()
+    {
+        isStopped = true;
+    }
+
+    // 이동 재개 (스턴 풀림)
+    public void ResumeMovement()
+    {
+        isStopped = false;
+    }
+    
+    // 이감(느려짐)을 위한 속도 감소 함수
+    public void SetSpeedMultiplier(float multiplier)
+    {
+        // currentMoveSpeed = baseMoveSpeed * multiplier ;
+        // 이런식으로 확장
     }
 }

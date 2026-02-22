@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System.Collections.Generic;
 public enum UnitTier
 {
     Common,         //흔함
@@ -22,9 +22,15 @@ public class UnitData : EntityData
     [SerializeField] private float attackDamage; //공격력
     [SerializeField] private int attackRange; //공격 사거리
     [SerializeField] private float attackSpeed; //공격속도
-
+    [SerializeField] private List<AbilityData> abilities;
+    
+    [Header("Attack Settings")]
+    [SerializeField] private int maxAttackTarget =1; //1이면 단일 3이면 3명 공격
+    
     public UnitTier Tier => tier;
     public float AttackDamage => attackDamage;
     public int AttackRange => attackRange;
     public float AttackSpeed => attackSpeed;
+    public List<AbilityData> Abilities => abilities;
+    public int MaxAttackTarget => maxAttackTarget;
 }
