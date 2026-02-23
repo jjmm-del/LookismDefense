@@ -25,12 +25,12 @@ public class UnitData : EntityData
     [SerializeField] private List<AbilityData> abilities;
     
     [Header("Attack Settings")]
-    [SerializeField] private int maxAttackTarget =1; //1이면 단일 3이면 3명 공격
+    [SerializeField] private int maxAttackTargets =1; //1이면 단일 3이면 3명 공격
     
     public UnitTier Tier => tier;
     public float AttackDamage => attackDamage;
     public int AttackRange => attackRange;
     public float AttackSpeed => attackSpeed;
     public List<AbilityData> Abilities => abilities;
-    public int MaxAttackTarget => maxAttackTarget;
+    public int MaxAttackTargets => maxAttackTargets;
 }

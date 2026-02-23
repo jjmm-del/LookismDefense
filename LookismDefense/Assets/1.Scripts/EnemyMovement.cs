@@ -11,6 +11,9 @@ public class EnemyMovement : MonoBehaviour
     private int currentPointIndex = 0;
     private bool isInitialized = false;
 
+    private float slowMultiplier = 1f;
+    private float slowTimer = 0f;
+    
     //스턴 등으로 멈춰있는지 확인하는 변수
     private bool isStopped = false;
 
@@ -33,6 +36,15 @@ public class EnemyMovement : MonoBehaviour
     {
         if (!isInitialized || pathPoints == null || isStopped) return;
 
+        // slow 타이머
+        if (slowMultiplier < 1f)
+        {
+            slowTimer -= Time.deltaTime;
+            if (slowTimer <= 0f)
+            {
+                slowMultiplier = 1f;
+            }
+        }
         MoveAlongPath();
     }
 
@@ -45,7 +57,7 @@ public class EnemyMovement : MonoBehaviour
         Vector3 direction = targetPoint.position - transform.position;
         
         //이동 (MoveTowards 사용)
-        transform.position = Vector3.MoveTowards(transform.position, targetPoint.position, currentMoveSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, targetPoint.position, currentMoveSpeed * slowMultiplier * Time.deltaTime);
         
         //회전(적이 진행방향을 보게함)
         if (direction != Vector3.zero)
@@ -80,9 +92,13 @@ public class EnemyMovement : MonoBehaviour
     }
     
     // 이감(느려짐)을 위한 속도 감소 함수
-    public void SetSpeedMultiplier(float multiplier)
+    public void ApplySlow(float slowPercent, float duration)
     {
-        // currentMoveSpeed = baseMoveSpeed * multiplier ;
-        // 이런식으로 확장
+        float multiplier = 1f - (slowPercent / 100f);
+        if (multiplier < slowMultiplier) ; //더 강한 둔화가 들어오면 갱신 -> 중첩 조건을 넣어야함
+        {
+            slowMultiplier = multiplier;
+        }
+        slowTimer = duration;
     }
 }

@@ -12,6 +12,9 @@ public class EnemyEntity : MonoBehaviour
     private EnemyMovement movement;
     // 실시간 체력 관리
     private float currentHealth;
+    private float currentDefense;
+    private float armorBreakTimer = 0f;
+    private bool isArmorBroken = false;
     private float stunTimer = 0f;
     private bool isStunned = false;
     
@@ -40,6 +43,16 @@ public class EnemyEntity : MonoBehaviour
                 }
             }
         }
+
+        if (isArmorBroken)
+        {
+            armorBreakTimer -= Time.deltaTime;
+            if (armorBreakTimer <= 0)
+            {
+                isArmorBroken = false;
+                currentDefense = enemyData.Defense;
+            }
+        }
     }
     //Spawner(WaveManager)가 적을 생성한 직후 호출하는 함수
     public void Setup(EnemyData data, Transform[] path)
@@ -47,6 +60,7 @@ public class EnemyEntity : MonoBehaviour
         this.enemyData = data;
 
         currentHealth = data.MaxHealth;
+        currentDefense = data.Defense;
         GameManager.Instance.RegisterEnemy(this);
         //enemyMovement에게 "이 속도로, 이 길을 따라가라"고 명령
         if (movement != null)
@@ -69,10 +83,35 @@ public class EnemyEntity : MonoBehaviour
         }
     }
 
+    public void ApplySlow(float slowPercent, float duration)
+    {
+        if (movement != null)
+        {
+            movement.ApplySlow(slowPercent, duration);
+        }
+    }
+
+    public void ApplyArmorBreak(float reduceAmount, float duration)
+    {
+        //이미 방깎이 걸려있을 때 갱신하거나 중첩하는 로직
+        //여기서는 가장 높은 방깎 수치로 덮어 씌우는 방식을 씁니다. -> 동일 캐릭이면 중첩안되지만 서로 다른종류 일때는 중첩하게
+        float targetDefense = enemyData.Defense - reduceAmount;
+        if (targetDefense < 0)
+        {
+            targetDefense = 0; //방어력이 마이너스가 되지않게 방어
+        }
+
+        if (targetDefense < currentDefense)
+        {
+            currentDefense = targetDefense;
+        }
+        armorBreakTimer = duration; // 지속시간 갱신
+        isArmorBroken = true;
+    }
     public void OnDamage(float damage)
     {
         //방어력 적용 공식
-        float actualDamage = damage * Mathf.Ceil(1 - enemyData.Defense / (100 + enemyData.Defense)); 
+        float actualDamage = damage * Mathf.Ceil(1 - currentDefense / (100 + currentDefense)); 
         if(actualDamage < 1) actualDamage = 1; //최소데미지 1 보장
 
         currentHealth -= actualDamage;

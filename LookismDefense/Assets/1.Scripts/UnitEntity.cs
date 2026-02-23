@@ -25,6 +25,11 @@ public class UnitEntity : MonoBehaviour
     private AbilityController abilityController;
     private float lastAttackTime;
     private Transform currentTarget; //현재 공격 대상
+    
+    private float buffDamageMultiplier = 1f;
+    private float buffSpeedMultiplier = 1f;
+    private float buffDamageTimer = 0f;
+    private float buffSpeedTimer = 0f;
 
     //스탯 ( 버프 적용 등을 위해 변수로 관리)
     private float currentAttackDamage;
@@ -59,7 +64,7 @@ public class UnitEntity : MonoBehaviour
         // [초기화] 유닛 특수능력
         if (abilityController != null)
         {
-            abilityController.Initialize(data.Abilities);
+            abilityController.Initialize(data.Abilities, this);
         }
     }
 
@@ -75,6 +80,27 @@ public class UnitEntity : MonoBehaviour
     
     private void Update()
     {
+        //버프 타이머 체크
+        if (buffDamageMultiplier > 1f)
+        {
+            buffDamageTimer -= Time.deltaTime;
+            if (buffDamageTimer <= 0)
+            {
+                buffDamageMultiplier = 1f;
+            }
+        }
+
+        if (buffSpeedMultiplier > 1f)
+        {
+            buffSpeedTimer -= Time.deltaTime;
+            if (buffSpeedTimer <= 0)
+            {
+                buffSpeedMultiplier = 1f;
+            }
+        }
+        
+        
+        
         // 1. 타겟 유효성 검사 (죽었거나 사라졌으면 null 처리)
         CheckTargetValidity();
         
@@ -245,7 +271,7 @@ public class UnitEntity : MonoBehaviour
 
     private void TryAttack()
     {
-        float attackCooldown = 1f / currentAttackSpeed;
+        float attackCooldown = 1f / (currentAttackSpeed * buffSpeedMultiplier);
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             PerformAttack();
@@ -259,30 +285,52 @@ public class UnitEntity : MonoBehaviour
         if (currentTarget == null) return;
         
         // 업그레이드 적용 데미지 계산
-        float baseFinalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, unitData.Tier);
+        float baseFinalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, unitData.Tier) * buffDamageMultiplier;
         
         // 공격할 타겟 리스트 만들기
-        List<EnemyEntity> targetToHit = new List<EnemyEntity>();
+        List<EnemyEntity> targetsToHit = new List<EnemyEntity>();
         
-        
-        EnemyEntity enemy = currentTarget.GetComponent<EnemyEntity>();
-        if (enemy != null)
+        EnemyEntity primaryEnemy = currentTarget.GetComponent<EnemyEntity>();
+        if (primaryEnemy != null)
         {
-            
-            
+            targetsToHit.Add(primaryEnemy);
+        }
+        
+        // 다중 공격 처리
+        if (unitData.MaxAttackTargets > 1)
+        {
+            Collider[] hits = Physics.OverlapSphere(transform.position, currentAttackRange, enemyLayer);
+            foreach (Collider hit in hits)
+            {
+                if (targetsToHit.Count >= unitData.MaxAttackTargets)
+                {
+                    break; // 최종 타겟 수 도달 시 종료
+                }
+
+                EnemyEntity otherEnemy = hit.GetComponent<EnemyEntity>();
+                if (otherEnemy != null && otherEnemy != primaryEnemy)
+                {
+                    targetsToHit.Add(otherEnemy);
+                }
+            }
+        }
+        
+        
+        foreach (EnemyEntity target in targetsToHit)
+        {
             // 특수능력 적용
             float realFinalDamage = baseFinalDamage;
             if (abilityController != null)
             {
-                realFinalDamage = abilityController.ProcessOnHitAbilities(enemy, baseFinalDamage);
+                realFinalDamage = abilityController.ProcessOnHitAbilities(target, baseFinalDamage);
             }
             
             //적에게 피해 입히기
-            enemy.OnDamage(realFinalDamage);
+            target.OnDamage(realFinalDamage);
             
             //(선택, 추가) 이펙트, 타격음 추가
             //EffectManager.Instance.PlayHitEffect(currentTarget.Position);
-            Debug.Log($"{unitData.EntityName}이 {enemy.Data.EntityName}을 공격!");
+            Debug.Log($"{unitData.EntityName}이 {target.Data.EntityName}을 공격!");
         }
     }
     // [UI] 선택 상태를 켜고 끄는 함수
@@ -355,10 +403,16 @@ public class UnitEntity : MonoBehaviour
         }
     }
 
-    // [추가 기능] 나중에 업그레이드 시스템에서 호출할 함수
-    public void ApplyAttackSpeedBuff(float amount)
+    public void ApplyAttackDamageBuff(float percent, float duration)
     {
-        currentAttackSpeed += amount;
+        buffDamageMultiplier = 1f + (percent / 100f);
+        buffDamageTimer = duration;
+    }
+    // [추가 기능] 나중에 업그레이드 시스템에서 호출할 함수
+    public void ApplyAttackSpeedBuff(float percent, float duration)
+    {
+        buffSpeedMultiplier = 1f + (percent / 100f);
+        buffSpeedTimer = duration;
     }
 
     private void OnDestroy()
