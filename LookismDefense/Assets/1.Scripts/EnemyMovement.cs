@@ -95,7 +95,7 @@ public class EnemyMovement : MonoBehaviour
     public void ApplySlow(float slowPercent, float duration)
     {
         float multiplier = 1f - (slowPercent / 100f);
-        if (multiplier < slowMultiplier) ; //더 강한 둔화가 들어오면 갱신 -> 중첩 조건을 넣어야함
+        if (multiplier < slowMultiplier) //더 강한 둔화가 들어오면 갱신 -> 중첩 조건을 넣어야함
         {
             slowMultiplier = multiplier;
         }

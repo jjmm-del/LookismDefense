@@ -21,7 +21,7 @@ public class WaveManager : MonoBehaviour
     [Header("Waves")] [SerializeField] private List<Wave> waves; //웨이브 목록 리스트
 
     private int currentWaveIndex = 0;
-    private bool isWaveInProgress;
+    //private bool isWaveInProgress;
 
     
     //게임 시작 시 호출
@@ -44,7 +44,7 @@ public class WaveManager : MonoBehaviour
     private IEnumerator SpawnWaveRoutine(Wave wave)
     {
         //준비된 웨이브 리스트 만큼 반복
-        isWaveInProgress = true;
+        //isWaveInProgress = true;
         Debug.Log($"{currentWaveIndex+1}웨이브 시작!{wave.waveName}");
 
         for (int i = 0; i < wave.count; i++)
@@ -53,7 +53,7 @@ public class WaveManager : MonoBehaviour
             //다음 적 생성 전 대기
             yield return new WaitForSeconds(wave.spawnInterval);
         } 
-        isWaveInProgress = false;
+        //isWaveInProgress = false;
         Debug.Log("모든 웨이브가 종료되었습니다.");
     }
 
