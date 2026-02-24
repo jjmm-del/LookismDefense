@@ -19,3 +19,5 @@ MonoBehaviour:
   attackDamage: 6
   attackRange: 6
   attackSpeed: 3
+  abilities: []
+  maxAttackTargets: 1

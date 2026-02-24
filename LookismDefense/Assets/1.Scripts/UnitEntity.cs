@@ -58,7 +58,6 @@ public class UnitEntity : MonoBehaviour
         if (agent != null)
         {
             agent.speed = unitData.MoveSpeed;
-            // [중요] 멈추는 거리를 사거리보다 약간 짧게 설정하여 확실히 공격 범위 안에 들게함)
             
         }
         // [초기화] 유닛 특수능력
@@ -139,15 +138,19 @@ public class UnitEntity : MonoBehaviour
 
     private void HandleMoveState()
     {
-        //남은 거리가 정지 거리보다 작거나,
-        // 길은 있는데 다른 유닛에 막혀서 거의 움직이지 못하고 있을 때(속도 0.1 미만) 도착 처리
+        //남은 거리가 정지 거리보다 작을 때 우선 정지
         if(!agent.pathPending)
         {
-            if (agent.remainingDistance <= agent.stoppingDistance || agent.velocity.sqrMagnitude < 0.1f)
+            if (agent.remainingDistance <= agent.stoppingDistance )
             {
                 agent.isStopped = true;
                 currentState = UnitState.Idle;
                 
+            }
+            else if (agent.remainingDistance <= 1.0f && agent.velocity.sqrMagnitude < 0.1f)
+            {
+                agent.isStopped = true;
+                currentState = UnitState.Idle;
             }
         }
     }
@@ -210,12 +213,13 @@ public class UnitEntity : MonoBehaviour
     {
         agent.stoppingDistance = Mathf.Max(0.5f, currentAttackRange * 0.9f);
         float distance = Vector3.Distance(transform.position, currentTarget.position);
-        
+        Vector3 lookPos = currentTarget.position;
+        lookPos.y = transform.position.y;
         // A. 사거리 안인가? -> 멈추고 공격
         if (distance <= currentAttackRange)
         {
             agent.isStopped = true; //이동 멈춤
-            transform.LookAt(currentTarget); //적 바라보기
+            transform.LookAt(lookPos); //적 바라보기
             TryAttack();
         }
         // B. 사거리 밖인가? 

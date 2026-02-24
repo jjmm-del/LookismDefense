@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
   entityName: "\uD76C\uADC0\uD568_\uBC15\uD615\uC11D"
   moveSpeed: 50
-  prefab: {fileID: 2429226078545084339, guid: 380195593bd7b9f4d86b86713dd8dbfc, type: 3}
+  prefab: {fileID: 2429226078545084339, guid: 3de64b8cca2587e40ab52295d2fc93bf, type: 3}
   tier: 3
   attackDamage: 300
   attackRange: 10
   attackSpeed: 3
+  abilities: []
+  maxAttackTargets: 1

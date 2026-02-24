@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.AI;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 
@@ -10,20 +9,31 @@ public class RTSController : MonoBehaviour
     [SerializeField] private LayerMask unitLayer;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask enemyLayer;
-    
+
     //임시로 조합매니저 추가
     [SerializeField] private CombinationManager combinationManager;
-    
+
     private List<UnitEntity> selectedUnits = new List<UnitEntity>(); // 선택된 유닛
     private EnemyEntity selectedEnemy; // 선택된 적 유닛(상태 확인용)
-    
+
     private Vector2 startMousePosition;
     private bool isDragging;
 
+    //현재 마우스가 UI 위에 있는지 확인하는 변수
+    private bool isPointerOverUI = false;
+
     // 공격 명령 대기 상태 (A키 누르면 true)
     private bool isAttackCommandPending = false;
-    
-    public void OnAttack(InputAction.CallbackContext context)
+
+    private void Update()
+    {
+        if (EventSystem.current != null)
+        {
+            isPointerOverUI = EventSystem.current.IsPointerOverGameObject();
+        }
+    }
+
+public void OnAttack(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
@@ -52,14 +62,21 @@ public class RTSController : MonoBehaviour
     
     public void OnSelect(InputAction.CallbackContext context)
     {
-        if (EventSystem.current.IsPointerOverGameObject()) return;
         if (context.started)
         {
+            if (isPointerOverUI)
+            {
+                return;
+            }
             startMousePosition = Mouse.current.position.ReadValue();
             isDragging = true;
         }
         else if (context.canceled)
         {
+            if (!isDragging)
+            {
+                return;
+            }
             isDragging = false;
             Vector2 mousePosition = Mouse.current.position.ReadValue();
 
@@ -75,10 +92,12 @@ public class RTSController : MonoBehaviour
     
     public void OnSmartCommand(InputAction.CallbackContext context)
     {
-        if (EventSystem.current.IsPointerOverGameObject()) return;
-        
         if (context.performed && selectedUnits.Count > 0)
         {
+            if (isPointerOverUI)
+            {
+                return;
+            }
             isAttackCommandPending = false;
             ExecuteSmartCommand();
         }
@@ -86,7 +105,7 @@ public class RTSController : MonoBehaviour
     
     private void PerformSelection(Vector2 endMousePosition)
     {
-        selectedUnits.Clear();
+        //selectedUnits.Clear();
         if (Vector2.Distance(startMousePosition, endMousePosition) < 10f)
         {
             selectSingle();

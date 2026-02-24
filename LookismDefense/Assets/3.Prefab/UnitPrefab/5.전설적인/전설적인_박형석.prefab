@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3389811868823216362}
   - component: {fileID: 5157206977674452203}
   - component: {fileID: 7363619955239055945}
+  - component: {fileID: -7123089275347501982}
   m_Layer: 6
   m_Name: "\uC804\uC124\uC801\uC778_\uBC15\uD615\uC11D"
   m_TagString: Untagged
@@ -154,3 +155,16 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  selectionIndicator: {fileID: 0}
+--- !u!114 &-7123089275347501982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2429226078545084339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2053c3235ba5074eb1210bb6bf773ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityController
