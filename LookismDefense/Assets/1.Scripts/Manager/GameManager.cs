@@ -69,6 +69,11 @@ public class GameManager : MonoBehaviour
         {
             currencyRepository[type] = 0;
         }
+        
+    }
+
+    private void Start()
+    {
         // 2. 초기 자금 지급
         AddCurrency(CurrencyType.Gold, startGold);
         AddCurrency(CurrencyType.RandomCommon, startChoice);
@@ -158,9 +163,7 @@ public class GameManager : MonoBehaviour
     public void AddCurrency(CurrencyType type, int amount)
     {
         currencyRepository[type] += amount;
-
-        //UI갱신 (UIManager에 해당 함수 만들어서 연결)
-        //UIManager.Instance.UpdateCurrencyUI(type,currencyRepository[type]
+        UIManager.Instance.OnResourceChanged?.Invoke();
         Debug.Log($"{type} 획득: +{amount}(현재:{currencyRepository[type]})");
     }
     //3. 재화 사용
@@ -170,8 +173,7 @@ public class GameManager : MonoBehaviour
         {
             currencyRepository[type] -= amount;
 
-            //UI갱신
-            //UIManager.Instance.UpdateCurrencyUI
+            UIManager.Instance.OnResourceChanged?.Invoke();
             Debug.Log("재화 사용");
             return true;
         }

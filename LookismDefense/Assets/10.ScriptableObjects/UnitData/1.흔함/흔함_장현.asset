@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a209c98d18c0fb48be8fc3c2b045920, type: 3}
   m_Name: "\uD754\uD568_\uC7A5\uD604"
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
-  entityName: "\uD754\uD568_\uBC15\uD615\uC11D"
+  entityName: "\uD754\uD568_\uC7A5"
   moveSpeed: 3
   prefab: {fileID: 2429226078545084339, guid: 3a274e64a1a785e47b2b06bb4e73cfd1, type: 3}
   tier: 0
   attackDamage: 10
   attackRange: 5
   attackSpeed: 2
+  abilities: []
+  maxAttackTargets: 1

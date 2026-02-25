@@ -17,17 +17,10 @@ public class SummonButtonUI : MonoBehaviour
         actionButton.onClick.AddListener(OnClick);
         
         //초기 UI 갱신
-        UpdateUI();
-        
-        //(선택) UI매니저나 게임 매니저 이벤트에 UpdateUI 등록하면 좋음
-        
-    }
+        UIManager.Instance.OnResourceChanged += UpdateUI;
 
-    private void Update()
-    {
-        //매 프레임 검사하지 않고 이벤트 방식으로 하는게 좋지만,
-        //편의상 여기서 갱신하거나, 패널이 열릴 때(OnEnable) 갱신하면 됩니다.
-        UpdateUI(); //임시
+        //(선택) UI매니저나 게임 매니저 이벤트에 UpdateUI 등록하면 좋음
+
     }
 
     private void OnEnable()
@@ -37,7 +30,12 @@ public class SummonButtonUI : MonoBehaviour
 
     public void UpdateUI()
     {
+        
         //1. 현재 재화 개수 가져오기
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
         int amount = GameManager.Instance.GetCurrency(targetCurrency);
         
         //2. 텍스트 갱신
@@ -65,5 +63,10 @@ public class SummonButtonUI : MonoBehaviour
         
         //사용 후 UI 갱신
         UpdateUI();
+    }
+
+    private void OnDestroy()
+    {
+        UIManager.Instance.OnResourceChanged -= UpdateUI;
     }
 }

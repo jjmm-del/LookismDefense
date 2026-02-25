@@ -91,4 +91,9 @@ public class UpgradeManager : MonoBehaviour
         if (upgradeMap.ContainsKey(tier)) return upgradeMap[tier];
         return null;
     }
+
+    public List<TierUpgradeData> GetAllUpgradeData()
+    {
+        return tierUpgrades;
+    }
 }

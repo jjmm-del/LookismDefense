@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+    public Action OnResourceChanged;
     
     [Header("Top Info Panel")]
     [SerializeField] private TextMeshProUGUI roundTimeText;
@@ -20,8 +22,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI attackSpeedText;
     [SerializeField] private Image portraitImage; // 유닛 초상화 (나중에 추가)
 
+    [Header("MainPanel")]
+    [SerializeField] private GameObject summonPanel;
+    [SerializeField] private GameObject upgradePanel;
+    
     [SerializeField] private Transform recipeContents; // ScrollView의 Content
     [SerializeField] private GameObject recipeButtonPrefab; //위에서 만든 버튼 프리팹
+    
+    
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -30,6 +38,11 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         HideInfoPanel();
+        //시작할 때 꺼두기
+        summonPanel.SetActive(false);
+        upgradePanel.SetActive(false);
+        OnResourceChanged += RefreshGoldUI;
+        RefreshGoldUI();
     }
     //--- 상단 정보 갱신 ---
     public void UpdateRoundTime(float time)
@@ -40,11 +53,20 @@ public class UIManager : MonoBehaviour
         roundTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
-    public void UpdateGold(int gold)
+    private void UpdateGold(int gold)
     {
         goldText.text = $"Gold: {gold}";
     }
 
+    private void RefreshGoldUI()
+    {
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
+        int currentGold = GameManager.Instance.GetCurrency(CurrencyType.Gold);
+        UpdateGold(currentGold);
+    }
     public void UpdateUnitCount(int current, int max)
     {
         unitCountText.text = $"Enemy: {current}/{max}";
@@ -107,5 +129,38 @@ public class UIManager : MonoBehaviour
             buttonObj.GetComponent<RecipeButtonUI>().Setup(recipe);
 
         }
+    }
+
+    public void ToggleSummonPanel()
+    {
+        bool isActive= summonPanel.activeSelf;
+        CloseAllPanels(); //다른 패널이 열려있다면 닫고 내 것을 연다
+        summonPanel.SetActive(!isActive);
+    }
+
+    public void ToggleUpgradePanel()
+    {
+        bool isActive = upgradePanel.activeSelf;
+        CloseAllPanels();
+        upgradePanel.SetActive(!isActive);
+    }
+
+    public void CloseAllPanels()
+    {
+        if (summonPanel != null)
+        {
+            summonPanel.SetActive(false);
+        }
+
+        if (upgradePanel != null)
+        {
+            upgradePanel.SetActive(false);
+        }
+        //unitInfoPanel.SetActive(false);
+    }
+
+    private void OnDestroy()
+    {
+        OnResourceChanged -= RefreshGoldUI;
     }
 }
