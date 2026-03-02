@@ -15,13 +15,20 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI unitCountText;
     [SerializeField] private TextMeshProUGUI waveNameText;
     
-    [Header("Bottom Unit Info Panel")]
+    [Header("Bottom Unit Info Panel(단일)")]
     [SerializeField] private GameObject unitInfoPanel; // 패널 전체 (켜고 끄기용)
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
     [SerializeField] private Image portraitImage; // 유닛 초상화 (나중에 추가)
 
+    [Header("Bottom Multi Unit Info Panel(다중)")]
+    [SerializeField] private GameObject multiUnitInfoPanel; //다중 선택 패널 전체
+    [SerializeField] private Transform multiUnitContents; //초상화들이 나열될 부모
+    [SerializeField] private GameObject multiUnitPortraitPrefab; //초상화 프리팹
+    
+    
+    
     [Header("MainPanel")]
     [SerializeField] private GameObject summonPanel;
     [SerializeField] private GameObject upgradePanel;
@@ -37,8 +44,8 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        HideInfoPanel();
         //시작할 때 꺼두기
+        HideInfoPanel();
         summonPanel.SetActive(false);
         upgradePanel.SetActive(false);
         OnResourceChanged += RefreshGoldUI;
@@ -91,6 +98,7 @@ public class UIManager : MonoBehaviour
     public void ShowUnitInfo(UnitData data)
     {
         UpdateRecipeList(data);
+        multiUnitInfoPanel.SetActive(false);
         unitInfoPanel.SetActive(true);
         nameText.text = data.EntityName;
         damageText.text = $"DMG:{data.AttackDamage}";
@@ -111,6 +119,43 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
+    {
+        unitInfoPanel.SetActive(false);
+        multiUnitInfoPanel.SetActive(true);
+        
+        // 기존 초상화 싹 지우기
+        foreach (Transform child in multiUnitContents)
+        {
+            Destroy(child.gameObject);
+        }
+        
+        Dictionary<UnitData, List<UnitEntity>> groupedUnits = new Dictionary<UnitData, List<UnitEntity>>();
+        foreach (UnitEntity unit in selectedUnits)
+        {
+            if (!groupedUnits.ContainsKey(unit.Data))
+            {
+                groupedUnits[unit.Data] = new List<UnitEntity>();
+            }
+            groupedUnits[unit.Data].Add(unit);
+        }
+        // 3. 종류별로 프리팹 찍어내기
+        foreach (var kvp in groupedUnits)
+        {
+            UnitData data = kvp.Key;
+            List<UnitEntity> unitList = kvp.Value;
+            
+            GameObject portraitObj = Instantiate(multiUnitPortraitPrefab, multiUnitContents);
+            MultiUnitPortraitUI portraitUI = portraitObj.GetComponent<MultiUnitPortraitUI>();
+            if (portraitUI != null)
+            {
+                // 생성할 때 넘겨받은 콜백을 함께 건내줌
+                portraitUI.Setup(data, unitList.Count, unitList[0], onPortraitClickCallback);
+            }
+            
+        }
+        
+    }
 
         
 
@@ -126,6 +171,7 @@ public class UIManager : MonoBehaviour
     public void HideInfoPanel()
     {
         unitInfoPanel.SetActive(false);
+        multiUnitInfoPanel.SetActive(false);
     }
 
     public void UpdateRecipeList(UnitData unit)

@@ -15,7 +15,7 @@ public enum CurrencyType
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    
+    public bool IsGameStarted { get; private set; } = false;
     [Header("Settings")]
     [SerializeField] private DifficultyData[] difficultyPresets; //에디터에서 Easy, Normal, Hard
     
@@ -58,12 +58,6 @@ public class GameManager : MonoBehaviour
             Destroy(this.gameObject);
         }
         
-        //[테스트 용] 게임 시작 시 자동으로 0번(easy) 난이도로 설정
-        // 나중에는 로비 씬에서 버튼 눌러서 선택하게 변경 가능
-        if (difficultyPresets != null && difficultyPresets.Length > 0)
-        {
-            SetDifficulty(0);
-        }
         //1. 모든 재화 0으로 초기화
         foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)))
         {
@@ -74,13 +68,39 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // 2. 초기 자금 지급
-        AddCurrency(CurrencyType.Gold, startGold);
-        AddCurrency(CurrencyType.RandomCommon, startChoice);
-        //테스트용 선택권 지급
-        AddCurrency(CurrencyType.SelectCommon, 1);
+        // // 2. 초기 자금 지급
+        // AddCurrency(CurrencyType.Gold, startGold);
+        // AddCurrency(CurrencyType.RandomCommon, startChoice);
+        // //테스트용 선택권 지급
+        // AddCurrency(CurrencyType.SelectCommon, 1);
     }
 
+    public void StartGame(int difficultyIndex)
+    {
+        if (IsGameStarted)
+        {
+            return;
+        }
+        
+        // [난이도 세팅]
+        SetDifficulty(difficultyIndex);
+        
+        // [초기 자금 지급]
+        AddCurrency(CurrencyType.Gold, startGold);
+        AddCurrency(CurrencyType.RandomCommon, startChoice);
+        AddCurrency(CurrencyType.SelectCommon, 1);
+        
+        // 게임 시작 플래그 ON
+        IsGameStarted = true;
+        Debug.Log($"[{difficultyPresets[difficultyIndex].name}] 난이도로 게임이 시작 되었습니다.");
+
+        if (RoundManager.Instance != null)
+        {
+            RoundManager.Instance.StartGameRounds();
+        }
+        
+
+    }
     private void Update()
     {
         //보스 라운드 일 때만 타이머 작동-> 수정 예정 모든 라운드 시간 체크 

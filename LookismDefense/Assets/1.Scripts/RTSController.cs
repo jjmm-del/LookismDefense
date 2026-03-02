@@ -105,7 +105,6 @@ public void OnAttack(InputAction.CallbackContext context)
     
     private void PerformSelection(Vector2 endMousePosition)
     {
-        //selectedUnits.Clear();
         if (Vector2.Distance(startMousePosition, endMousePosition) < 10f)
         {
             selectSingle();
@@ -187,10 +186,27 @@ public void OnAttack(InputAction.CallbackContext context)
             }
         }
         Debug.Log($"드래그로 {selectedUnits.Count}개의 유닛이 선택되었습니다.");
-        
+        // [추가] 선택된 유닛 수에 따른 UI 갱신 분기
+        if (selectedUnits.Count == 1)
+        {
+            //드래그로 1마리만 잡혔다면, 단일 유닛 클릭과 동일하게 정보창 띄우기
+            UIManager.Instance.ShowUnitInfo(selectedUnits[0].Data);
+        }
+        else if (selectedUnits.Count > 1)
+        {
+            // 여러 마리가 잡혔다면 , 다중 선택(초상화 모음) 창 띄우기
+            UIManager.Instance.ShowMultiUnitInfo(selectedUnits,SelectSingleUnitFromUI);
+        }
         
     }
 
+    public void SelectSingleUnitFromUI(UnitEntity unit)
+    {
+        ClearSelection();
+        selectedUnits.Add(unit);
+        unit.SetSelected(true);
+        UIManager.Instance.ShowUnitInfo(unit.Data);
+    }
 
     private void ExecuteAttackCommand(Vector2 screenPos)
     {

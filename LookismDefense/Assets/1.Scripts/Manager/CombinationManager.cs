@@ -29,9 +29,15 @@ public class CombinationManager : MonoBehaviour
 
         foreach (CombinationRecipe recipe in allRecipes)
         {
-            //이 레시피의 재료 중에 내가 선택한 유닛이 포함되어 있는가?
-            bool isRelated = recipe.Ingredients.Any(ing => ing.unit == unit);
-            if (isRelated)
+            // 방어 코드: 재료가 하나도 세팅되지 않은 레시피는 무시
+            if (recipe.Ingredients == null || recipe.Ingredients.Count == 0)
+            {
+                continue;
+            }
+            
+            //이 레시피의 재료 중에 첫번째 유닛이 내가 선택한 유닛인가?
+            
+            if (recipe.Ingredients[0].unit == unit)
             {
                 availableRecipes.Add(recipe);
             }

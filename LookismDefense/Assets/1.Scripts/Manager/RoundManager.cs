@@ -2,6 +2,9 @@ using UnityEngine;
 using TMPro;
 public class RoundManager : MonoBehaviour
 {
+    // 싱글턴으로 변경
+    public static RoundManager Instance { get; private set; }
+    
     [Header("Round Settings")]
     [SerializeField] private float roundDuration = 60f; //한 라운드 시간
 
@@ -13,8 +16,19 @@ public class RoundManager : MonoBehaviour
     private int currentRound = 0;
     private float roundTimer = 0f;
     private bool isGameRunning = true;
-    
-    private void Start()
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    public void StartGameRounds()
     {
         if(GameManager.Instance != null && GameManager.Instance.CurrentDifficulty != null)
         {
@@ -27,7 +41,7 @@ public class RoundManager : MonoBehaviour
             Debug.LogWarning("난이도 데이터를 불러 올 수 없어 기본 50라운드로 설정");
         }
         
-        
+        isGameRunning = true;
         //게임 시작 시 1라운드 시작
         StartNextRound();
     }
