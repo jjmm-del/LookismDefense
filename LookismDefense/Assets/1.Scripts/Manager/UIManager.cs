@@ -95,9 +95,25 @@ public class UIManager : MonoBehaviour
         nameText.text = data.EntityName;
         damageText.text = $"DMG:{data.AttackDamage}";
         attackSpeedText.text = $"ASP:{data.AttackSpeed}";
-        //portraitImage.sprite = data.Icon; //아이콘이 있다면
-        
+        if (portraitImage != null)
+        {
+            if (data.PortraitIcon != null)
+            {
+                portraitImage.sprite = data.PortraitIcon;
+                portraitImage.gameObject.SetActive(true);
+            }
+            else
+            {
+
+                // 아직 초상화가 안 들어간 유닛을 위해 임시로 꺼두기 
+                portraitImage.gameObject.SetActive(false);
+            }
+        }
     }
+
+
+        
+
 
     public void ShowEnemyInfo(EnemyData data, float currentHp)
     {

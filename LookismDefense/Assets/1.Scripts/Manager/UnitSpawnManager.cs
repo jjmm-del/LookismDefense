@@ -73,8 +73,10 @@ public class UnitSpawnManager : MonoBehaviour
         //재화 차감 시도
         if (GameManager.Instance.SpendCurrency(costType, costAmount))
         {
-            //SpawnUnitActual(unit);
-            //팝업 닫기 등
+            GameObject selectUnitObj = Instantiate(unit.Prefab, GetRandomPosition(), Quaternion.identity);
+            UnitEntity unitEntity = selectUnitObj.GetComponent<UnitEntity>();
+            if(unitEntity != null) unitEntity.Initialize(unit);
+            Debug.Log($"{unitEntity}유닛 선택소환 완료");
         }
         else
         {

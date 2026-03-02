@@ -15,7 +15,10 @@ MonoBehaviour:
   entityName: "\uC548\uD754\uD568_\uCC44\uC6D0\uC11D"
   moveSpeed: 5
   prefab: {fileID: 2429226078545084339, guid: 380195593bd7b9f4d86b86713dd8dbfc, type: 3}
+  portraitIcon: {fileID: 21300000, guid: 0ffc7cbe338d2e9498737957b07fcf11, type: 3}
   tier: 1
   attackDamage: 50
   attackRange: 10
   attackSpeed: 3
+  abilities: []
+  maxAttackTargets: 1

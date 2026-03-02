@@ -28,7 +28,7 @@ public class UnitSelectorUI : MonoBehaviour
             
             //버튼 택스트/이미지 설정(프리팹 구조에 따라 수정 필요)
             btnObj.GetComponentInChildren<TextMeshProUGUI>().text = unit.EntityName;
-            //btnObj.GetComponent<Image>().sprite = unit.Portrait
+            btnObj.GetComponent<Image>().sprite = unit.PortraitIcon;
             
             //3. 버튼 클릭 시 "이 유닛 소환해줘"라고 매니저에게 요청
             Button btn = btnObj.GetComponent<Button>();

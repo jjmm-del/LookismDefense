@@ -187,6 +187,8 @@ public void OnAttack(InputAction.CallbackContext context)
             }
         }
         Debug.Log($"드래그로 {selectedUnits.Count}개의 유닛이 선택되었습니다.");
+        
+        
     }
 
 

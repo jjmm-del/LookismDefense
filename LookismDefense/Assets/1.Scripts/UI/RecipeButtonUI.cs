@@ -22,6 +22,7 @@ public class RecipeButtonUI : MonoBehaviour
             ingredientString += $"{ingredient.unit.EntityName}({ingredient.count})";
         }
         ingredientsText.text = ingredientString;
+        resultImage.sprite = recipe.ResultUnit.PortraitIcon; 
         
         //버튼 클릭 시 조합 시도 연결
         combineButton.onClick.RemoveAllListeners();
