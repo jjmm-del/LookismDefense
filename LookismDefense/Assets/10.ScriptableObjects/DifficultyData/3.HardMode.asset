@@ -15,3 +15,4 @@ MonoBehaviour:
   maxUnitCountLimits: 0
   bossTimeLimit: 0
   storyLimit: 0
+  maxRounds: 0

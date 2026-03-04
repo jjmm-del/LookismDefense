@@ -9,6 +9,9 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
     public Action OnResourceChanged;
     
+    [Header("GameStart")]
+    [SerializeField] private GameObject difficultyPanel;
+    
     [Header("Top Info Panel")]
     [SerializeField] private TextMeshProUGUI roundTimeText;
     [SerializeField] private TextMeshProUGUI goldText;
@@ -27,11 +30,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Transform multiUnitContents; //초상화들이 나열될 부모
     [SerializeField] private GameObject multiUnitPortraitPrefab; //초상화 프리팹
     
-    
-    
     [Header("MainPanel")]
     [SerializeField] private GameObject summonPanel;
     [SerializeField] private GameObject upgradePanel;
+    
+    [Header("GameOver")]
+    [SerializeField] private GameObject gameOverPanel;
+    
     
     [SerializeField] private Transform recipeContents; // ScrollView의 Content
     [SerializeField] private GameObject recipeButtonPrefab; //위에서 만든 버튼 프리팹
@@ -46,9 +51,23 @@ public class UIManager : MonoBehaviour
     {
         //시작할 때 꺼두기
         HideInfoPanel();
-        summonPanel.SetActive(false);
-        upgradePanel.SetActive(false);
+        if (summonPanel != null)
+        {
+            summonPanel.SetActive(false);
+        }
+
+        if (upgradePanel != null)
+        {
+            upgradePanel.SetActive(false);
+        }
+        if (difficultyPanel != null)
+        {
+            difficultyPanel.SetActive(true);
+        }
+        
+        //이벤트 구독
         OnResourceChanged += RefreshGoldUI;
+        //GoldUI 업데이트
         RefreshGoldUI();
     }
     //--- 상단 정보 갱신 ---
@@ -76,7 +95,7 @@ public class UIManager : MonoBehaviour
     }
     public void UpdateUnitCount(int current, int max)
     {
-        unitCountText.text = $"Enemy: {current}/{max}";
+        unitCountText.text =$"{current}/{max}";
         
         //위험 수치면 빨간색으로 변경하는 연출 가능
         if (current >= max - 10)
@@ -157,9 +176,6 @@ public class UIManager : MonoBehaviour
         
     }
 
-        
-
-
     public void ShowEnemyInfo(EnemyData data, float currentHp)
     {
         unitInfoPanel.SetActive(true);
@@ -168,6 +184,15 @@ public class UIManager : MonoBehaviour
         attackSpeedText.text = $"HP:{currentHp}/{data.MaxHealth}";
     }
 
+    public void ShowGameOverPanel()
+    {
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+        }
+    }
+    
+    
     public void HideInfoPanel()
     {
         unitInfoPanel.SetActive(false);

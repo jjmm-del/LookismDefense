@@ -7,6 +7,7 @@ public class RoundManager : MonoBehaviour
     
     [Header("Round Settings")]
     [SerializeField] private float roundDuration = 60f; //한 라운드 시간
+    [SerializeField] private float gracePeriod = 10f; //게임 시작 시 여유 시간 10초
 
     private int maxRounds;
     
@@ -16,6 +17,7 @@ public class RoundManager : MonoBehaviour
     private int currentRound = 0;
     private float roundTimer = 0f;
     private bool isGameRunning = true;
+    private bool isGracePeriod = false;
 
     private void Awake()
     {
@@ -40,10 +42,16 @@ public class RoundManager : MonoBehaviour
             maxRounds = 50; //난이도 데이터가 없을 경우 기본값
             Debug.LogWarning("난이도 데이터를 불러 올 수 없어 기본 50라운드로 설정");
         }
-        
+
+        isGracePeriod = true;
+        roundTimer = gracePeriod;
         isGameRunning = true;
-        //게임 시작 시 1라운드 시작
-        StartNextRound();
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateWaveName("게임 시작 대기 중...");
+        }
+        
     }
 
     private void Update()
@@ -65,6 +73,15 @@ public class RoundManager : MonoBehaviour
             if (roundTimer <= 0)
             {
                 StartNextRound();
+                if (isGracePeriod)
+                {
+                    isGracePeriod = false;
+                    StartNextRound();
+                }
+                else
+                {
+                    StartNextRound();
+                }
             }
             
         }

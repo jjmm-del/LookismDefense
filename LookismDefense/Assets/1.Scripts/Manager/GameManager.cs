@@ -37,6 +37,9 @@ public class GameManager : MonoBehaviour
     //현재 필드에 존재하는 적 리스트(라인사 체크용)
     private List<EnemyEntity> activeEnemies = new List<EnemyEntity>();
     
+    // [신규] 외부(UI)에서 난이도 목록을 읽어갈 수 있게 열어주는 프로퍼티
+    public DifficultyData[] DifficultyPresets => difficultyPresets;
+    
     
     //보스전 관련
     private bool isBossRound = false;
@@ -68,11 +71,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // // 2. 초기 자금 지급
-        // AddCurrency(CurrencyType.Gold, startGold);
-        // AddCurrency(CurrencyType.RandomCommon, startChoice);
-        // //테스트용 선택권 지급
-        // AddCurrency(CurrencyType.SelectCommon, 1);
+        StartGame(SessionManager.SelectedDifficultyIndex);
     }
 
     public void StartGame(int difficultyIndex)
@@ -115,7 +114,6 @@ public class GameManager : MonoBehaviour
             }
         }
         //UIManager.Instance.UpdateGold();
-        UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
     }
 
     public void SetDifficulty(int index)
@@ -152,12 +150,14 @@ public class GameManager : MonoBehaviour
     {
         activeEnemies.Add(enemy);
 
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
+        }
         if (currentDifficulty!= null && activeEnemies.Count >= currentDifficulty.MaxUnitCountLimits)
         {
             TriggerGameOver($"라인 유닛 수 초과!({activeEnemies.Count}/{currentDifficulty.MaxUnitCountLimits})-라인사");
         }
-        
-        //UI 갱신 요청 나중에 구현
     }
 
     public void UnRegisterEnemy(EnemyEntity enemy)
@@ -166,10 +166,16 @@ public class GameManager : MonoBehaviour
         {
             activeEnemies.Remove(enemy);
         }
+        
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
+        }
+        
         //보스를 잡았을 경우 보스 라운드 종료
         if (enemy.Data.Type == EnemyType.Boss)
         {
-            BossDeafeated();
+            BossDefeated();
         }
     }
 
@@ -226,7 +232,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"보스 라운드 시작! {bossTimer}초 안에 잡으세요");
     }
 
-    private void BossDeafeated()
+    private void BossDefeated()
     {
         isBossRound = false;
         Debug.Log("보스 처치 성공!");
@@ -238,6 +244,12 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;//게임 정지
         
         //여기에 GameOverUI 팝업 띄우는 로직 추가
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowGameOverPanel();
+        }
+        
+        
     }
     
     

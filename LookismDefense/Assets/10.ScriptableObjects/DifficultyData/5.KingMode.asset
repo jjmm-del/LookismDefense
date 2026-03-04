@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0e878013a7d7ee49a4fac30c9ebc3b1, type: 3}
   m_Name: 5.KingMode
   m_EditorClassIdentifier: Assembly-CSharp::DifficultyData
-  maxUnitCountLimits: 0
-  bossTimeLimit: 0
-  storyLimit: 0
+  maxUnitCountLimits: 80
+  bossTimeLimit: 5
+  storyLimit: 7
+  maxRounds: 80
