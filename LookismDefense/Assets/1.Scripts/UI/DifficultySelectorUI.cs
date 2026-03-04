@@ -1,11 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI;
+using System.Collections.Generic;
 public class DifficultySelectorUI : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private Transform contentArea;
     [SerializeField] private GameObject difficultyButtonPrefab;
     
+    private List<DifficultyButtonUI> spawnedButtons = new List<DifficultyButtonUI>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -35,6 +36,7 @@ public class DifficultySelectorUI : MonoBehaviour
             if (btnUI != null)
             {
                 btnUI.Setup(presets[i],i,this);
+                spawnedButtons.Add(btnUI);
             }
         }
     }
@@ -46,5 +48,9 @@ public class DifficultySelectorUI : MonoBehaviour
             return;
         }
         LobbyManager.Instance.SelectDifficulty(index);
+        for (int i = 0; i < spawnedButtons.Count; i++)
+        {
+            spawnedButtons[i].SetHighlight(i == index);
+        }
     }
 }

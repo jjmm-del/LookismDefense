@@ -171,12 +171,6 @@ public class GameManager : MonoBehaviour
         {
             UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
         }
-        
-        //보스를 잡았을 경우 보스 라운드 종료
-        if (enemy.Data.Type == EnemyType.Boss)
-        {
-            BossDefeated();
-        }
     }
 
     //---재화 공동 관련 ---
@@ -223,7 +217,24 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    
+
+    //스토리 존 파괴했을 때 호출될 함수
+    public void AdvanceStory(List<RewardInfo> rewards)
+    {
+        currentStoryStep++;
+        
+        //보상 지급
+        foreach (RewardInfo reward in rewards)
+        {
+            AddCurrency(reward.currencyType, reward.amount);
+        }
+        
+        Debug.Log($"스토리 {currentStoryStep}단계 클리어! 보상 지급 완료!");
+        if (UIManager.Instance != null)
+        {
+            //화면 중앙에 "스토리 클리어! 보상 { 보상 종류 ,개수 }를 지급합니다 함수 연결
+        }
+    }
     // --- 3. 보스전 관리 ---
     public void StartBossRound()
     {
@@ -232,7 +243,7 @@ public class GameManager : MonoBehaviour
         Debug.Log($"보스 라운드 시작! {bossTimer}초 안에 잡으세요");
     }
 
-    private void BossDefeated()
+    public void BossDefeated()
     {
         isBossRound = false;
         Debug.Log("보스 처치 성공!");
@@ -248,8 +259,6 @@ public class GameManager : MonoBehaviour
         {
             UIManager.Instance.ShowGameOverPanel();
         }
-        
-        
     }
     
     

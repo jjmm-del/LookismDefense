@@ -5,6 +5,8 @@ public class DifficultyButtonUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private Button button;
+    
+    [SerializeField] private GameObject highlightObj;
 
     private int myDifficultyIndex; //내가 몇 번째 난이도인지 기억할 변수
     private DifficultySelectorUI parentUI; //나를 생성해준 부모 패널
@@ -20,10 +22,23 @@ public class DifficultyButtonUI : MonoBehaviour
         
         //버튼에 기능 주입
         button.onClick.AddListener(OnClickButton);
+        SetHighlight(false);
     }
 
     private void OnClickButton()
     {
         parentUI.OnDifficultySelected(myDifficultyIndex);
+    }
+
+    public void SetHighlight(bool isOn)
+    {
+        if (highlightObj != null)
+        {
+            highlightObj.SetActive(isOn);
+        }
+        else
+        {
+            button.image.color = isOn ? Color.white : Color.gray;
+        }
     }
 }

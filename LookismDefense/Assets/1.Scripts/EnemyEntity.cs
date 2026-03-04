@@ -61,7 +61,13 @@ public class EnemyEntity : MonoBehaviour
 
         currentHealth = data.MaxHealth;
         currentDefense = data.Defense;
-        GameManager.Instance.RegisterEnemy(this);
+        if (data.Type == EnemyType.Normal)
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.RegisterEnemy(this);
+            }
+        }
         //enemyMovement에게 "이 속도로, 이 길을 따라가라"고 명령
         if (movement != null)
         {
@@ -139,7 +145,21 @@ public class EnemyEntity : MonoBehaviour
         //매니저에게 죽었다고 알림
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.UnRegisterEnemy(this);
+            switch(Data.Type)
+            {
+                case EnemyType.Story:
+                    GameManager.Instance.AdvanceStory(Data.StoryRewards);
+                    break;
+                case EnemyType.Boss:
+                    GameManager.Instance.BossDefeated();
+                    break;
+                case EnemyType.Mission:
+                    //GameManager.Instance.ClearMission(int missionLevel, reward);
+                    break;
+                case EnemyType.Normal:
+                    GameManager.Instance.UnRegisterEnemy(this);
+                    break;
+            }
         }
 
         Destroy(gameObject);

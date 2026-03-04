@@ -71,8 +71,7 @@ public class RoundManager : MonoBehaviour
             
             
             if (roundTimer <= 0)
-            {
-                StartNextRound();
+            { 
                 if (isGracePeriod)
                 {
                     isGracePeriod = false;
