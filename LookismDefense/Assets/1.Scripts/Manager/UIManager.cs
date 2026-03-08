@@ -140,7 +140,7 @@ public class UIManager : MonoBehaviour
         UpdateRecipeList(data);
         multiUnitInfoPanel.SetActive(false);
         unitInfoPanel.SetActive(true);
-        nameText.text = data.EntityName;
+        nameText.text = SetUnitName(data);
         damageText.text = $"DMG:{data.AttackDamage}";
         attackSpeedText.text = $"ASP:{data.AttackSpeed}";
         if (portraitImage != null)
@@ -157,6 +157,21 @@ public class UIManager : MonoBehaviour
                 portraitImage.gameObject.SetActive(false);
             }
         }
+
+        foreach (Transform child in abilityIconContainer)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if (data.Abilities != null)
+        {
+            foreach (AbilityData ability in data.Abilities)
+            {
+                if (ability.abilityIcon!=null)
+                {
+                    GameObject iconObj = Instantiate(abilityIconPrefab, abilityIconContainer);
+                    Image iconImg = iconObj.GetComponent<Image>();
+                    iconImg.sprite = ability.abilityIcon;
                 }
             }
         }
@@ -242,6 +257,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void OnTeleportButtonClicked()
+    {
+        OnTeleportRequested?.Invoke();
+    }
+
     public void ToggleSummonPanel()
     {
         bool isActive= summonPanel.activeSelf;
@@ -269,7 +289,6 @@ public class UIManager : MonoBehaviour
         }
         //unitInfoPanel.SetActive(false);
     }
-
     
     private void OnDestroy()
     {
