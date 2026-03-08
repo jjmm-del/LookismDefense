@@ -55,12 +55,12 @@ public class EnemyEntity : MonoBehaviour
         }
     }
     //Spawner(WaveManager)가 적을 생성한 직후 호출하는 함수
-    public void Setup(EnemyData data, Transform[] path)
+    public void Setup(EnemyData data, Transform[] path = null)
     {
         this.enemyData = data;
-
         currentHealth = data.MaxHealth;
         currentDefense = data.Defense;
+        
         if (data.Type == EnemyType.Normal)
         {
             if (GameManager.Instance != null)
@@ -71,7 +71,16 @@ public class EnemyEntity : MonoBehaviour
         //enemyMovement에게 "이 속도로, 이 길을 따라가라"고 명령
         if (movement != null)
         {
-            movement.Initialize(data.MoveSpeed, path);
+            if (path != null && path.Length > 0)
+            {
+                movement.Initialize(data.MoveSpeed, path);
+            }
+            else
+            {
+                // [최적화] 스토리 유닛처럼 길(path)을 안 준 경우
+                // 어차피 안 움직일 테니 이동 컴포넌트를 아예 꺼버려서 연산량 아끼기
+                movement.enabled = false;
+            }
         }
     }
 
@@ -143,12 +152,12 @@ public class EnemyEntity : MonoBehaviour
         //GameManager.Instance.AddGold(enemyData.DropGold);
         
         //매니저에게 죽었다고 알림
-        if (GameManager.Instance != null)
+        if (GameManager.Instance != null && StoryManager.Instance != null)
         {
             switch(Data.Type)
             {
                 case EnemyType.Story:
-                    GameManager.Instance.AdvanceStory(Data.StoryRewards);
+                    StoryManager.Instance.AdvanceStory(Data.StoryRewards);
                     break;
                 case EnemyType.Boss:
                     GameManager.Instance.BossDefeated();

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a209c98d18c0fb48be8fc3c2b045920, type: 3}
   m_Name: "\uD754\uD568_\uBC15\uD615\uC11D"
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
-  entityName: "\uD754\uD568_\uBC15\uD615\uC11D"
+  entityName: "\uBC15\uD615\uC11D"
   moveSpeed: 3
   prefab: {fileID: 2429226078545084339, guid: 913073ed4b2c1ab4da8d2d46c4c0980e, type: 3}
   portraitIcon: {fileID: 21300000, guid: bd25cfbce2df24f4d8f5ae520f0c05cc, type: 3}
@@ -20,5 +20,21 @@ MonoBehaviour:
   attackDamage: 6
   attackRange: 6
   attackSpeed: 3
-  abilities: []
+  title: "\uB3FC\uC9C0"
+  abilities:
+  - {fileID: 11400000, guid: 366b52fcb0c591544a9fa2c0c42b2d1f, type: 2}
+  - {fileID: 11400000, guid: 466c759738be15640b1c5a528e9f8b56, type: 2}
+  - {fileID: 11400000, guid: fde73c417c4a2aa4ca60381f35403595, type: 2}
+  - {fileID: 11400000, guid: eaf5d1734269d94498f0fbf00aee0c1a, type: 2}
+  - {fileID: 11400000, guid: b83af0c3e7a56c6498d7744f1c79ec59, type: 2}
+  - {fileID: 11400000, guid: 19a1d32ef77808744ba0196a15e24a74, type: 2}
+  - {fileID: 11400000, guid: 0d1051bc441ceef429344e98dbd79a00, type: 2}
+  - {fileID: 11400000, guid: 47bbedab8d3190e49965d6daaf3f583d, type: 2}
+  - {fileID: 11400000, guid: a7722d9f4aa475f4db1b7fc3b5cd83d6, type: 2}
+  - {fileID: 11400000, guid: f1dda1b00ebc7f14894df18712900896, type: 2}
+  - {fileID: 11400000, guid: e0dbcc4017e744f498c0779f689c1adc, type: 2}
+  - {fileID: 11400000, guid: d004a55b78a525645b1f8d401000d888, type: 2}
+  - {fileID: 11400000, guid: 57c62c09b383dcc4380fc10d15bb42e7, type: 2}
+  - {fileID: 11400000, guid: 98db90e3feb33a64a83b0745e963acd0, type: 2}
+  - {fileID: 11400000, guid: f9f59b33c9cc02949a22622129acc0b4, type: 2}
   maxAttackTargets: 1

@@ -4,13 +4,16 @@ using TMPro;
 using System.Collections.Generic;
 using System;
 
+
+
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
     public Action OnResourceChanged;
+    public Action OnTeleportRequested; // 텔레포트 버튼 클릭 시 발생할 이벤트
     
-    [Header("GameStart")]
-    [SerializeField] private GameObject difficultyPanel;
+    //[Header("GameStart")]
+    //[SerializeField] private GameObject difficultyPanel;
     
     [Header("Top Info Panel")]
     [SerializeField] private TextMeshProUGUI roundTimeText;
@@ -24,6 +27,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
     [SerializeField] private Image portraitImage; // 유닛 초상화 (나중에 추가)
+    [SerializeField] private Transform abilityIconContainer;    //아이콘 콘테이너
+    [SerializeField] private GameObject abilityIconPrefab;      //아이콘 프리펩
+    
 
     [Header("Bottom Multi Unit Info Panel(다중)")]
     [SerializeField] private GameObject multiUnitInfoPanel; //다중 선택 패널 전체
@@ -37,14 +43,24 @@ public class UIManager : MonoBehaviour
     [Header("GameOver")]
     [SerializeField] private GameObject gameOverPanel;
     
+    [Header("Story")]
+    [SerializeField] private Button singleTeleportButton;
+    [SerializeField] private Button multiTeleportButton;
     
     [SerializeField] private Transform recipeContents; // ScrollView의 Content
     [SerializeField] private GameObject recipeButtonPrefab; //위에서 만든 버튼 프리팹
-    
-    
+    [SerializeField] private List<TierDisplayInfo> tierSettings;
+    private Dictionary<UnitTier, TierDisplayInfo> tierMap = new Dictionary<UnitTier, TierDisplayInfo>();
     private void Awake()
     {
         if (Instance == null) Instance = this;
+        foreach (var setting in tierSettings)
+        {
+            if (!tierMap.ContainsKey(setting.tier))
+            {
+                tierMap.Add(setting.tier, setting);
+            }
+        }
     }
 
     private void Start()
@@ -60,11 +76,16 @@ public class UIManager : MonoBehaviour
         {
             upgradePanel.SetActive(false);
         }
-        if (difficultyPanel != null)
+
+        if (singleTeleportButton != null)
         {
-            difficultyPanel.SetActive(true);
+            singleTeleportButton.onClick.AddListener(OnTeleportButtonClicked);
         }
-        
+
+        if (multiTeleportButton != null)
+        {
+            multiTeleportButton.onClick.AddListener(OnTeleportButtonClicked);
+        }
         //이벤트 구독
         OnResourceChanged += RefreshGoldUI;
         //GoldUI 업데이트
@@ -134,6 +155,9 @@ public class UIManager : MonoBehaviour
 
                 // 아직 초상화가 안 들어간 유닛을 위해 임시로 꺼두기 
                 portraitImage.gameObject.SetActive(false);
+            }
+        }
+                }
             }
         }
     }
@@ -246,8 +270,24 @@ public class UIManager : MonoBehaviour
         //unitInfoPanel.SetActive(false);
     }
 
+    
     private void OnDestroy()
     {
         OnResourceChanged -= RefreshGoldUI;
+    }
+
+    private string SetUnitName(UnitData unit)
+    {
+        string tierName = unit.Tier.ToString();
+        string colorHex = "FFFFFF"; //기본 색상
+
+        if (tierMap.TryGetValue(unit.Tier, out TierDisplayInfo info))
+        {
+            tierName = info.displayName;
+            colorHex = ColorUtility.ToHtmlStringRGB(info.textColor);
+        }
+
+        string titleStr = string.IsNullOrEmpty(unit.Title) ? "" : $"[{unit.Title}]";
+        return $"<color=#{colorHex}>{titleStr}{unit.EntityName} - {tierName}</color>";
     }
 }

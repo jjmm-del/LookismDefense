@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d07b70f9d322514ea50991ef1f33ab1, type: 3}
+  m_Name: "\uC57C\uC131"
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityData
+  abilityName: "\uADF9\uBCF5\uC758 \uACBD\uC9C0"
+  abilityIcon: {fileID: -1889168414, guid: cf960308ff501a34f90a0b54d07c638c, type: 3}
+  triggerType: 0
+  targetType: 0
+  abilityType: 0
+  chance: 10
+  value: 1.5
+  duration: 0
+  radius: 0
+  tickRate: 1

@@ -25,6 +25,13 @@ public class RTSController : MonoBehaviour
     // 공격 명령 대기 상태 (A키 누르면 true)
     private bool isAttackCommandPending = false;
 
+    private void Start()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.OnTeleportRequested += TeleportSelectedUnits;
+        }
+    }
     private void Update()
     {
         if (EventSystem.current != null)
@@ -181,8 +188,6 @@ public void OnAttack(InputAction.CallbackContext context)
                 selectedUnits.Add(unit);
                 unit.SetSelected(true);
                 
-                //(선택 사항) 시각적 피드백: 유닛 발 밑에 선택 원 등을 켜주는 메서드 호출
-                //Unit.OnSelected();
             }
         }
         Debug.Log($"드래그로 {selectedUnits.Count}개의 유닛이 선택되었습니다.");
@@ -207,7 +212,6 @@ public void OnAttack(InputAction.CallbackContext context)
         unit.SetSelected(true);
         UIManager.Instance.ShowUnitInfo(unit.Data);
     }
-
     private void ExecuteAttackCommand(Vector2 screenPos)
     {
         Ray ray = mainCamera.ScreenPointToRay(screenPos);
@@ -279,6 +283,22 @@ public void OnAttack(InputAction.CallbackContext context)
         }
 	}
 
+    private void TeleportSelectedUnits()
+    {
+        if (StoryManager.Instance == null)
+        {
+            return;
+        }
+
+        Vector3 targetPos = StoryManager.Instance.StoryTeleportPosition;
+        foreach (UnitEntity unit in selectedUnits)
+        {
+            if (unit != null)
+            {
+                unit.ToggleZone(targetPos);
+            }
+        }
+    }
     private void ClearSelection()
     {
         // 리스트를 비우기 전에, 현재 담겨있는 모든 유닛의 원을 꺼줍니다.
@@ -304,5 +324,12 @@ public void OnAttack(InputAction.CallbackContext context)
             UIManager.Instance.HideInfoPanel();
         }
     }
-    
+
+    private void OnDisable()
+    {
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.OnTeleportRequested -= TeleportSelectedUnits;
+        }
+    }
 }

@@ -23,6 +23,7 @@ public class UnitData : EntityData
     [SerializeField] private float attackDamage; //공격력
     [SerializeField] private int attackRange; //공격 사거리
     [SerializeField] private float attackSpeed; //공격속도
+    [SerializeField] private string title; // 호칭
     [SerializeField] private List<AbilityData> abilities;
     
     [Header("Attack Settings")]
@@ -34,4 +35,5 @@ public class UnitData : EntityData
     public float AttackSpeed => attackSpeed;
     public List<AbilityData> Abilities => abilities;
     public int MaxAttackTargets => maxAttackTargets;
+    public string Title => title;
 }

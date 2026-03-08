@@ -26,7 +26,10 @@ public enum AbilityType
 [CreateAssetMenu(fileName = "New Ability", menuName = "LookismDefense/AbilityData")]
 public class AbilityData : ScriptableObject
 {
+    [Header("UI Settings")]
     public string abilityName;
+	public Sprite abilityIcon;
+
     public AbilityTrigger triggerType;
     public AbilityTargetType targetType;
     public AbilityType abilityType;

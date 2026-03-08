@@ -39,6 +39,10 @@ public class UnitEntity : MonoBehaviour
     //상태 관리 변수
     private UnitState currentState = UnitState.Idle;
     private Vector3 attackMoveDest; //어택땅 목적지 기억용
+    
+    // 순간이동 관련 변수
+    private Vector3 homePosition;
+    public bool IsInStoryZone { get; private set; } = false;
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -345,6 +349,7 @@ public class UnitEntity : MonoBehaviour
             selectionIndicator.SetActive(isSelected);
         }
     }
+    
 
     
     // --- 외부 명령 메서드 --
@@ -393,6 +398,28 @@ public class UnitEntity : MonoBehaviour
         currentState = UnitState.Idle;
         agent.isStopped = true;
         agent.ResetPath();
+        currentTarget = null;
+    }
+
+    public void ToggleZone(Vector3 storyZoneTargetPos)
+    {
+        if (IsInStoryZone)
+        {
+            // 1. 스토리존 -> 라인복귀
+            agent.Warp(homePosition);
+            IsInStoryZone = false;
+        }
+        else
+        {
+            // 2. 라인 -> 스토리존 이동
+            homePosition = transform.position; 
+            Vector3 ransomOffset = new Vector3(Random.Range(-1.5f, 1.5f), 0 , Random.Range(-1.5f, 1.5f));
+            agent.Warp(storyZoneTargetPos + ransomOffset);
+            agent.ResetPath();
+            IsInStoryZone = true;
+        }
+        // 순간이동 직후 타겟 초기화
+        currentState = UnitState.Idle;
         currentTarget = null;
     }
     
