@@ -10,10 +10,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
     public Action OnResourceChanged;
-    public Action OnTeleportRequested; // 텔레포트 버튼 클릭 시 발생할 이벤트
-    
-    //[Header("GameStart")]
-    //[SerializeField] private GameObject difficultyPanel;
+    public Action OnTeleportRequested; 
     
     [Header("Top Info Panel")]
     [SerializeField] private TextMeshProUGUI roundTimeText;
@@ -22,19 +19,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI waveNameText;
     
     [Header("Bottom Unit Info Panel(단일)")]
-    [SerializeField] private GameObject unitInfoPanel; // 패널 전체 (켜고 끄기용)
-    [SerializeField] private TextMeshProUGUI nameText;
-    [SerializeField] private TextMeshProUGUI damageText;
-    [SerializeField] private TextMeshProUGUI attackSpeedText;
-    [SerializeField] private Image portraitImage; // 유닛 초상화 (나중에 추가)
-    [SerializeField] private Transform abilityIconContainer;    //아이콘 콘테이너
-    [SerializeField] private GameObject abilityIconPrefab;      //아이콘 프리펩
+    [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
     
-
     [Header("Bottom Multi Unit Info Panel(다중)")]
-    [SerializeField] private GameObject multiUnitInfoPanel; //다중 선택 패널 전체
-    [SerializeField] private Transform multiUnitContents; //초상화들이 나열될 부모
-    [SerializeField] private GameObject multiUnitPortraitPrefab; //초상화 프리팹
+    [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
     
     [Header("MainPanel")]
     [SerializeField] private GameObject summonPanel;
@@ -47,20 +35,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button singleTeleportButton;
     [SerializeField] private Button multiTeleportButton;
     
-    [SerializeField] private Transform recipeContents; // ScrollView의 Content
-    [SerializeField] private GameObject recipeButtonPrefab; //위에서 만든 버튼 프리팹
-    [SerializeField] private List<TierDisplayInfo> tierSettings;
-    private Dictionary<UnitTier, TierDisplayInfo> tierMap = new Dictionary<UnitTier, TierDisplayInfo>();
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        foreach (var setting in tierSettings)
-        {
-            if (!tierMap.ContainsKey(setting.tier))
-            {
-                tierMap.Add(setting.tier, setting);
-            }
-        }
+        
     }
 
     private void Start()
@@ -135,94 +113,23 @@ public class UIManager : MonoBehaviour
     }
     
     // --- 하단 유닛 정보 갱신 ---
-    public void ShowUnitInfo(UnitData data)
+    public void ShowUnitInfo(UnitEntity unit)
     {
-        UpdateRecipeList(data);
-        multiUnitInfoPanel.SetActive(false);
-        unitInfoPanel.SetActive(true);
-        nameText.text = SetUnitName(data);
-        damageText.text = $"DMG:{data.AttackDamage}";
-        attackSpeedText.text = $"ASP:{data.AttackSpeed}";
-        if (portraitImage != null)
-        {
-            if (data.PortraitIcon != null)
-            {
-                portraitImage.sprite = data.PortraitIcon;
-                portraitImage.gameObject.SetActive(true);
-            }
-            else
-            {
-
-                // 아직 초상화가 안 들어간 유닛을 위해 임시로 꺼두기 
-                portraitImage.gameObject.SetActive(false);
-            }
-        }
-
-        foreach (Transform child in abilityIconContainer)
-        {
-            Destroy(child.gameObject);
-        }
-
-        if (data.Abilities != null)
-        {
-            foreach (AbilityData ability in data.Abilities)
-            {
-                if (ability.abilityIcon!=null)
-                {
-                    GameObject iconObj = Instantiate(abilityIconPrefab, abilityIconContainer);
-                    Image iconImg = iconObj.GetComponent<Image>();
-                    iconImg.sprite = ability.abilityIcon;
-                }
-            }
-        }
-    }
-
-    public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
-    {
-        unitInfoPanel.SetActive(false);
-        multiUnitInfoPanel.SetActive(true);
-        
-        // 기존 초상화 싹 지우기
-        foreach (Transform child in multiUnitContents)
-        {
-            Destroy(child.gameObject);
-        }
-        
-        Dictionary<UnitData, List<UnitEntity>> groupedUnits = new Dictionary<UnitData, List<UnitEntity>>();
-        foreach (UnitEntity unit in selectedUnits)
-        {
-            if (!groupedUnits.ContainsKey(unit.Data))
-            {
-                groupedUnits[unit.Data] = new List<UnitEntity>();
-            }
-            groupedUnits[unit.Data].Add(unit);
-        }
-        // 3. 종류별로 프리팹 찍어내기
-        foreach (var kvp in groupedUnits)
-        {
-            UnitData data = kvp.Key;
-            List<UnitEntity> unitList = kvp.Value;
-            
-            GameObject portraitObj = Instantiate(multiUnitPortraitPrefab, multiUnitContents);
-            MultiUnitPortraitUI portraitUI = portraitObj.GetComponent<MultiUnitPortraitUI>();
-            if (portraitUI != null)
-            {
-                // 생성할 때 넘겨받은 콜백을 함께 건내줌
-                portraitUI.Setup(data, unitList.Count, unitList[0], onPortraitClickCallback);
-            }
-            
-        }
-        
+        multiUnitInfoPanel.HideInfo();
+        singleUnitInfoPanel.ShowInfo(unit);
     }
 
     public void ShowEnemyInfo(EnemyData data, float currentHp)
     {
-        unitInfoPanel.SetActive(true);
-        nameText.text = data.EntityName;
-        damageText.text = "Enemy";
-        attackSpeedText.text = $"HP:{currentHp}/{data.MaxHealth}";
+        multiUnitInfoPanel.HideInfo();
+        singleUnitInfoPanel.ShowEnemyInfo(data, currentHp);
     }
 
+    public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
+    {
+        singleUnitInfoPanel.HideInfo();
+        multiUnitInfoPanel.ShowInfo(selectedUnits, onPortraitClickCallback);
+    }
     public void ShowGameOverPanel()
     {
         if (gameOverPanel != null)
@@ -234,29 +141,10 @@ public class UIManager : MonoBehaviour
     
     public void HideInfoPanel()
     {
-        unitInfoPanel.SetActive(false);
-        multiUnitInfoPanel.SetActive(false);
+        singleUnitInfoPanel.HideInfo();
+        multiUnitInfoPanel.HideInfo();
     }
-
-    public void UpdateRecipeList(UnitData unit)
-    {
-        // 1. 기존 버튼 싹 지우기
-        foreach (Transform child in recipeContents)
-        {
-            Destroy(child.gameObject);
-        }
-        // 2. 이 유닛과 관련된 레시피 가져오기
-        List<CombinationRecipe> recipes = CombinationManager.Instance.GetRecipesForUnit(unit);
-        
-        // 3. 버튼 생성하기
-        foreach (CombinationRecipe recipe in recipes)
-        {
-            GameObject buttonObj = Instantiate(recipeButtonPrefab, recipeContents);
-            buttonObj.GetComponent<RecipeButtonUI>().Setup(recipe);
-
-        }
-    }
-
+    
     public void OnTeleportButtonClicked()
     {
         OnTeleportRequested?.Invoke();
@@ -294,19 +182,5 @@ public class UIManager : MonoBehaviour
     {
         OnResourceChanged -= RefreshGoldUI;
     }
-
-    private string SetUnitName(UnitData unit)
-    {
-        string tierName = unit.Tier.ToString();
-        string colorHex = "FFFFFF"; //기본 색상
-
-        if (tierMap.TryGetValue(unit.Tier, out TierDisplayInfo info))
-        {
-            tierName = info.displayName;
-            colorHex = ColorUtility.ToHtmlStringRGB(info.textColor);
-        }
-
-        string titleStr = string.IsNullOrEmpty(unit.Title) ? "" : $"[{unit.Title}]";
-        return $"<color=#{colorHex}>{titleStr}{unit.EntityName} - {tierName}</color>";
-    }
+    
 }

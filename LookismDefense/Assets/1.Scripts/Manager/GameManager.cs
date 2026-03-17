@@ -249,6 +249,33 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.ShowGameOverPanel();
         }
     }
-    
+
+    public int GetSellValueByTier(UnitTier tier)
+    {
+        switch (tier)
+        {
+            case UnitTier.Common: return 10;
+            case UnitTier.Uncommon: return 30;
+            default: return 0;
+        }
+    }
+
+    public void SellUnit(UnitEntity unit)
+    {
+        if (unit == null || !playerUnits.Contains(unit)) return;
+
+        int sellPrice = GetSellValueByTier(unit.Data.Tier);
+        {
+            if (sellPrice > 0)
+            {
+                AddCurrency(CurrencyType.Gold, sellPrice);
+                Debug.Log($"{unit.Data.EntityName}판매 완료! +{sellPrice}G");
+            }
+        }
+        playerUnits.Remove(unit);
+
+        Destroy(unit.gameObject);
+        UIManager.Instance.HideInfoPanel();
+    }
     
 }

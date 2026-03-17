@@ -1,12 +1,13 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class TooltipManager : MonoBehaviour
 {
     public static TooltipManager Instance { get; private set; }
     [SerializeField] private GameObject tooltipPanel;
     [SerializeField] private TextMeshProUGUI tooltipText;
-    [SerializeField] private Vector3 offset = new Vector3(15f, -15f, 0f);
+    [SerializeField] private Vector2 offset = new Vector2(15f, 15f);
 
     private void Awake()
     {
@@ -21,7 +22,12 @@ public class TooltipManager : MonoBehaviour
     {
         if (tooltipPanel.activeSelf)
         {
-            transform.position = Input.mousePosition + offset;
+            if (Mouse.current != null)
+            {
+                Vector2 mousePos = Mouse.current.position.ReadValue();
+                tooltipPanel.transform.position = mousePos + offset;
+                
+            }
         }
     }
 

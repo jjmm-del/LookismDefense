@@ -135,7 +135,7 @@ public void OnAttack(InputAction.CallbackContext context)
 				selectedUnits.Add(unit);
                 unit.SetSelected(true);
             	Debug.Log($"{unit.Data.EntityName}선택됨");
-                UIManager.Instance.ShowUnitInfo(unit.Data);
+                UIManager.Instance.ShowUnitInfo(unit);
             }
         }
         else if (Physics.Raycast(ray, out hit, 100f, enemyLayer))
@@ -195,7 +195,7 @@ public void OnAttack(InputAction.CallbackContext context)
         if (selectedUnits.Count == 1)
         {
             //드래그로 1마리만 잡혔다면, 단일 유닛 클릭과 동일하게 정보창 띄우기
-            UIManager.Instance.ShowUnitInfo(selectedUnits[0].Data);
+            UIManager.Instance.ShowUnitInfo(selectedUnits[0]);
         }
         else if (selectedUnits.Count > 1)
         {
@@ -210,7 +210,7 @@ public void OnAttack(InputAction.CallbackContext context)
         ClearSelection();
         selectedUnits.Add(unit);
         unit.SetSelected(true);
-        UIManager.Instance.ShowUnitInfo(unit.Data);
+        UIManager.Instance.ShowUnitInfo(unit);
     }
     private void ExecuteAttackCommand(Vector2 screenPos)
     {
