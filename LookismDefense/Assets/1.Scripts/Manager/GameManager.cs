@@ -1,5 +1,7 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 public enum CurrencyType
 {
@@ -24,7 +26,8 @@ public class GameManager : MonoBehaviour
     [Header("Debug/Resources")]
     [SerializeField] private int startGold = 500;   // 초기 골드 (난이도 별로 다르게 할 수도 있음)
     [SerializeField] private int startChoice = 10; //랜덤 흔함
-    //public int CurrentGold => currentGold;
+
+    [SerializeField] private SellRewardSettings sellRewardSettings;
 
     //현재 적용된 난이도 (외부에서는 프로퍼티로 정보 가져간다)
     private DifficultyData currentDifficulty;
@@ -39,7 +42,9 @@ public class GameManager : MonoBehaviour
     
     // [신규] 외부(UI)에서 난이도 목록을 읽어갈 수 있게 열어주는 프로퍼티
     public DifficultyData[] DifficultyPresets => difficultyPresets;
-    
+
+    public Action<UnitEntity> OnUnitSold;
+
     
     //보스전 관련
     private bool isBossRound = false;
@@ -249,33 +254,47 @@ public class GameManager : MonoBehaviour
             UIManager.Instance.ShowGameOverPanel();
         }
     }
-
-    public int GetSellValueByTier(UnitTier tier)
+    
+    
+    [CanBeNull]
+    public List<SellRewardSettings.RewardItem> GetSellRewardInfo(UnitTier tier)
     {
-        switch (tier)
-        {
-            case UnitTier.Common: return 10;
-            case UnitTier.Uncommon: return 30;
-            default: return 0;
-        }
+        if (sellRewardSettings == null) return null;
+        return sellRewardSettings.GetRewards(tier);
     }
 
     public void SellUnit(UnitEntity unit)
     {
         if (unit == null || !playerUnits.Contains(unit)) return;
 
-        int sellPrice = GetSellValueByTier(unit.Data.Tier);
+        List<SellRewardSettings.RewardItem> rewardList = GetSellRewardInfo(unit.Data.Tier);
+
+        if (rewardList != null && rewardList.Count > 0) 
         {
-            if (sellPrice > 0)
+            foreach (var reward in rewardList)
             {
-                AddCurrency(CurrencyType.Gold, sellPrice);
-                Debug.Log($"{unit.Data.EntityName}판매 완료! +{sellPrice}G");
+                if (UnityEngine.Random.Range(0f, 100f) <= reward.chance)
+                {
+                    //확률 성공! 재화 지급
+                    AddCurrency(reward.rewardType, reward.amount);
+                    Debug.Log("판매성공");
+                }
+                else
+                {
+                    //확률 실패
+                    Debug.Log("판매 실패");
+                }
             }
         }
-        playerUnits.Remove(unit);
 
+        playerUnits.Remove(unit);
+        OnUnitSold?.Invoke(unit);
         Destroy(unit.gameObject);
-        UIManager.Instance.HideInfoPanel();
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.HideInfoPanel();
+        }
+
     }
     
 }

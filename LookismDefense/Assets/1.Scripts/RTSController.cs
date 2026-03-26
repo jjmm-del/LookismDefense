@@ -31,6 +31,11 @@ public class RTSController : MonoBehaviour
         {
             UIManager.Instance.OnTeleportRequested += TeleportSelectedUnits;
         }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnUnitSold += HandleUnitSold;
+        }
     }
     private void Update()
     {
@@ -325,11 +330,23 @@ public void OnAttack(InputAction.CallbackContext context)
         }
     }
 
+    private void HandleUnitSold(UnitEntity soldUnit)
+    {
+        if (selectedUnits.Contains(soldUnit))
+        {
+            selectedUnits.Remove(soldUnit);
+        }
+    }
     private void OnDisable()
     {
         if (UIManager.Instance != null)
         {
             UIManager.Instance.OnTeleportRequested -= TeleportSelectedUnits;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnUnitSold -= HandleUnitSold;
         }
     }
 }
