@@ -7,7 +7,16 @@
             "id": "df70fa95-8a34-4494-b137-73ab6b9c7d37",
             "actions": [
                 {
-                    "name": "Move",
+                    "name": "Select",
+                    "type": "Button",
+                    "id": "3331d83c-e331-4799-be7c-ec44c8f3d855",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SmartCommand",
                     "type": "Button",
                     "id": "351f2ccd-1f9f-44bf-9bec-d62ac5c5f408",
                     "expectedControlType": "",
@@ -16,9 +25,27 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Select",
+                    "name": "Attack",
                     "type": "Button",
-                    "id": "3331d83c-e331-4799-be7c-ec44c8f3d855",
+                    "id": "22c857fd-7c7d-4d5d-8bef-fda82121b708",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Stop",
+                    "type": "Button",
+                    "id": "acccb883-85c1-4770-8712-715b96a6ca85",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Hold",
+                    "type": "Button",
+                    "id": "83b809b9-8d04-4b55-a27f-b17ccaf7c998",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -33,7 +60,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "SmartCommand",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -45,6 +72,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "df939b2f-e7d6-4f44-884c-9595deeaa179",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a70a9a8e-bd88-4886-81c2-3fb1b6e42586",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Stop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "32e518d7-b78a-471c-9012-ef0078add468",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Hold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
