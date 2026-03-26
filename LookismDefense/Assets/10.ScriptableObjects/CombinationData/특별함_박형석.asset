@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ceed9a2cc930de40a2d96bd4257055b, type: 3}
+  m_Name: "\uD2B9\uBCC4\uD568_\uBC15\uD615\uC11D"
+  m_EditorClassIdentifier: Assembly-CSharp::CombinationRecipe
+  recipeName: "\uD2B9\uBCC4\uD568_\uBC15\uD615\uC11D"
+  ingredients:
+  - unit: {fileID: 11400000, guid: 1801d37c2b50409479427469f0cc96bc, type: 2}
+    count: 3
+  resultUnit: {fileID: 11400000, guid: 67b04507b46cf7640be076241ff8479a, type: 2}
