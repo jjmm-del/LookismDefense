@@ -33,7 +33,7 @@ public class UnitInfoPanelUI: MonoBehaviour
         new TierDisplayInfo { tier = UnitTier.Legendary, displayName = "전설적인", textColor = Color.orange }, // 주황색
         new TierDisplayInfo { tier = UnitTier.Hidden, displayName = "히든조합", textColor = Color.crimson}, // 보라색
         new TierDisplayInfo { tier = UnitTier.Changed, displayName = "변화된", textColor = Color.deepPink},
-        new TierDisplayInfo { tier = UnitTier.Transcendence, displayName = "초월함", textColor = Color.aquamarine},
+        new TierDisplayInfo { tier = UnitTier.Transcendence, displayName = "초월함", textColor = new Color(0.5f, 1f, 0.83f)},
         new TierDisplayInfo { tier = UnitTier.Immortal, displayName = "불멸의", textColor = Color.plum}, // 진한 빨간색
         new TierDisplayInfo { tier = UnitTier.Eternal, displayName = "영원함", textColor = Color.lightGoldenRod}, // 핑크색
         new TierDisplayInfo { tier = UnitTier.Limited, displayName = "제한됨", textColor = Color.firebrick }

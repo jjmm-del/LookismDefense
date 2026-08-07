@@ -10,7 +10,7 @@ public class UnitSpawnManager : MonoBehaviour
     [SerializeField] private Vector2 spawnAreaSize = new Vector2(5, 5); //생성 구역
     
     [Header("Gacha Data")]
-    public List<UnitData> CommonUnits; //
+    [SerializeField] private List<UnitData> CommonUnits; //
     [SerializeField] private List<UnitData> SpecialUnits; //
     [SerializeField] private List<UnitData> RareUnits; //
     [SerializeField] private List<UnitData> LegendaryUnits; //
@@ -24,20 +24,19 @@ public class UnitSpawnManager : MonoBehaviour
     public void SpawnRandomUnit(UnitTier tier)
     {
         // -- 순수 생성 로직 --
-        List<UnitData> targetList = null;
-        switch (tier)
-        {
-            case UnitTier.Common: targetList = CommonUnits; break;
-            case UnitTier.Special: targetList = SpecialUnits; break;
-            case UnitTier.Rare: targetList = RareUnits; break;
-            case UnitTier.Legendary: targetList = LegendaryUnits; break;
-        }
+        List<UnitData> targetList = GetUnitsForTier(tier);
 
         if (targetList != null && targetList.Count > 0)
         {
             // 1. 랜덤 유닛 선택
             int randomIndex = Random.Range(0, targetList.Count);
-            UnitData selectedUnit = CommonUnits[randomIndex];
+            UnitData selectedUnit = targetList[randomIndex];
+
+            if (selectedUnit == null || selectedUnit.Prefab == null)
+            {
+                Debug.LogError($"{tier} 유닛 데이터 또는 프리팹이 비어 있습니다.");
+                return;
+            }
         
             // 2. 랜덤 위치 계산 (겹치지 않게 하려면 나중에 그리드 시스템 적용 필요)
             Vector3 randomPos = GetRandomPosition();
@@ -128,7 +127,22 @@ public class UnitSpawnManager : MonoBehaviour
     public void OpenCommonSelector()
     {
         //재화 체크를 여기서 먼저 할 수도 있음
-        selectorUI.OpenSelector("흔함 선택", CommonUnits);
+        if (selectorUI != null)
+        {
+            selectorUI.OpenSelector("흔함 선택", CommonUnits);
+        }
+    }
+
+    private List<UnitData> GetUnitsForTier(UnitTier tier)
+    {
+        switch (tier)
+        {
+            case UnitTier.Common: return CommonUnits;
+            case UnitTier.Special: return SpecialUnits;
+            case UnitTier.Rare: return RareUnits;
+            case UnitTier.Legendary: return LegendaryUnits;
+            default: return null;
+        }
     }
     
     

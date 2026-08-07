@@ -428,7 +428,7 @@ public class UnitEntity : MonoBehaviour
     {
         if (unitData != null)
         {
-            Gizmos.color = Color.aquamarine;
+            Gizmos.color = new Color(0.5f, 1f, 0.83f);
             Gizmos.DrawWireSphere(transform.position, unitData.AttackRange);
 
         }

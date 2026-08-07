@@ -27,6 +27,10 @@ public class EnemyEntity : MonoBehaviour
     private void Awake()
     {
         movement = GetComponent<EnemyMovement>();
+        if (movement != null)
+        {
+            movement.ReachedEndOfPath += HandleReachedEndOfPath;
+        }
     }
 
     private void Update()
@@ -152,26 +156,44 @@ public class EnemyEntity : MonoBehaviour
         //GameManager.Instance.AddGold(enemyData.DropGold);
         
         //매니저에게 죽었다고 알림
-        if (GameManager.Instance != null && StoryManager.Instance != null)
+        switch (Data.Type)
         {
-            switch(Data.Type)
-            {
-                case EnemyType.Story:
+            case EnemyType.Story:
+                if (StoryManager.Instance != null)
+                {
                     StoryManager.Instance.AdvanceStory(Data.StoryRewards);
-                    break;
-                case EnemyType.Boss:
+                }
+                break;
+            case EnemyType.Boss:
+                if (GameManager.Instance != null)
+                {
                     GameManager.Instance.BossDefeated();
-                    break;
-                case EnemyType.Mission:
-                    //GameManager.Instance.ClearMission(int missionLevel, reward);
-                    break;
-                case EnemyType.Normal:
-                    GameManager.Instance.UnRegisterEnemy(this);
-                    break;
-            }
+                }
+                break;
+            case EnemyType.Mission:
+                //GameManager.Instance.ClearMission(int missionLevel, reward);
+                break;
         }
 
         Destroy(gameObject);
+    }
+
+    private void HandleReachedEndOfPath()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if (movement != null)
+        {
+            movement.ReachedEndOfPath -= HandleReachedEndOfPath;
+        }
+
+        if (enemyData != null && enemyData.Type == EnemyType.Normal && GameManager.Instance != null)
+        {
+            GameManager.Instance.UnRegisterEnemy(this);
+        }
     }
 
     public void SetSelected(bool isSelected)

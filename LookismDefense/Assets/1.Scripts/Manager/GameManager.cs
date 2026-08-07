@@ -193,7 +193,7 @@ public class GameManager : MonoBehaviour
     public void AddCurrency(CurrencyType type, int amount)
     {
         currencyRepository[type] += amount;
-        UIManager.Instance.OnResourceChanged?.Invoke();
+        UIManager.Instance?.OnResourceChanged?.Invoke();
         Debug.Log($"{type} 획득: +{amount}(현재:{currencyRepository[type]})");
     }
     //3. 재화 사용
@@ -203,7 +203,7 @@ public class GameManager : MonoBehaviour
         {
             currencyRepository[type] -= amount;
 
-            UIManager.Instance.OnResourceChanged?.Invoke();
+            UIManager.Instance?.OnResourceChanged?.Invoke();
             Debug.Log("재화 사용");
             return true;
         }

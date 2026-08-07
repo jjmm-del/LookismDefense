@@ -1,4 +1,4 @@
-using System.Transactions;
+using System;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -16,6 +16,8 @@ public class EnemyMovement : MonoBehaviour
     
     //스턴 등으로 멈춰있는지 확인하는 변수
     private bool isStopped = false;
+
+    public event Action ReachedEndOfPath;
 
     //초기화
     public void Initialize(float speed, Transform[] path)
@@ -66,14 +68,15 @@ public class EnemyMovement : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, lookRotation, rotationSpeed * Time.deltaTime);
         }
         //목표 지점 도달 체크
-        if (Vector3.Distance(transform.position, targetPoint.position) < arrivalThreshold)
+        if ((transform.position - targetPoint.position).sqrMagnitude <= arrivalThreshold * arrivalThreshold)
         {
             currentPointIndex++;
             
             //마지막 지점 도달 시 (라이프 차감 및 자폭)
             if (currentPointIndex >= pathPoints.Length)
             {
-                currentPointIndex = 0;
+                isInitialized = false;
+                ReachedEndOfPath?.Invoke();
             }
         }
     }

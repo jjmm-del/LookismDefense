@@ -30,7 +30,7 @@ public class WaveManager : MonoBehaviour
         //라운드 인덱스는 0부터 시작하므로 -1
         int index = roundIndex - 1;
         
-        if (index >= 0 && index < waves.Count)
+        if (waves != null && index >= 0 && index < waves.Count)
         {
             StartCoroutine(SpawnWaveRoutine(waves[index]));
         }
@@ -45,7 +45,7 @@ public class WaveManager : MonoBehaviour
     {
         //준비된 웨이브 리스트 만큼 반복
         //isWaveInProgress = true;
-        Debug.Log($"{currentWaveIndex+1}웨이브 시작!{wave.waveName}");
+        Debug.Log($"{wave.waveName} 웨이브 시작!");
 
         for (int i = 0; i < wave.count; i++)
         {
@@ -62,6 +62,13 @@ public class WaveManager : MonoBehaviour
         if (data == null || data.Prefab == null)
         {
             Debug.LogError("SpawnEnemy: EnemyData 또는 Prefab이 비어있습니다.");
+            return;
+        }
+
+        if (spawnPoint == null)
+        {
+            Debug.LogError("SpawnEnemy: spawnPoint가 비어있습니다.");
+            return;
         }
         
         GameObject enemyObj = Instantiate(data.Prefab, spawnPoint.position, Quaternion.identity);
