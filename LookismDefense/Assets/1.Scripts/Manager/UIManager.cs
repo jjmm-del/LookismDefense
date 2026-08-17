@@ -35,6 +35,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button singleTeleportButton;
     [SerializeField] private Button multiTeleportButton;
     
+    [Header("Tab Animation Settings")]
+    [SerializeField] private RectTransform tabButtonContainer;
+    [SerializeField] private float tabClosedY = 0f;
+    [SerializeField] private float tabOpenedY = 280f;
+    [SerializeField] private float tabMoveSpeed = 15f;
+    
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -69,6 +75,23 @@ public class UIManager : MonoBehaviour
         //GoldUI 업데이트
         RefreshGoldUI();
     }
+
+    private void Update()
+    {
+        if (tabButtonContainer != null)
+        {
+            bool isInfoOpen = singleUnitInfoPanel.gameObject.activeSelf || multiUnitInfoPanel.gameObject.activeSelf;
+            bool isMenuOpen = (summonPanel != null && summonPanel.activeSelf)||(upgradePanel !=null && upgradePanel.activeSelf);
+            
+            float targetY = (isInfoOpen || isMenuOpen) ? tabOpenedY : tabClosedY;
+
+            Vector2 currentPos = tabButtonContainer.anchoredPosition;
+            currentPos.y = Mathf.Lerp(currentPos.y, targetY, Time.deltaTime * tabMoveSpeed);
+            tabButtonContainer.anchoredPosition = currentPos;
+        }
+    }
+    
+    
     //--- 상단 정보 갱신 ---
     public void UpdateRoundTime(float time)
     {
@@ -115,6 +138,7 @@ public class UIManager : MonoBehaviour
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitEntity unit)
     {
+        CloseAllPanels();
         multiUnitInfoPanel.HideInfo();
         singleUnitInfoPanel.ShowInfo(unit);
     }
@@ -127,6 +151,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
     {
+        CloseAllPanels();
         singleUnitInfoPanel.HideInfo();
         multiUnitInfoPanel.ShowInfo(selectedUnits, onPortraitClickCallback);
     }
