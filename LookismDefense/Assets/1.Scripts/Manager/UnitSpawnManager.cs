@@ -27,34 +27,55 @@ public class UnitSpawnManager : MonoBehaviour
         List<UnitData> targetList = null;
         switch (tier)
         {
-            case UnitTier.Common: targetList = CommonUnits; break;
-            case UnitTier.Special: targetList = SpecialUnits; break;
-            case UnitTier.Rare: targetList = RareUnits; break;
-            case UnitTier.Legendary: targetList = LegendaryUnits; break;
+            case UnitTier.Common: 
+                targetList = CommonUnits; break;
+            case UnitTier.Special:
+                targetList = SpecialUnits; break;
+            case UnitTier.Rare:
+                targetList = RareUnits; break;
+            case UnitTier.Legendary:
+                targetList = LegendaryUnits; break;
         }
 
-        if (targetList != null && targetList.Count > 0)
-        {
-            // 1. 랜덤 유닛 선택
-            int randomIndex = Random.Range(0, targetList.Count);
-            UnitData selectedUnit = CommonUnits[randomIndex];
-        
-            // 2. 랜덤 위치 계산 (겹치지 않게 하려면 나중에 그리드 시스템 적용 필요)
-            Vector3 randomPos = GetRandomPosition();
-        
-            // 3. 생성
-            GameObject unitObj = Instantiate(selectedUnit.Prefab, randomPos, Quaternion.identity);
-        
-            // 4. 데이터 주입
-            UnitEntity unitEntity = unitObj.GetComponent<UnitEntity>();
-            if(unitEntity != null) unitEntity.Initialize(selectedUnit);
-            
-            Debug.Log($"{tier}유닛 소환 완료");
-        }
-        else
+        if (targetList == null||  targetList.Count ==0)
         {
             Debug.LogError($"티어 {tier}의 유닛 데이터가 없습니다.");
+            return;
         }
+
+        GridCell emptyCell = GridManager.Instance.GetRandomEmptyCell();
+
+        if (emptyCell == null)
+        {
+            Debug.Log("빈 그리드가 없습니다.");
+            return;
+        }
+        
+        // 랜덤 유닛 선택
+        int randomIndex = Random.Range(0, targetList.Count);
+        UnitData selectedUnit = targetList[randomIndex];
+        
+        // 그리드 위치에 생성
+        GameObject unitObj = Instantiate(
+            selectedUnit.Prefab,
+            emptyCell.WorldPosition,
+            Quaternion.identity
+            );
+        if (!emptyCell.TryPlaceUnit(unitObj))
+        {
+            Destroy(unitObj);
+            return;
+        }
+        
+        // 데이터 주입
+        UnitEntity unitEntity = unitObj.GetComponent<UnitEntity>();
+        if (unitEntity != null)
+        {
+            unitEntity.Initialize(selectedUnit);
+        }
+            
+        Debug.Log($"{tier}유닛 {selectedUnit.name} 소환 완료"
+            + $"[{emptyCell.Coordinate}");
     }
 
     //선택권 소환
