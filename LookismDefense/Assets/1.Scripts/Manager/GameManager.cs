@@ -140,10 +140,10 @@ public class GameManager : Singleton<GameManager>
     {
         activeEnemies.Add(enemy);
 
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
-        }
+        // if (UIManager.Instance != null)
+        // {
+        //     UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
+        // }
         if (currentDifficulty!= null && activeEnemies.Count >= currentDifficulty.MaxUnitCountLimits)
         {
             TriggerGameOver($"라인 유닛 수 초과!({activeEnemies.Count}/{currentDifficulty.MaxUnitCountLimits})-라인사");
@@ -157,10 +157,10 @@ public class GameManager : Singleton<GameManager>
             activeEnemies.Remove(enemy);
         }
         
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
-        }
+        // if (UIManager.Instance != null)
+        // {
+        //     UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
+        // }
     }
 
     //---재화 공동 관련 ---

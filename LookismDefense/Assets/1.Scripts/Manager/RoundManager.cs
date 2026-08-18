@@ -47,10 +47,10 @@ public class RoundManager : MonoBehaviour
         roundTimer = gracePeriod;
         isGameRunning = true;
 
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateWaveName("게임 시작 대기 중...");
-        }
+        // if (UIManager.Instance != null)
+        // {
+        //     UIManager.Instance.UpdateWaveName("게임 시작 대기 중...");
+        // }
         
     }
 
@@ -112,7 +112,7 @@ public class RoundManager : MonoBehaviour
         //WaveManager에게 현재 라운드에 맞는 적 소환 요청
         //(WaveManager의 SpawnWaveRoutine을 수정하건, 여기서 직접 함수를 호출해야 함
         waveManager.StartWave(currentRound);
-        UIManager.Instance.UpdateWaveName(currentRound.ToString());
+        //UIManager.Instance.UpdateWaveName(currentRound.ToString());
         
         //특정 라운드(예: 10, 20, 30, ...)는 보스 라운드 처리
         if (currentRound % 10 == 0)
