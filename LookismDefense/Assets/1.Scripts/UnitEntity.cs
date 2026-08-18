@@ -1,20 +1,17 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
-public enum UnitState
-{
-    Idle, // 대기( 사거리 내 적 자동 공격)
-    Move, // 강제 이동(적 무시)
-    AttackMove, // 이동하며 적 발견 시 공격(어택땅)
-    Hold // 위치 고정(움직이지 않고 사거리 내 적 공격)
-}
+
     
 [RequireComponent(typeof(NavMeshAgent))]
 public class UnitEntity : MonoBehaviour
 {
     [SerializeField]private UnitData unitData;
     public UnitData Data => unitData;
-
+    
+    public GridCell HomeCell { get; private set; }
+    
+    
     [Header("Attack Settings")]
     [SerializeField] private LayerMask enemyLayer; // 적 레이어(설정 필수)
     
@@ -36,9 +33,13 @@ public class UnitEntity : MonoBehaviour
     private float currentAttackRange;
     private float currentAttackSpeed;
 
+    public float AttackDamage => currentAttackDamage;
+    public float AttackRange => currentAttackRange;
+
+    public float AttackSpeed => currentAttackSpeed;
     //상태 관리 변수
-    private UnitState currentState = UnitState.Idle;
-    private Vector3 attackMoveDest; //어택땅 목적지 기억용
+    //private UnitState currentState = UnitState.Idle;
+    //private Vector3 attackMoveDest; //어택땅 목적지 기억용
     
     // 순간이동 관련 변수
     private Vector3 homePosition;
@@ -80,6 +81,11 @@ public class UnitEntity : MonoBehaviour
             Debug.Log($"{this.unitData.name} 등록");
         }
     }
+
+    public void SetHomeCell(GridCell cell)
+    {
+        HomeCell = cell;
+    }
     
     private void Update()
     {
@@ -105,204 +111,206 @@ public class UnitEntity : MonoBehaviour
         
         
         // 1. 타겟 유효성 검사 (죽었거나 사라졌으면 null 처리)
-        CheckTargetValidity();
-        
-        // 2. 상태별 행동 처리
-        switch (currentState)
-        {
-            case UnitState.Idle:
-                HandleIdleState();
-                break;
-            case UnitState.Move:
-                HandleMoveState();
-                break;
-            case UnitState.AttackMove:
-                HandleAttackMoveState();
-                break;
-            case UnitState.Hold :
-                HandleHoldState(); 
-                break;
-        }
+        // CheckTargetValidity();
+        //
+        // // 2. 상태별 행동 처리
+        // switch (currentState)
+        // {
+        //     case UnitState.Idle:
+        //         HandleIdleState();
+        //         break;
+        //     case UnitState.Move:
+        //         HandleMoveState();
+        //         break;
+        //     case UnitState.AttackMove:
+        //         HandleAttackMoveState();
+        //         break;
+        //     case UnitState.Hold :
+        //         HandleHoldState(); 
+        //         break;
+        // }
     }
 
     // --- 상태별 로직 메서드 ---
-    private void HandleIdleState()
-    {
-        //타겟이 없다면 주변 스캔
-        if (currentTarget == null)
-        {
-            currentTarget = FindNearestEnemy();
-        }
-        //타겟이 있다면? -> 쫓아가서 공격(전투 처리 위임)
-        if (currentTarget != null)
-        {
-            ProcessCombat(true); // true = 움직여서 쫓아가라
-        }
-    }
+    // private void HandleIdleState()
+    // {
+    //     //타겟이 없다면 주변 스캔
+    //     if (currentTarget == null)
+    //     {
+    //         currentTarget = FindNearestEnemy();
+    //     }
+    //     //타겟이 있다면? -> 쫓아가서 공격(전투 처리 위임)
+    //     if (currentTarget != null)
+    //     {
+    //         ProcessCombat(true); // true = 움직여서 쫓아가라
+    //     }
+    // }
 
-    private void HandleMoveState()
-    {
-        //남은 거리가 정지 거리보다 작을 때 우선 정지
-        if(!agent.pathPending)
-        {
-            if (agent.remainingDistance <= agent.stoppingDistance )
-            {
-                agent.isStopped = true;
-                currentState = UnitState.Idle;
-                
-            }
-            else if (agent.remainingDistance <= 1.0f && agent.velocity.sqrMagnitude < 0.1f)
-            {
-                agent.isStopped = true;
-                currentState = UnitState.Idle;
-            }
-        }
-    }
-    private void HandleAttackMoveState()
-    {
-        // 1. 타겟이 없다면 주변 스캔
-        if (currentTarget == null)
-        {
-            currentTarget = FindNearestEnemy();
-        }
-        
-        // 2. 타겟이 있다면 -> 전투모드 (쫓아가서 공격)
-        if (currentTarget != null)
-        {
-            ProcessCombat(true);
-        }
-        else
-        {
-            // 3. 타겟이 없으면 -> 어택땅 목적지로 계속 이동
-            if (agent.destination != attackMoveDest)
-            {
-                agent.SetDestination(attackMoveDest);
-                agent.isStopped = false;
-            }
-            
-            //도착 체크
-            if(!agent.pathPending)
-            {
-                if (agent.remainingDistance <= agent.stoppingDistance || agent.velocity.sqrMagnitude < 0.1f)
-                {
-                    agent.isStopped = true;
-                    currentState = UnitState.Idle;
-                
-                }
-            }
-        }
-    }
-    
-    private void HandleHoldState()
-    {
-        if (currentTarget == null || Vector3.Distance(transform.position, currentTarget.position) > currentAttackRange)
-        {
-            currentTarget = FindNearestEnemy();
-        }
-
-        //전투 처리하되, 절대 움직이지 않음(false)
-        if (currentTarget != null)
-        {
-            ProcessCombat(false); // false = 추적 금지 (제자리 공격)
-        }
-        else
-        {
-            agent.isStopped = true; //적 없으면 가만히
-        }
-    }
+    // private void HandleMoveState()
+    // {
+    //     //남은 거리가 정지 거리보다 작을 때 우선 정지
+    //     if(!agent.pathPending)
+    //     {
+    //         if (agent.remainingDistance <= agent.stoppingDistance )
+    //         {
+    //             agent.isStopped = true;
+    //             currentState = UnitState.Idle;
+    //             
+    //         }
+    //         else if (agent.remainingDistance <= 1.0f && agent.velocity.sqrMagnitude < 0.1f)
+    //         {
+    //             agent.isStopped = true;
+    //             currentState = UnitState.Idle;
+    //         }
+    //     }
+    // }
+    // private void HandleAttackMoveState()
+    // {
+    //     // 1. 타겟이 없다면 주변 스캔
+    //     if (currentTarget == null)
+    //     {
+    //         currentTarget = FindNearestEnemy();
+    //     }
+    //     
+    //     // 2. 타겟이 있다면 -> 전투모드 (쫓아가서 공격)
+    //     if (currentTarget != null)
+    //     {
+    //         ProcessCombat(true);
+    //     }
+    //     else
+    //     {
+    //         // 3. 타겟이 없으면 -> 어택땅 목적지로 계속 이동
+    //         if (agent.destination != attackMoveDest)
+    //         {
+    //             agent.SetDestination(attackMoveDest);
+    //             agent.isStopped = false;
+    //         }
+    //         
+    //         //도착 체크
+    //         if(!agent.pathPending)
+    //         {
+    //             if (agent.remainingDistance <= agent.stoppingDistance || agent.velocity.sqrMagnitude < 0.1f)
+    //             {
+    //                 agent.isStopped = true;
+    //                 currentState = UnitState.Idle;
+    //             
+    //             }
+    //         }
+    //     }
+    // }
+    //
+    // private void HandleHoldState()
+    // {
+    //     if (currentTarget == null || Vector3.Distance(transform.position, currentTarget.position) > currentAttackRange)
+    //     {
+    //         currentTarget = FindNearestEnemy();
+    //     }
+    //
+    //     //전투 처리하되, 절대 움직이지 않음(false)
+    //     if (currentTarget != null)
+    //     {
+    //         ProcessCombat(false); // false = 추적 금지 (제자리 공격)
+    //     }
+    //     else
+    //     {
+    //         agent.isStopped = true; //적 없으면 가만히
+    //     }
+    // }
     
     // --- 핵심 전투 로직 (추적 + 공격) ---
     // canChase : ture 면 적이 멀 때 쫓아감, false면 (홀드) 제자리에서 사거리 닿을 때만 공격
-    private void ProcessCombat(bool canChase)
-    {
-        agent.stoppingDistance = Mathf.Max(0.5f, currentAttackRange * 0.9f);
-        float distance = Vector3.Distance(transform.position, currentTarget.position);
-        Vector3 lookPos = currentTarget.position;
-        lookPos.y = transform.position.y;
-        // A. 사거리 안인가? -> 멈추고 공격
-        if (distance <= currentAttackRange)
-        {
-            agent.isStopped = true; //이동 멈춤
-            transform.LookAt(lookPos); //적 바라보기
-            TryAttack();
-        }
-        // B. 사거리 밖인가? 
-        else
-        {
-            if (canChase)
-            {
-                // 추적 허용: 적 위치로 이동
-                agent.isStopped = false;
-                agent.SetDestination(currentTarget.position);
-            }
-            else
-            {
-                //추적 불가(홀드) : 그냥 가만히 있음
-                agent.isStopped = true;
-            }
-        }
-    }
-    
-    // --- 유틸리티 메서드 ---
-    private void CheckTargetValidity()
-    {
-        if (currentTarget != null)
-        {
-            //적 오브젝트가 파괴되었거나, 비활성되었으면 타겟 해제
-            if (currentTarget.gameObject == null || !currentTarget.gameObject.activeInHierarchy)
-            {
-                currentTarget = null;
-            }
-            // (참고) 적이 죽었는지 확인하는 스크립트 연결부가 있다면 여기서 체크
-            //EnemyEntity enemy = currentTarget.GetComponent<EnemyEntity>();
-            //if(enemy != null && enemy.CurrentHealth <= 0) currentTarget = null;
-        }
-    }
+    // private void ProcessCombat(bool canChase)
+    // {
+    //     agent.stoppingDistance = Mathf.Max(0.5f, currentAttackRange * 0.9f);
+    //     float distance = Vector3.Distance(transform.position, currentTarget.position);
+    //     Vector3 lookPos = currentTarget.position;
+    //     lookPos.y = transform.position.y;
+    //     // A. 사거리 안인가? -> 멈추고 공격
+    //     if (distance <= currentAttackRange)
+    //     {
+    //         agent.isStopped = true; //이동 멈춤
+    //         transform.LookAt(lookPos); //적 바라보기
+    //         TryAttack();
+    //     }
+    //     // B. 사거리 밖인가? 
+    //     else
+    //     {
+    //         if (canChase)
+    //         {
+    //             // 추적 허용: 적 위치로 이동
+    //             agent.isStopped = false;
+    //             agent.SetDestination(currentTarget.position);
+    //         }
+    //         else
+    //         {
+    //             //추적 불가(홀드) : 그냥 가만히 있음
+    //             agent.isStopped = true;
+    //         }
+    //     }
+    // }
+    //
+    // // --- 유틸리티 메서드 ---
+    // private void CheckTargetValidity()
+    // {
+    //     if (currentTarget != null)
+    //     {
+    //         //적 오브젝트가 파괴되었거나, 비활성되었으면 타겟 해제
+    //         if (currentTarget.gameObject == null || !currentTarget.gameObject.activeInHierarchy)
+    //         {
+    //             currentTarget = null;
+    //         }
+    //         // (참고) 적이 죽었는지 확인하는 스크립트 연결부가 있다면 여기서 체크
+    //         //EnemyEntity enemy = currentTarget.GetComponent<EnemyEntity>();
+    //         //if(enemy != null && enemy.CurrentHealth <= 0) currentTarget = null;
+    //     }
+    // }
+    //
+    // private Transform FindNearestEnemy()
+    // {
+    //     Collider[] hits = Physics.OverlapSphere(transform.position, unitData.AttackRange, enemyLayer);
+    //     Transform bestTarget = null;
+    //     float closestDistance = Mathf.Infinity;
+    //
+    //     foreach (Collider hit in hits)
+    //     {
+    //         float distance = Vector3.Distance(transform.position, hit.transform.position);
+    //         if (distance < closestDistance)
+    //         {
+    //             closestDistance = distance;
+    //             bestTarget = hit.transform;
+    //         }
+    //     }
+    //     return bestTarget;
+    // }
 
-    private Transform FindNearestEnemy()
+    public void TryAttack(EnemyEntity target)
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, unitData.AttackRange, enemyLayer);
-        Transform bestTarget = null;
-        float closestDistance = Mathf.Infinity;
-
-        foreach (Collider hit in hits)
-        {
-            float distance = Vector3.Distance(transform.position, hit.transform.position);
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                bestTarget = hit.transform;
-            }
-        }
-        return bestTarget;
-    }
-
-    private void TryAttack()
-    {
+        if (target == null)
+            return;
+        
         float attackCooldown = 1f / (currentAttackSpeed * buffSpeedMultiplier);
-        if (Time.time >= lastAttackTime + attackCooldown)
-        {
-            PerformAttack();
-            lastAttackTime = Time.time;
-        }
+
+        if (Time.time < lastAttackTime + attackCooldown)
+            return;
+        
+        PerformAttack(target);
+        lastAttackTime = Time.time;
+        
     }
     
 
-    private void PerformAttack()
+    public void PerformAttack(EnemyEntity primaryEnemy)
     {
-        if (currentTarget == null) return;
+        if (primaryEnemy == null) 
+            return;
         
         // 업그레이드 적용 데미지 계산
         float baseFinalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, unitData.Tier) * buffDamageMultiplier;
         
         // 공격할 타겟 리스트 만들기
-        List<EnemyEntity> targetsToHit = new List<EnemyEntity>();
+        List<EnemyEntity> targetsToHit = new();
         
-        EnemyEntity primaryEnemy = currentTarget.GetComponent<EnemyEntity>();
-        if (primaryEnemy != null)
-        {
-            targetsToHit.Add(primaryEnemy);
-        }
+        targetsToHit.Add(primaryEnemy);
         
         // 다중 공격 처리
         if (unitData.MaxAttackTargets > 1)
@@ -315,10 +323,13 @@ public class UnitEntity : MonoBehaviour
                     break; // 최종 타겟 수 도달 시 종료
                 }
 
-                EnemyEntity otherEnemy = hit.GetComponent<EnemyEntity>();
-                if (otherEnemy != null && otherEnemy != primaryEnemy)
+                EnemyEntity enemy = hit.GetComponent<EnemyEntity>();
+                
+                if (enemy != null &&
+                    enemy != primaryEnemy&&
+                    !targetsToHit.Contains(enemy))
                 {
-                    targetsToHit.Add(otherEnemy);
+                    targetsToHit.Add(enemy);
                 }
             }
         }
@@ -327,14 +338,14 @@ public class UnitEntity : MonoBehaviour
         foreach (EnemyEntity target in targetsToHit)
         {
             // 특수능력 적용
-            float realFinalDamage = baseFinalDamage;
+            float finalDamage = baseFinalDamage;
             if (abilityController != null)
             {
-                realFinalDamage = abilityController.ProcessOnHitAbilities(target, baseFinalDamage);
+                finalDamage = abilityController.ProcessOnHitAbilities(target, baseFinalDamage);
             }
             
             //적에게 피해 입히기
-            target.OnDamage(realFinalDamage);
+            target.OnDamage(finalDamage);
             
             //(선택, 추가) 이펙트, 타격음 추가
             //EffectManager.Instance.PlayHitEffect(currentTarget.Position);
@@ -350,89 +361,89 @@ public class UnitEntity : MonoBehaviour
         }
     }
     
-
-    
-    // --- 외부 명령 메서드 --
-    // 강제 이동 M
-    public void OrderMove(Vector3 destination)
-    {
-        currentState = UnitState.Move;
-        agent.isStopped = false;
-        
-        agent.stoppingDistance = 0.1f;
-        
-        agent.SetDestination(destination);
-        currentTarget = null; //타겟 무시
-    }
-    //어택땅 A
-    public void OrderAttackMove(Vector3 destination)
-    {
-        currentState = UnitState.AttackMove;
-        attackMoveDest = destination;
-        agent.isStopped = false;
-        agent.stoppingDistance = 0.1f;
-        agent.SetDestination(destination);
-        currentTarget = null;
-    }
-    
-    //적 우클릭 타겟 공격
-    public void OrderAttackTarget(EnemyEntity targetEnemy)
-    {
-        //간단한 구현: 어택땅 모드인데 적 위치로 설정하고 타겟을 강제지정
-        currentState = UnitState.AttackMove;
-        attackMoveDest = targetEnemy.transform.position;
-        currentTarget = targetEnemy.transform;
-    }
-    
-    //홀드 H
-    public void OrderHold()
-    {
-        currentState = UnitState.Hold;
-        agent.isStopped = true;
-        agent.ResetPath();
-    }
-
-    //스탑 S
-    public void OrderStop()
-    {
-        currentState = UnitState.Idle;
-        agent.isStopped = true;
-        agent.ResetPath();
-        currentTarget = null;
-    }
-
-    public void ToggleZone(Vector3 storyZoneTargetPos)
-    {
-        if (IsInStoryZone)
-        {
-            // 1. 스토리존 -> 라인복귀
-            agent.Warp(homePosition);
-            IsInStoryZone = false;
-        }
-        else
-        {
-            // 2. 라인 -> 스토리존 이동
-            homePosition = transform.position; 
-            Vector3 ransomOffset = new Vector3(Random.Range(-1.5f, 1.5f), 0 , Random.Range(-1.5f, 1.5f));
-            agent.Warp(storyZoneTargetPos + ransomOffset);
-            agent.ResetPath();
-            IsInStoryZone = true;
-        }
-        // 순간이동 직후 타겟 초기화
-        currentState = UnitState.Idle;
-        currentTarget = null;
-    }
-    
-    //에디터에서 사거리 확인용
-    private void OnDrawGizmos()
-    {
-        if (unitData != null)
-        {
-            Gizmos.color = Color.aquamarine;
-            Gizmos.DrawWireSphere(transform.position, unitData.AttackRange);
-
-        }
-    }
+    //
+    //
+    // // --- 외부 명령 메서드 --
+    // // 강제 이동 M
+    // public void OrderMove(Vector3 destination)
+    // {
+    //     currentState = UnitState.Move;
+    //     agent.isStopped = false;
+    //     
+    //     agent.stoppingDistance = 0.1f;
+    //     
+    //     agent.SetDestination(destination);
+    //     currentTarget = null; //타겟 무시
+    // }
+    // //어택땅 A
+    // public void OrderAttackMove(Vector3 destination)
+    // {
+    //     currentState = UnitState.AttackMove;
+    //     attackMoveDest = destination;
+    //     agent.isStopped = false;
+    //     agent.stoppingDistance = 0.1f;
+    //     agent.SetDestination(destination);
+    //     currentTarget = null;
+    // }
+    //
+    // //적 우클릭 타겟 공격
+    // public void OrderAttackTarget(EnemyEntity targetEnemy)
+    // {
+    //     //간단한 구현: 어택땅 모드인데 적 위치로 설정하고 타겟을 강제지정
+    //     currentState = UnitState.AttackMove;
+    //     attackMoveDest = targetEnemy.transform.position;
+    //     currentTarget = targetEnemy.transform;
+    // }
+    //
+    // //홀드 H
+    // public void OrderHold()
+    // {
+    //     currentState = UnitState.Hold;
+    //     agent.isStopped = true;
+    //     agent.ResetPath();
+    // }
+    //
+    // //스탑 S
+    // public void OrderStop()
+    // {
+    //     currentState = UnitState.Idle;
+    //     agent.isStopped = true;
+    //     agent.ResetPath();
+    //     currentTarget = null;
+    // }
+    //
+    // public void ToggleZone(Vector3 storyZoneTargetPos)
+    // {
+    //     if (IsInStoryZone)
+    //     {
+    //         // 1. 스토리존 -> 라인복귀
+    //         agent.Warp(homePosition);
+    //         IsInStoryZone = false;
+    //     }
+    //     else
+    //     {
+    //         // 2. 라인 -> 스토리존 이동
+    //         homePosition = transform.position; 
+    //         Vector3 ransomOffset = new Vector3(Random.Range(-1.5f, 1.5f), 0 , Random.Range(-1.5f, 1.5f));
+    //         agent.Warp(storyZoneTargetPos + ransomOffset);
+    //         agent.ResetPath();
+    //         IsInStoryZone = true;
+    //     }
+    //     // 순간이동 직후 타겟 초기화
+    //     currentState = UnitState.Idle;
+    //     currentTarget = null;
+    // }
+    //
+    // //에디터에서 사거리 확인용
+    // private void OnDrawGizmos()
+    // {
+    //     if (unitData != null)
+    //     {
+    //         Gizmos.color = Color.aquamarine;
+    //         Gizmos.DrawWireSphere(transform.position, unitData.AttackRange);
+    //
+    //     }
+    // }
 
     public void ApplyAttackDamageBuff(float percent, float duration)
     {
