@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7363619955239055945}
   - component: {fileID: 1815012408426344368}
   - component: {fileID: 1352847485563947356}
+  - component: {fileID: -4922881620613852597}
   m_Layer: 6
   m_Name: "\uD754\uD568_\uBC15\uD615\uC11D"
   m_TagString: Untagged
@@ -134,6 +135,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2053c3235ba5074eb1210bb6bf773ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityController
+--- !u!114 &-4922881620613852597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2429226078545084339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608442927442eb243b84ed6c0aa4f5ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitAIController
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  detectionRange: 6
+  leashRange: 8
+  scanInterval: 0.2
+  homeArrivalDistance: 0.15
 --- !u!1 &5212428653241805569
 GameObject:
   m_ObjectHideFlags: 0
@@ -168,7 +188,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!212 &6239699478854285293
 SpriteRenderer:
-  serializedVersion: 2
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -225,6 +245,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!1001 &2447200852761455128
 PrefabInstance:
   m_ObjectHideFlags: 0
