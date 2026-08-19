@@ -6,26 +6,26 @@ using System;
 
 
 
-public class UIManager : MonoBehaviour
+public class UIManager : Singleton<UIManager>
 {
-    public static UIManager Instance { get; private set; }
+    private readonly Stack<UIPopup> popupStack = new();
     public Action OnResourceChanged;
     public Action OnTeleportRequested; 
     
-    [Header("Top Info Panel")]
-    [SerializeField] private TextMeshProUGUI roundTimeText;
-    [SerializeField] private TextMeshProUGUI goldText;
-    [SerializeField] private TextMeshProUGUI unitCountText;
-    [SerializeField] private TextMeshProUGUI waveNameText;
+    // [Header("Top Info Panel")]
+    // [SerializeField] private TextMeshProUGUI roundTimeText;
+    // [SerializeField] private TextMeshProUGUI goldText;
+    // [SerializeField] private TextMeshProUGUI unitCountText;
+    // [SerializeField] private TextMeshProUGUI waveNameText;
     
     [Header("Bottom Unit Info Panel(단일)")]
     [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
     
     [Header("Bottom Multi Unit Info Panel(다중)")]
     [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
-    
+
     [Header("MainPanel")]
-    [SerializeField] private GameObject summonPanel;
+    [SerializeField] private UISummonPopup summonPopup;
     [SerializeField] private GameObject upgradePanel;
     
     [Header("GameOver")]
@@ -43,18 +43,42 @@ public class UIManager : MonoBehaviour
     
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        
+        base.Awake();
+    }
+
+    public T OpenPopup<T>(T popup) where T : UIPopup
+    {
+        popup.Show();
+        popupStack.Push(popup);
+
+        return popup;
+    }
+
+    public void ClosePopup(UIPopup popup)
+    {
+        if (popup == null)
+            return;
+        popup.Hide();
+
+        if (popupStack.Count > 0 &&
+            popupStack.Peek() == popup)
+        {
+            popupStack.Pop();
+        }
+    }
+
+    public void CloseTopPopup()
+    {
+        if (popupStack.Count == 0)
+            return;
+        UIPopup popup = popupStack.Pop();
+        popup.Hide();
     }
 
     private void Start()
     {
         //시작할 때 꺼두기
         HideInfoPanel();
-        if (summonPanel != null)
-        {
-            summonPanel.SetActive(false);
-        }
 
         if (upgradePanel != null)
         {
@@ -98,12 +122,12 @@ public class UIManager : MonoBehaviour
         // 시간을 00:00 형식으로 표시
         int minutes = Mathf.FloorToInt(time / 60F);
         int seconds = Mathf.FloorToInt(time % 60F);
-        roundTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        //roundTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
     private void UpdateGold(int gold)
     {
-        goldText.text = $"Gold: {gold}";
+        //goldText.text = $"Gold: {gold}";
     }
 
     private void RefreshGoldUI()
@@ -115,25 +139,25 @@ public class UIManager : MonoBehaviour
         int currentGold = GameManager.Instance.GetCurrency(CurrencyType.Gold);
         UpdateGold(currentGold);
     }
-    public void UpdateUnitCount(int current, int max)
-    {
-        unitCountText.text =$"{current}/{max}";
-        
-        //위험 수치면 빨간색으로 변경하는 연출 가능
-        if (current >= max - 10)
-        {
-            unitCountText.color = Color.red;
-        }
-        else
-        {
-            unitCountText.color = Color.white;
-        }
-    }
+    // public void UpdateUnitCount(int current, int max)
+    // {
+    //     unitCountText.text =$"{current}/{max}";
+    //     
+    //     //위험 수치면 빨간색으로 변경하는 연출 가능
+    //     if (current >= max - 10)
+    //     {
+    //         unitCountText.color = Color.red;
+    //     }
+    //     else
+    //     {
+    //         unitCountText.color = Color.white;
+    //     }
+    // }
 
-    public void UpdateWaveName(string name)
-    {
-        waveNameText.text = name;
-    }
+    // public void UpdateWaveName(string name)
+    // {
+    //     waveNameText.text = name;
+    // }
     
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitEntity unit)
@@ -177,9 +201,17 @@ public class UIManager : MonoBehaviour
 
     public void ToggleSummonPanel()
     {
-        bool isActive= summonPanel.activeSelf;
-        CloseAllPanels(); //다른 패널이 열려있다면 닫고 내 것을 연다
-        summonPanel.SetActive(!isActive);
+        if (summonPopup == null)
+            return;
+
+        if (summonPopup.gameObject.activeSelf)
+        {
+            ClosePopup(summonPopup);
+        }
+        else
+        {
+            OpenPopup(summonPopup);
+        }
     }
 
     public void ToggleUpgradePanel()
@@ -191,10 +223,7 @@ public class UIManager : MonoBehaviour
 
     public void CloseAllPanels()
     {
-        if (summonPanel != null)
-        {
-            summonPanel.SetActive(false);
-        }
+        
 
         if (upgradePanel != null)
         {

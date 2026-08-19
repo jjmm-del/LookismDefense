@@ -3,10 +3,29 @@ using System.Collections.Generic;
 
 public class UpgradePanelUI : MonoBehaviour
 {
+    // public class UIUpgradePopup : UIPopup
     [Header("Settings")]
     [SerializeField] private Transform contentArea; // 버튼들이 생성될 부모 
     [SerializeField] private GameObject upgradeButtonPrefab; //
 
+    private enum Buttons
+    {
+        Common,
+        Uncommon,
+        Special,
+        Rare,
+        Legendary,
+        //BigDeal,
+        //Hostel,
+        //Allied,
+    }
+
+    private void Awake()
+    {
+        //Bind<Button>(typeof(Buttons));
+        //BindEvents();
+    }
+    
     private void Start()
     {
         GenerateUpgradeButtons();
