@@ -18,7 +18,7 @@ MonoBehaviour:
   portraitIcon: {fileID: 21300000, guid: 5eac6bd1712ead04f82cf5e65f1d63ca, type: 3}
   tier: 0
   attackDamage: 10
-  attackRange: 5
+  attackRange: 1
   attackSpeed: 2
   title: "\uBBF8\uC6A9\uACFC"
   abilities: []

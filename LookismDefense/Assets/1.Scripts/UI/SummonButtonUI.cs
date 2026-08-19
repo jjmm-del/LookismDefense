@@ -59,7 +59,7 @@ public class SummonButtonUI : MonoBehaviour
     {
         //UnitSpawnManager에게 요청
         //어떤 재화냐에 따라 다른 소환 로직 호출
-        UnitSpawnManager.Instance.TrySummon(targetCurrency);
+        //UnitSpawnManager.Instance.TrySummon(targetCurrency);
         
         //사용 후 UI 갱신
         UpdateUI();

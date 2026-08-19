@@ -3,20 +3,8 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-public enum CurrencyType
+public class GameManager : Singleton<GameManager>
 {
-    Gold,                   //골드
-    RandomCommon,           //흔함 랜덤
-    SelectCommon,           //흔함 선택
-    RandomSpecial,          //특별함 랜덤
-    RandomRare,             //희귀함 랜덤
-    RandomLegendary,        //전설적인 랜덤
-    SelectSpecialtyGoods    //특수재화
-}
-
-public class GameManager : MonoBehaviour
-{
-    public static GameManager Instance { get; private set; }
     public bool IsGameStarted { get; private set; } = false;
     [Header("Settings")]
     [SerializeField] private DifficultyData[] difficultyPresets; //에디터에서 Easy, Normal, Hard
@@ -55,17 +43,9 @@ public class GameManager : MonoBehaviour
     
     
 
-    private void Awake()
+    protected override void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(this.gameObject);
-        }
-        
+        base.Awake();
         //1. 모든 재화 0으로 초기화
         foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)))
         {
@@ -160,10 +140,10 @@ public class GameManager : MonoBehaviour
     {
         activeEnemies.Add(enemy);
 
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
-        }
+        // if (UIManager.Instance != null)
+        // {
+        //     UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
+        // }
         if (currentDifficulty!= null && activeEnemies.Count >= currentDifficulty.MaxUnitCountLimits)
         {
             TriggerGameOver($"라인 유닛 수 초과!({activeEnemies.Count}/{currentDifficulty.MaxUnitCountLimits})-라인사");
@@ -177,10 +157,10 @@ public class GameManager : MonoBehaviour
             activeEnemies.Remove(enemy);
         }
         
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
-        }
+        // if (UIManager.Instance != null)
+        // {
+        //     UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
+        // }
     }
 
     //---재화 공동 관련 ---

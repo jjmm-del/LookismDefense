@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "name": "RTSInputAction",
+    "name": "GridInputAction",
     "maps": [
         {
             "name": "Player",
@@ -16,36 +16,9 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "SmartCommand",
+                    "name": "Place",
                     "type": "Button",
-                    "id": "351f2ccd-1f9f-44bf-9bec-d62ac5c5f408",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Attack",
-                    "type": "Button",
-                    "id": "22c857fd-7c7d-4d5d-8bef-fda82121b708",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Stop",
-                    "type": "Button",
-                    "id": "acccb883-85c1-4770-8712-715b96a6ca85",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Hold",
-                    "type": "Button",
-                    "id": "83b809b9-8d04-4b55-a27f-b17ccaf7c998",
+                    "id": "e364b089-5d26-4584-85c7-0da494903e0d",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -53,17 +26,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "58413ad4-208a-4c93-8969-d69bbdf67237",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "SmartCommand",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "9c2d5ff2-eb14-43d8-b925-193c474af7a3",
@@ -77,34 +39,12 @@
                 },
                 {
                     "name": "",
-                    "id": "df939b2f-e7d6-4f44-884c-9595deeaa179",
-                    "path": "<Keyboard>/a",
+                    "id": "254345bc-270e-4954-b34e-6040f0b8e476",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Attack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a70a9a8e-bd88-4886-81c2-3fb1b6e42586",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Stop",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "32e518d7-b78a-471c-9012-ef0078add468",
-                    "path": "<Keyboard>/h",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Hold",
+                    "action": "Place",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

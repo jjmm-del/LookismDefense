@@ -5,18 +5,21 @@ using Random = UnityEngine.Random;
 public class UnitSpawnManager : MonoBehaviour
 {
     public static UnitSpawnManager Instance { get; private set; }
-    [Header("Settings")]
-    [SerializeField] private Transform spawnAreaCenter; // 유닛이 생성될 구역 중심
-    [SerializeField] private Vector2 spawnAreaSize = new Vector2(5, 5); //생성 구역
+    // [Header("Settings")]
+    // [SerializeField] private Transform spawnAreaCenter; // 유닛이 생성될 구역 중심
+    // [SerializeField] private Vector2 spawnAreaSize = new Vector2(5, 5); //생성 구역
     
     [Header("Gacha Data")]
-    public List<UnitData> CommonUnits; //
-    [SerializeField] private List<UnitData> SpecialUnits; //
-    [SerializeField] private List<UnitData> RareUnits; //
-    [SerializeField] private List<UnitData> LegendaryUnits; //
+    [SerializeField] private List<UnitData> _commonUnits; //
+    [SerializeField] private List<UnitData> _uncommonUnits; //
+    [SerializeField] private List<UnitData> _specialUnits; //
+    [SerializeField] private List<UnitData> _rareUnits; //
+    [SerializeField] private List<UnitData> _legendaryUnits; //
 
     [Header("UIReferences")]
     [SerializeField] private UnitSelectorUI selectorUI;
+    
+    
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -27,34 +30,63 @@ public class UnitSpawnManager : MonoBehaviour
         List<UnitData> targetList = null;
         switch (tier)
         {
-            case UnitTier.Common: targetList = CommonUnits; break;
-            case UnitTier.Special: targetList = SpecialUnits; break;
-            case UnitTier.Rare: targetList = RareUnits; break;
-            case UnitTier.Legendary: targetList = LegendaryUnits; break;
+            case UnitTier.Common: 
+                targetList = _commonUnits; break;
+            case UnitTier.Uncommon:
+                targetList = _uncommonUnits; break;
+            case UnitTier.Special:
+                targetList = _specialUnits; break;
+            case UnitTier.Rare:
+                targetList = _rareUnits; break;
+            case UnitTier.Legendary:
+                targetList = _legendaryUnits; break;
         }
 
-        if (targetList != null && targetList.Count > 0)
-        {
-            // 1. 랜덤 유닛 선택
-            int randomIndex = Random.Range(0, targetList.Count);
-            UnitData selectedUnit = CommonUnits[randomIndex];
-        
-            // 2. 랜덤 위치 계산 (겹치지 않게 하려면 나중에 그리드 시스템 적용 필요)
-            Vector3 randomPos = GetRandomPosition();
-        
-            // 3. 생성
-            GameObject unitObj = Instantiate(selectedUnit.Prefab, randomPos, Quaternion.identity);
-        
-            // 4. 데이터 주입
-            UnitEntity unitEntity = unitObj.GetComponent<UnitEntity>();
-            if(unitEntity != null) unitEntity.Initialize(selectedUnit);
-            
-            Debug.Log($"{tier}유닛 소환 완료");
-        }
-        else
+        if (targetList == null||  targetList.Count ==0)
         {
             Debug.LogError($"티어 {tier}의 유닛 데이터가 없습니다.");
+            return;
         }
+
+        GridCell emptyCell = GridManager.Instance.GetRandomEmptyCell();
+
+        if (emptyCell == null)
+        {
+            Debug.Log("빈 그리드가 없습니다.");
+            return;
+        }
+        
+        // 랜덤 유닛 선택
+        int randomIndex = Random.Range(0, targetList.Count);
+        UnitData selectedUnit = targetList[randomIndex];
+        
+        // 그리드 위치에 생성
+        GameObject unitObj = Instantiate(
+            selectedUnit.Prefab,
+            (emptyCell.WorldPosition+ Vector3.up *2),
+            Quaternion.identity
+            );
+        if (!emptyCell.TryPlaceUnit(unitObj))
+        {
+            Destroy(unitObj);
+            return;
+        }
+        
+        // 데이터 주입
+        UnitEntity unitEntity = unitObj.GetComponent<UnitEntity>();
+        UnitAIController ai = unitObj.GetComponent<UnitAIController>();
+        if (unitEntity != null)
+        {
+            unitEntity.Initialize(selectedUnit);
+        }
+
+        if (ai != null)
+        {
+            ai.SetHomeCell(emptyCell);
+        }
+            
+        Debug.Log($"{tier}유닛 {selectedUnit.name} 소환 완료"
+            + $"[{emptyCell.Coordinate}");
     }
 
     //선택권 소환
@@ -63,17 +95,27 @@ public class UnitSpawnManager : MonoBehaviour
         //유닛 티어에 따라 필요한 재화가 다름
         CurrencyType costType = CurrencyType.RandomCommon;
         int costAmount = 1;
-        
+        GridCell emptyCell = GridManager.Instance.GetRandomEmptyCell();
+
+        if (emptyCell == null)
+        {
+            Debug.Log("빈 그리드가 없습니다.");
+            return;
+        }
         //유닛 티어별 필요 재화 설정
         switch (unit.Tier) //Enum 값에 따라 설정
         {
             case UnitTier.Common: costType = CurrencyType.SelectCommon; break; //
+            case UnitTier.Uncommon: costType = CurrencyType.SelectUncommon; break; //
+            case UnitTier.Special: costType = CurrencyType.SelectSpecial; break; //
+            case UnitTier.Rare: costType = CurrencyType.SelectRare; break; //
+            
         }
         
         //재화 차감 시도
         if (GameManager.Instance.SpendCurrency(costType, costAmount))
         {
-            GameObject selectUnitObj = Instantiate(unit.Prefab, GetRandomPosition(), Quaternion.identity);
+            GameObject selectUnitObj = Instantiate(unit.Prefab, emptyCell.WorldPosition, Quaternion.identity);
             UnitEntity unitEntity = selectUnitObj.GetComponent<UnitEntity>();
             if(unitEntity != null) unitEntity.Initialize(unit);
             Debug.Log($"{unitEntity}유닛 선택소환 완료");
@@ -128,39 +170,24 @@ public class UnitSpawnManager : MonoBehaviour
     public void OpenCommonSelector()
     {
         //재화 체크를 여기서 먼저 할 수도 있음
-        selectorUI.OpenSelector("흔함 선택", CommonUnits);
+        selectorUI.OpenSelector("흔함 선택", _commonUnits);
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    private Vector3 GetRandomPosition()
-    {
-        float x = Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2);
-        float z = Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2);
-        return spawnAreaCenter.position + new Vector3(x, 0, z);
-    }
-    
-    //에디터에서 생성 범위 확인용
-    private void OnDrawGizmos()
-    {
-        if (spawnAreaCenter != null)
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireCube(spawnAreaCenter.position, new Vector3(spawnAreaSize.x,1,spawnAreaSize.y));
-        }
-    }
+    //
+    // private Vector3 GetRandomPosition()
+    // {
+    //     float x = Random.Range(-spawnAreaSize.x / 2, spawnAreaSize.x / 2);
+    //     float z = Random.Range(-spawnAreaSize.y / 2, spawnAreaSize.y / 2);
+    //     return spawnAreaCenter.position + new Vector3(x, 0, z);
+    // }
+    //
+    // //에디터에서 생성 범위 확인용
+    // private void OnDrawGizmos()
+    // {
+    //     if (spawnAreaCenter != null)
+    //     {
+    //         Gizmos.color = Color.cyan;
+    //         Gizmos.DrawWireCube(spawnAreaCenter.position, new Vector3(spawnAreaSize.x,1,spawnAreaSize.y));
+    //     }
+    // }
 }
