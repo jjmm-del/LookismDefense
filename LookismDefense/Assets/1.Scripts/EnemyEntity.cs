@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Pool;
 
 [RequireComponent(typeof(EnemyMovement))]
 public class EnemyEntity : MonoBehaviour
@@ -18,9 +17,12 @@ public class EnemyEntity : MonoBehaviour
     private bool isArmorBroken = false;
     private float stunTimer = 0f;
     private bool isStunned = false;
-    private IObjectPool<GameObject> myPool;
+    
+    
     
     public float CurrentHealth => currentHealth;
+    
+    
     
     private void Awake()
     {
@@ -52,46 +54,12 @@ public class EnemyEntity : MonoBehaviour
             }
         }
     }
-
-    public void SetPool(IObjectPool<GameObject> pool)
-    {
-        myPool = pool;
-    }
-
-    public void ResetState()
-    {
-        if (enemyData != null)
-        {
-            currentHealth = enemyData.MaxHealth;
-            currentDefense = enemyData.Defense;
-        }
-
-        isStunned = false;
-        stunTimer = 0f;
-        isArmorBroken = false;
-        armorBreakTimer = 0f;
-        if (movement != null)
-        {
-            movement.enabled = true;    //스토리 몹 때문에 꺼져졌을 수 도 있으니 다시 켬    
-            movement.ResumeMovement();  //스턴 걸린 채로 죽었을 수도 있으니 멈춤 해제
-            movement.ResetPath();       //(중요) 웨이포인트를 다시 처음(0)부터 돌도록 초기화
-        }
-
-        SetSelected(false);
-    }
-    
-    
-    
-    
-    
-    
-    
-    
     //Spawner(WaveManager)가 적을 생성한 직후 호출하는 함수
     public void Setup(EnemyData data, Transform[] path = null)
     {
         this.enemyData = data;
-        ResetState();
+        currentHealth = data.MaxHealth;
+        currentDefense = data.Defense;
         
         if (data.Type == EnemyType.Normal)
         {
@@ -113,11 +81,6 @@ public class EnemyEntity : MonoBehaviour
                 // 어차피 안 움직일 테니 이동 컴포넌트를 아예 꺼버려서 연산량 아끼기
                 movement.enabled = false;
             }
-        }
-
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealth(currentHealth, enemyData.maxHealth);
         }
     }
 
