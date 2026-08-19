@@ -5,7 +5,7 @@ using TMPro;
 [RequireComponent(typeof(TooltipTrigger))]
 public class RecipeButtonUI : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI resultNameText;
+   // [SerializeField] private TextMeshProUGUI resultNameText;
     [SerializeField] private Button combineButton;
     [SerializeField] private Image resultImage;
 
@@ -19,7 +19,7 @@ public class RecipeButtonUI : MonoBehaviour
     public void Setup(CombinationRecipe recipe)
     {
         myRecipe = recipe;
-        resultNameText.text = recipe.ResultUnit.EntityName;
+        //resultNameText.text = recipe.ResultUnit.EntityName;
         resultImage.sprite = recipe.ResultUnit.PortraitIcon; 
         
         // 재료 텍스트 생성 (예: 박형석(1) + 이진성(1)")
