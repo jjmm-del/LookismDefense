@@ -98,7 +98,10 @@ public class RoundManager : MonoBehaviour
         currentRound++;
         
         //라운드 클리어 보상 : 랜덤 흔함 위습 5개
-        GameManager.Instance.AddCurrency(CurrencyType.RandomCommon, 2);
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.AddCurrency(CurrencyType.RandomCommon, 2);
+        }
 
         if (currentRound > maxRounds)
         {

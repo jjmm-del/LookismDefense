@@ -33,7 +33,7 @@ public class SummonButtonUI : MonoBehaviour
         {
             return;
         }
-        int amount = GameManager.Instance.GetCurrency(targetCurrency);
+        int amount = CurrencyManager.Instance.GetCurrency(targetCurrency);
         
         //2. 텍스트 갱신
         titleText.text = displayName;
