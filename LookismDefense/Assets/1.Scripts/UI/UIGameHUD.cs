@@ -18,10 +18,12 @@ public class UIGameHUD : UIBase
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
             GameManager.Instance.OnEnemyCountChanged += SetEnemyCount;
         }
-
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.OnCurrencyChanged += HandleCurrencyChanged;
+        }
         if (RoundManager.Instance != null)
         {
             RoundManager.Instance.OnRoundChanged += SetWave;
@@ -31,9 +33,9 @@ public class UIGameHUD : UIBase
 
     private void RefreshAll()
     {
-        if (GameManager.Instance != null)
+        if (CurrencyManager.Instance != null)
         {
-            SetGold(GameManager.Instance.GetCurrency(CurrencyType.Gold));
+            SetGold(CurrencyManager.Instance.GetCurrency(CurrencyType.Gold));
         }
     }
 
@@ -73,10 +75,13 @@ public class UIGameHUD : UIBase
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
             GameManager.Instance.OnEnemyCountChanged -= SetEnemyCount;
         }
 
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.OnCurrencyChanged -= HandleCurrencyChanged;
+        }
         if (RoundManager.Instance != null)
         {
             RoundManager.Instance.OnRoundChanged -= SetWave;
