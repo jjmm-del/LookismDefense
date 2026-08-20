@@ -75,9 +75,9 @@ public class UnitEntity : MonoBehaviour
     private void Start()
     {
         //태어날 때 게임매니저에 나를 등록
-        if (GameManager.Instance != null)
+        if (EntityRegistry.Instance != null)
         {
-            GameManager.Instance.RegisterUnit(this);
+            EntityRegistry.Instance.RegisterUnit(this);
             Debug.Log($"{this.unitData.name} 등록");
         }
     }
@@ -459,9 +459,13 @@ public class UnitEntity : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (GameManager.Instance != null)
+        if (HomeCell != null)
         {
-            GameManager.Instance.UnregisterUnit(this);
+            HomeCell.RemoveUnit();
+        }
+        if (EntityRegistry.Instance != null)
+        {
+            EntityRegistry.Instance.UnregisterUnit(this);
         }
     }
 }

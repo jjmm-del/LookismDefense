@@ -208,7 +208,7 @@ public class UnitInfoPanelUI: MonoBehaviour
     {
         if (currentTargetUnit != null && GameManager.Instance != null)
         {
-            GameManager.Instance.SellUnit(currentTargetUnit);
+            //GameManager.Instance.SellUnit(currentTargetUnit);
         }
     }
 

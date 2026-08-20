@@ -16,9 +16,9 @@ public class UIGameHUD : UIBase
 
     private void BindEvents()
     {
-        if (GameManager.Instance != null)
+        if (EntityRegistry.Instance != null)
         {
-            GameManager.Instance.OnEnemyCountChanged += SetEnemyCount;
+            EntityRegistry.Instance.OnEnemyCountChanged += HandleEnemyCountChanged;
         }
         if (CurrencyManager.Instance != null)
         {
@@ -58,6 +58,17 @@ public class UIGameHUD : UIBase
         waveText.text = $"{current}/{max}";
     }
 
+    public void HandleEnemyCountChanged(int current)
+    {
+        int max = 0;
+
+        if (GameManager.Instance != null && GameManager.Instance.CurrentDifficulty != null)
+        {
+            max = GameManager.Instance.CurrentDifficulty.MaxUnitCountLimits;
+        }
+        SetEnemyCount(current, max);
+    }
+
     public void SetEnemyCount(int current, int max)
     {
         unitCountText.text = $"{current}/{max}";
@@ -73,9 +84,9 @@ public class UIGameHUD : UIBase
 
     private void OnDestroy()
     {
-        if (GameManager.Instance != null)
+        if (EntityRegistry.Instance != null)
         {
-            GameManager.Instance.OnEnemyCountChanged -= SetEnemyCount;
+            EntityRegistry.Instance.OnEnemyCountChanged -= HandleEnemyCountChanged;
         }
 
         if (CurrencyManager.Instance != null)
