@@ -9,14 +9,7 @@ using System;
 public class UIManager : Singleton<UIManager>
 {
     private readonly Stack<UIPopup> popupStack = new();
-    public Action OnResourceChanged;
     public Action OnTeleportRequested; 
-    
-    // [Header("Top Info Panel")]
-    // [SerializeField] private TextMeshProUGUI roundTimeText;
-    // [SerializeField] private TextMeshProUGUI goldText;
-    // [SerializeField] private TextMeshProUGUI unitCountText;
-    // [SerializeField] private TextMeshProUGUI waveNameText;
     
     [Header("Bottom Unit Info Panel(단일)")]
     [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
@@ -89,19 +82,9 @@ public class UIManager : Singleton<UIManager>
         {
             multiTeleportButton.onClick.AddListener(OnTeleportButtonClicked);
         }
-        //이벤트 구독
-        OnResourceChanged += RefreshGoldUI;
-        //GoldUI 업데이트
-        RefreshGoldUI();
     }
     //--- 상단 정보 갱신 ---
-    public void UpdateRoundTime(float time)
-    {
-        // 시간을 00:00 형식으로 표시
-        int minutes = Mathf.FloorToInt(time / 60F);
-        int seconds = Mathf.FloorToInt(time % 60F);
-        //roundTimeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
-    }
+    
 
     private void UpdateGold(int gold)
     {
@@ -207,10 +190,4 @@ public class UIManager : Singleton<UIManager>
         }
         //unitInfoPanel.SetActive(false);
     }
-    
-    private void OnDestroy()
-    {
-        OnResourceChanged -= RefreshGoldUI;
-    }
-    
 }

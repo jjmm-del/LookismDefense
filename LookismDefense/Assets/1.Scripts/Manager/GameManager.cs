@@ -32,7 +32,8 @@ public class GameManager : Singleton<GameManager>
     public DifficultyData[] DifficultyPresets => difficultyPresets;
 
     public Action<UnitEntity> OnUnitSold;
-
+    public event Action<CurrencyType, int> OnCurrencyChanged; // 재화 변화
+    public event Action<int, int> OnEnemyCountChanged; //적 수  current, max
     
     //보스전 관련
     private bool isBossRound = false;
@@ -138,12 +139,18 @@ public class GameManager : Singleton<GameManager>
     // --- 1. 라인사 관리(유닛 등록/해제) ---
     public void RegisterEnemy(EnemyEntity enemy)
     {
-        activeEnemies.Add(enemy);
+        if (enemy == null)
+            return;
 
-        // if (UIManager.Instance != null)
-        // {
-        //     UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
-        // }
+        if (!activeEnemies.Contains(enemy))
+        {
+            activeEnemies.Add(enemy);
+        }
+
+        int maxCount = currentDifficulty != null ? currentDifficulty.MaxUnitCountLimits : 0;
+
+        OnEnemyCountChanged?.Invoke(activeEnemies.Count, maxCount);
+        
         if (currentDifficulty!= null && activeEnemies.Count >= currentDifficulty.MaxUnitCountLimits)
         {
             TriggerGameOver($"라인 유닛 수 초과!({activeEnemies.Count}/{currentDifficulty.MaxUnitCountLimits})-라인사");
@@ -152,15 +159,14 @@ public class GameManager : Singleton<GameManager>
 
     public void UnRegisterEnemy(EnemyEntity enemy)
     {
-        if (activeEnemies.Contains(enemy))
-        {
-            activeEnemies.Remove(enemy);
-        }
+        if (enemy == null)
+            return;
         
-        // if (UIManager.Instance != null)
-        // {
-        //     UIManager.Instance.UpdateUnitCount(activeEnemies.Count, currentDifficulty.MaxUnitCountLimits);
-        // }
+        activeEnemies.Remove(enemy);
+        
+        int maxCount = currentDifficulty != null ? currentDifficulty.MaxUnitCountLimits : 0;
+        
+        OnEnemyCountChanged?.Invoke(activeEnemies.Count, maxCount);
     }
 
     //---재화 공동 관련 ---
@@ -169,29 +175,29 @@ public class GameManager : Singleton<GameManager>
     {
         return currencyRepository.ContainsKey(type) ? currencyRepository[type] : 0;
     }
+    
     // 2. 재화 획득
     public void AddCurrency(CurrencyType type, int amount)
     {
         currencyRepository[type] += amount;
-        UIManager.Instance.OnResourceChanged?.Invoke();
+        OnCurrencyChanged?.Invoke(type, currencyRepository[type]);
         Debug.Log($"{type} 획득: +{amount}(현재:{currencyRepository[type]})");
     }
     //3. 재화 사용
     public bool SpendCurrency(CurrencyType type, int amount)
     {
-        if(GetCurrency(type)>= amount)
-        {
-            currencyRepository[type] -= amount;
-
-            UIManager.Instance.OnResourceChanged?.Invoke();
-            Debug.Log("재화 사용");
-            return true;
-        }
-        else
+        if(GetCurrency(type) < amount)
         {
             Debug.Log($"[실패] {type}이 부족합니다");
             return false;
         }
+        
+        currencyRepository[type] -= amount;
+
+        OnCurrencyChanged?.Invoke(type, currencyRepository[type]);
+        Debug.Log($"재화 사용: {type} -{amount}");
+        return true;
+            
     }
  
 
