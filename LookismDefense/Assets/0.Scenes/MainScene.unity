@@ -4312,6 +4312,51 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &767176439
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 767176441}
+  - component: {fileID: 767176440}
+  m_Layer: 0
+  m_Name: UnitSellService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &767176440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 767176439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67350f27f7b40cb479916eac6cc3657b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitSellService
+  sellRewardSettings: {fileID: 11400000, guid: 4239ebaf533a62341a6f58ce0e7ad455, type: 2}
+--- !u!4 &767176441
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 767176439}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.96265, y: 0, z: -21.43825}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &795188993
 GameObject:
   m_ObjectHideFlags: 0
@@ -7016,7 +7061,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b7419da95aad26d4893c658888a0a0bf, type: 2}
   startGold: 500
   startChoice: 10
-  sellRewardSettings: {fileID: 0}
 --- !u!4 &1262867978
 Transform:
   m_ObjectHideFlags: 0
@@ -12560,4 +12604,5 @@ SceneRoots:
   - {fileID: 1765106972}
   - {fileID: 967354940}
   - {fileID: 174089324}
+  - {fileID: 767176441}
   - {fileID: 2088451758}
