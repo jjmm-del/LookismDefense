@@ -19,7 +19,8 @@ public class RoundManager : MonoBehaviour
     private float roundTimer = 0f;
     private bool isGameRunning = true;
     private bool isGracePeriod = false;
-
+    private bool isBossRound;
+    private float bossTimer;
 
     public event Action<float> OnRoundTimeChanged;
     public event Action<int, int> OnRoundChanged;
@@ -60,8 +61,15 @@ public class RoundManager : MonoBehaviour
 
     private void Update()
     {
-        if (!isGameRunning) return;
+        if (!isGameRunning)
+            return;
 
+        UpdateRoundTimer();
+
+    }
+
+    private void UpdateRoundTimer()
+    {
         //타이머 감소
         if (roundTimer > 0)
         {
@@ -84,8 +92,21 @@ public class RoundManager : MonoBehaviour
             }
             
         }
+    }
 
+    private void UpdateBossTimer()
+    {
+        if (!isBossRound)
+            return;
+
+        bossTimer -= Time.deltaTime;
+
+        if (bossTimer < 0f)
+            return;
+
+        isBossRound = false;
         
+        GameManager.Instance?.TriggerGameOver("보스 제한 시간 초과!");
     }
 
     private void StartNextRound()
@@ -93,7 +114,7 @@ public class RoundManager : MonoBehaviour
         //이전 라운드에 대한 스토리사 체크(GameManager에 위임)
         if (currentRound > 0)
         {
-            GameManager.Instance.CheckStoryCondition(currentRound);
+            StoryManager.Instance?.CheckRoundCondition(currentRound,GameManager.Instance?.CurrentDifficulty);
         }
         currentRound++;
         
@@ -123,7 +144,28 @@ public class RoundManager : MonoBehaviour
         //특정 라운드(예: 10, 20, 30, ...)는 보스 라운드 처리
         if (currentRound % 10 == 0)
         {
-            GameManager.Instance.StartBossRound();
+            StartBossRound();
         }
+    }
+
+    private void StartBossRound()
+    {
+        if (GameManager.Instance.CurrentDifficulty == null)
+            return;
+        
+        isBossRound = true;
+        bossTimer = GameManager.Instance.CurrentDifficulty.BossTimeLimit;
+        Debug.Log($"보스 라운드 시작! {bossTimer}초 안에 잡으세요");
+    }
+
+    public void NotifyBossDefeated()
+    {
+        if (!isBossRound)
+            return;
+
+        isBossRound = false;
+        bossTimer = 0f;
+        
+        Debug.Log("보스 처치 성공)");
     }
 }
