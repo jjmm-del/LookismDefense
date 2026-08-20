@@ -57,7 +57,7 @@ public class UpgradeManager : MonoBehaviour
         TierUpgradeData upgradeData = upgradeMap[tier];
         int cost = upgradeData.baseCost + (upgradeData.currentLevel * upgradeData.costPerLevel);
 
-        if (GameManager.Instance.SpendCurrency(CurrencyType.Gold, cost))
+        if (CurrencyManager.Instance.SpendCurrency(CurrencyType.Gold, cost))
         {
             upgradeData.currentLevel++;
             Debug.Log($"{tier}업그레이드 성공! Lv.{upgradeData.currentLevel}");

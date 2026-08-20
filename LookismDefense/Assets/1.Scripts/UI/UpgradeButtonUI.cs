@@ -62,7 +62,7 @@ public class UpgradeButtonUI : MonoBehaviour
             statText.text = $"{+currentBonus:F0}%";
             
             //골드 부족 시 버튼 비활성화 등 처리 가능
-            if (GameManager.Instance.GetCurrency(CurrencyType.Gold) >= currentCost)
+            if (CurrencyManager.Instance.GetCurrency(CurrencyType.Gold) >= currentCost)
             {
                 btn.interactable = true;
                 costText.color = Color.white;

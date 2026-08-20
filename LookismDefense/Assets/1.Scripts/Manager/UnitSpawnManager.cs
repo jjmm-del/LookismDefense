@@ -113,7 +113,7 @@ public class UnitSpawnManager : MonoBehaviour
         }
         
         //재화 차감 시도
-        if (GameManager.Instance.SpendCurrency(costType, costAmount))
+        if (CurrencyManager.Instance.SpendCurrency(costType, costAmount))
         {
             GameObject selectUnitObj = Instantiate(unit.Prefab, emptyCell.WorldPosition, Quaternion.identity);
             UnitEntity unitEntity = selectUnitObj.GetComponent<UnitEntity>();
@@ -129,8 +129,8 @@ public class UnitSpawnManager : MonoBehaviour
     //버튼에서 호출하는 통합 소환 함수
     public void TrySummon(CurrencyType type)
     {
-        // 1. 재화가 있는지 먼저 확인(GameManager)
-        if (GameManager.Instance.GetCurrency(type)<=0)
+        // 1. 재화가 있는지 먼저 확인(CurrencyManager)
+        if (CurrencyManager.Instance.GetCurrency(type)<=0)
         {
             Debug.Log("소환권이 부족합니다.");
             return;
@@ -140,19 +140,19 @@ public class UnitSpawnManager : MonoBehaviour
         switch (type)
         {
             case CurrencyType.RandomCommon:
-                if(GameManager.Instance.SpendCurrency(type,1))
+                if(CurrencyManager.Instance.SpendCurrency(type,1))
                     SpawnRandomUnit(UnitTier.Common);
                 break;
             case CurrencyType.RandomSpecial:
-                if(GameManager.Instance.SpendCurrency(type,1))
+                if(CurrencyManager.Instance.SpendCurrency(type,1))
                     SpawnRandomUnit(UnitTier.Special);
                 break;
             case CurrencyType.RandomRare:
-                if(GameManager.Instance.SpendCurrency(type,1))
+                if(CurrencyManager.Instance.SpendCurrency(type,1))
                     SpawnRandomUnit(UnitTier.Rare);
                 break;
             case CurrencyType.RandomLegendary:
-                if(GameManager.Instance.SpendCurrency(type,1))
+                if(CurrencyManager.Instance.SpendCurrency(type,1))
                     SpawnRandomUnit(UnitTier.Legendary);
                 break;
             case CurrencyType.SelectCommon:

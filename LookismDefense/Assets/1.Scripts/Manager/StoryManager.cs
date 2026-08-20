@@ -53,12 +53,12 @@ public class StoryManager : MonoBehaviour
     public void AdvanceStory(List<RewardInfo> rewards)
     {
         
-        if (GameManager.Instance != null)
+        if (CurrencyManager.Instance != null)
         {
             //보상 지급
             foreach (RewardInfo reward in rewards)
             {
-                GameManager.Instance.AddCurrency(reward.currencyType, reward.amount);
+                CurrencyManager.Instance.AddCurrency(reward.currencyType, reward.amount);
             }
         }
         currentStoryStep++;

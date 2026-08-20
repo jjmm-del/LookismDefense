@@ -86,20 +86,20 @@ public class UIManager : Singleton<UIManager>
     //--- 상단 정보 갱신 ---
     
 
-    private void UpdateGold(int gold)
-    {
-        //goldText.text = $"Gold: {gold}";
-    }
-
-    private void RefreshGoldUI()
-    {
-        if (GameManager.Instance == null)
-        {
-            return;
-        }
-        int currentGold = GameManager.Instance.GetCurrency(CurrencyType.Gold);
-        UpdateGold(currentGold);
-    }
+    // private void UpdateGold(int gold)
+    // {
+    //     //goldText.text = $"Gold: {gold}";
+    // }
+    //
+    // private void RefreshGoldUI()
+    // {
+    //     if (GameManager.Instance == null)
+    //     {
+    //         return;
+    //     }
+    //     int currentGold = CurrencyManager.Instance.GetCurrency(CurrencyType.Gold);
+    //     UpdateGold(currentGold);
+    // }
     // public void UpdateUnitCount(int current, int max)
     // {
     //     unitCountText.text =$"{current}/{max}";
