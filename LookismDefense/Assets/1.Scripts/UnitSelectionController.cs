@@ -16,10 +16,6 @@ public class UnitSelectionController : MonoBehaviour
     [Header("Selection")]
     [SerializeField] private float dragThreshold = 10f;
     
-    //[SerializeField] private LayerMask groundLayer;
-    //임시로 조합매니저 추가
-    //[SerializeField] private CombinationManager combinationManager;
-
     private List<UnitEntity> selectedUnits = new();  // 선택된 유닛
     private EnemyEntity selectedEnemy; // 선택된 적 유닛(상태 확인용)
 
@@ -45,9 +41,9 @@ public class UnitSelectionController : MonoBehaviour
             mainCamera = Camera.main;
         }
         
-        if (GameManager.Instance != null)
+        if (EntityRegistry.Instance != null)
         {
-            GameManager.Instance.OnUnitSold += HandleUnitSold;
+            EntityRegistry.Instance.OnUnitUnregistered += HandleUnitRemoved;
         }
     }
 
@@ -226,12 +222,12 @@ public class UnitSelectionController : MonoBehaviour
     }
     
     
-    private void HandleUnitSold(UnitEntity soldUnit)
+    private void HandleUnitRemoved(UnitEntity unit)
     {
-        if (soldUnit == null)
+        if (unit == null)
             return;
 
-        if (selectedUnits.Remove(soldUnit))
+        if (selectedUnits.Remove(unit))
         {
             RefreshSelectionUI();
             OnSelectionChanged?.Invoke();
@@ -267,9 +263,9 @@ public class UnitSelectionController : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if (GameManager.Instance != null)
+        if (EntityRegistry.Instance != null)
         {
-            GameManager.Instance.OnUnitSold -= HandleUnitSold;
+            EntityRegistry.Instance.OnUnitUnregistered -= HandleUnitRemoved;
         }
     }
 }

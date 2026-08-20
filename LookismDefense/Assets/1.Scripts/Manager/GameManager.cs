@@ -9,7 +9,6 @@ public class GameManager : Singleton<GameManager>
     [Header("Settings")]
     [SerializeField] private DifficultyData[] difficultyPresets; //에디터에서 Easy, Normal, Hard
     
-    private Dictionary<CurrencyType, int> currencyRepository = new Dictionary<CurrencyType, int>();
     // 게임 시스템 변수
     [Header("Debug/Resources")]
     [SerializeField] private int startGold = 500;   // 초기 골드 (난이도 별로 다르게 할 수도 있음)
@@ -21,19 +20,8 @@ public class GameManager : Singleton<GameManager>
     private DifficultyData currentDifficulty;
     public DifficultyData CurrentDifficulty => currentDifficulty;
     
-    //플레이어 소유 유닛 리스트
-    private List<UnitEntity> playerUnits = new List<UnitEntity>();
-    public List<UnitEntity> PlayerUnits => playerUnits; //외부(조합 매니저 등) 에서 접근용
-    
-    //현재 필드에 존재하는 적 리스트(라인사 체크용)
-    private List<EnemyEntity> activeEnemies = new List<EnemyEntity>();
-    
     // [신규] 외부(UI)에서 난이도 목록을 읽어갈 수 있게 열어주는 프로퍼티
     public DifficultyData[] DifficultyPresets => difficultyPresets;
-
-    public Action<UnitEntity> OnUnitSold;
-
-    public event Action<int, int> OnEnemyCountChanged; //적 수  current, max
     
     //보스전 관련
     private bool isBossRound = false;
@@ -51,6 +39,10 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
+        if (EntityRegistry.Instance != null)
+        {
+            EntityRegistry.Instance.OnEnemyCountChanged += HandleEnemyCountChanged;
+        }
         StartGame(SessionManager.SelectedDifficultyIndex);
 
         if (CurrencyManager.Instance != null)
@@ -98,9 +90,7 @@ public class GameManager : Singleton<GameManager>
                 TriggerGameOver("보스 제한 시간 초과!(보스사");
             }
         }
-        //UIManager.Instance.UpdateGold();
     }
-
     public void SetDifficulty(int index)
     {
         if (index >= 0 && index < difficultyPresets.Length)
@@ -112,57 +102,18 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public void RegisterUnit(UnitEntity unit)
+    private void HandleEnemyCountChanged(int currentCount)
     {
-        if (!playerUnits.Contains(unit))
-        {
-            playerUnits.Add(unit);
-        }
-    }
-
-    public void UnregisterUnit(UnitEntity unit)
-    {
-        if (playerUnits.Contains(unit))
-        {
-            playerUnits.Remove(unit);
-        }
-    }
-    
-    
-    
-    // --- 1. 라인사 관리(유닛 등록/해제) ---
-    public void RegisterEnemy(EnemyEntity enemy)
-    {
-        if (enemy == null)
+        if (currentDifficulty == null)
             return;
 
-        if (!activeEnemies.Contains(enemy))
-        {
-            activeEnemies.Add(enemy);
-        }
+        int maxCount = currentDifficulty.MaxUnitCountLimits;
 
-        int maxCount = currentDifficulty != null ? currentDifficulty.MaxUnitCountLimits : 0;
-
-        OnEnemyCountChanged?.Invoke(activeEnemies.Count, maxCount);
-        
-        if (currentDifficulty!= null && activeEnemies.Count >= currentDifficulty.MaxUnitCountLimits)
+        if (currentCount >= maxCount)
         {
-            TriggerGameOver($"라인 유닛 수 초과!({activeEnemies.Count}/{currentDifficulty.MaxUnitCountLimits})-라인사");
+            TriggerGameOver($"라인 유닛 수 초과! [{currentCount}/{maxCount}]-라인사");
         }
     }
-
-    public void UnRegisterEnemy(EnemyEntity enemy)
-    {
-        if (enemy == null)
-            return;
-        
-        activeEnemies.Remove(enemy);
-        
-        int maxCount = currentDifficulty != null ? currentDifficulty.MaxUnitCountLimits : 0;
-        
-        OnEnemyCountChanged?.Invoke(activeEnemies.Count, maxCount);
-    }
-    
     
     // --- 스토리사 관련 ---
     public void CheckStoryCondition(int currentRound)
@@ -202,18 +153,22 @@ public class GameManager : Singleton<GameManager>
             UIManager.Instance.ShowGameOverPanel();
         }
     }
-    
-    
-    [CanBeNull]
-    public List<SellRewardSettings.RewardItem> GetSellRewardInfo(UnitTier tier)
-    {
-        if (sellRewardSettings == null) return null;
-        return sellRewardSettings.GetRewards(tier);
-    }
 
+    protected override void OnDestroy()
+    {
+        if (EntityRegistry.Instance != null)
+        {
+            EntityRegistry.Instance.OnEnemyCountChanged -= HandleEnemyCountChanged;
+        }
+        base.OnDestroy();
+    }
+    
     public void SellUnit(UnitEntity unit)
     {
-        if (unit == null || !playerUnits.Contains(unit)) return;
+        if (unit == null || EntityRegistry.Instance == null || !EntityRegistry.Instance.ContainsUnit(unit))
+        {
+            return;
+        }
 
         List<SellRewardSettings.RewardItem> rewardList = GetSellRewardInfo(unit.Data.Tier);
 
@@ -224,7 +179,7 @@ public class GameManager : Singleton<GameManager>
                 if (UnityEngine.Random.Range(0f, 100f) <= reward.chance)
                 {
                     //확률 성공! 재화 지급
-                    //AddCurrency(reward.rewardType, reward.amount);
+                    CurrencyManager.Instance?.AddCurrency(reward.rewardType, reward.amount);
                     Debug.Log("판매성공");
                 }
                 else
@@ -235,14 +190,16 @@ public class GameManager : Singleton<GameManager>
             }
         }
 
-        playerUnits.Remove(unit);
-        OnUnitSold?.Invoke(unit);
+        EntityRegistry.Instance?.UnregisterUnit(unit);
         Destroy(unit.gameObject);
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.HideInfoPanel();
-        }
-
+    }
+    
+    
+    [CanBeNull]
+    public List<SellRewardSettings.RewardItem> GetSellRewardInfo(UnitTier tier)
+    {
+        if (sellRewardSettings == null) return null;
+        return sellRewardSettings.GetRewards(tier);
     }
     
 }
