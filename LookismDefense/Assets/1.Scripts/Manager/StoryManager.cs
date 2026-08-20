@@ -11,7 +11,6 @@ public class StoryManager : MonoBehaviour
     [SerializeField] private Transform storyTeleportPoint;
     public Vector3 StoryTeleportPosition => storyTeleportPoint != null ? storyTeleportPoint.position : storySpawnPoint.position;
     public int currentStoryStep { get; private set; } = 0;
-
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -69,5 +68,22 @@ public class StoryManager : MonoBehaviour
         }
 
         SpawnNextStory();
+    }
+    public void CheckRoundCondition(int currentRound, DifficultyData difficulty)
+    {
+        if (difficulty == null)
+            return;
+
+
+        if (currentRound != 40)
+            return;
+
+
+        if (currentStoryStep >= difficulty.StoryLimit) //예: 현재 스토리 3 < 스토리 제한 
+            return;
+        
+        GameManager.Instance?.TriggerGameOver("정해진 라운드 내에 스토리 클리어 실패!");
+        
+        
     }
 }
