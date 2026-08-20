@@ -32,7 +32,7 @@ public class GameManager : Singleton<GameManager>
     public DifficultyData[] DifficultyPresets => difficultyPresets;
 
     public Action<UnitEntity> OnUnitSold;
-    public event Action<CurrencyType, int> OnCurrencyChanged; // 재화 변화
+
     public event Action<int, int> OnEnemyCountChanged; //적 수  current, max
     
     //보스전 관련
@@ -47,17 +47,17 @@ public class GameManager : Singleton<GameManager>
     protected override void Awake()
     {
         base.Awake();
-        //1. 모든 재화 0으로 초기화
-        foreach (CurrencyType type in System.Enum.GetValues(typeof(CurrencyType)))
-        {
-            currencyRepository[type] = 0;
-        }
-        
     }
 
     private void Start()
     {
         StartGame(SessionManager.SelectedDifficultyIndex);
+
+        if (CurrencyManager.Instance != null)
+        {
+            CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, startGold);
+            CurrencyManager.Instance.AddCurrency(CurrencyType.RandomCommon, startChoice);
+        }
     }
 
     public void StartGame(int difficultyIndex)
@@ -69,12 +69,6 @@ public class GameManager : Singleton<GameManager>
         
         // [난이도 세팅]
         SetDifficulty(difficultyIndex);
-        
-        // [초기 자금 지급]
-        AddCurrency(CurrencyType.Gold, startGold);
-        AddCurrency(CurrencyType.RandomCommon, startChoice);
-        AddCurrency(CurrencyType.SelectCommon, 1);
-        
         // 게임 시작 플래그 ON
         IsGameStarted = true;
         Debug.Log($"[{difficultyPresets[difficultyIndex].name}] 난이도로 게임이 시작 되었습니다.");
@@ -168,39 +162,7 @@ public class GameManager : Singleton<GameManager>
         
         OnEnemyCountChanged?.Invoke(activeEnemies.Count, maxCount);
     }
-
-    //---재화 공동 관련 ---
-    // 1. 재화 개수 확인
-    public int GetCurrency(CurrencyType type)
-    {
-        return currencyRepository.ContainsKey(type) ? currencyRepository[type] : 0;
-    }
     
-    // 2. 재화 획득
-    public void AddCurrency(CurrencyType type, int amount)
-    {
-        currencyRepository[type] += amount;
-        OnCurrencyChanged?.Invoke(type, currencyRepository[type]);
-        Debug.Log($"{type} 획득: +{amount}(현재:{currencyRepository[type]})");
-    }
-    //3. 재화 사용
-    public bool SpendCurrency(CurrencyType type, int amount)
-    {
-        if(GetCurrency(type) < amount)
-        {
-            Debug.Log($"[실패] {type}이 부족합니다");
-            return false;
-        }
-        
-        currencyRepository[type] -= amount;
-
-        OnCurrencyChanged?.Invoke(type, currencyRepository[type]);
-        Debug.Log($"재화 사용: {type} -{amount}");
-        return true;
-            
-    }
- 
-
     
     // --- 스토리사 관련 ---
     public void CheckStoryCondition(int currentRound)
@@ -262,7 +224,7 @@ public class GameManager : Singleton<GameManager>
                 if (UnityEngine.Random.Range(0f, 100f) <= reward.chance)
                 {
                     //확률 성공! 재화 지급
-                    AddCurrency(reward.rewardType, reward.amount);
+                    //AddCurrency(reward.rewardType, reward.amount);
                     Debug.Log("판매성공");
                 }
                 else
