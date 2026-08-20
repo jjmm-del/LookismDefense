@@ -15,9 +15,6 @@ public class SummonButtonUI : MonoBehaviour
     {
         //버튼 클릭 시 실행할 함수 연결
         actionButton.onClick.AddListener(OnClick);
-        
-        //초기 UI 갱신
-        UIManager.Instance.OnResourceChanged += UpdateUI;
 
         //(선택) UI매니저나 게임 매니저 이벤트에 UpdateUI 등록하면 좋음
 
@@ -63,10 +60,5 @@ public class SummonButtonUI : MonoBehaviour
         
         //사용 후 UI 갱신
         UpdateUI();
-    }
-
-    private void OnDestroy()
-    {
-        UIManager.Instance.OnResourceChanged -= UpdateUI;
     }
 }

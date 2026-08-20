@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System;
 public class RoundManager : MonoBehaviour
 {
     // 싱글턴으로 변경
@@ -19,6 +20,9 @@ public class RoundManager : MonoBehaviour
     private bool isGameRunning = true;
     private bool isGracePeriod = false;
 
+
+    public event Action<float> OnRoundTimeChanged;
+    public event Action<int, int> OnRoundChanged;
     private void Awake()
     {
         if (Instance == null)
@@ -64,11 +68,7 @@ public class RoundManager : MonoBehaviour
             roundTimer -= Time.deltaTime;
             
             //시간이 다 되면 다음 라운드
-            if (UIManager.Instance != null)
-            {
-                UIManager.Instance.UpdateRoundTime(roundTimer);
-            }
-            
+            OnRoundTimeChanged?.Invoke(Mathf.Max(roundTimer, 0f));
             
             if (roundTimer <= 0)
             { 
@@ -106,7 +106,10 @@ public class RoundManager : MonoBehaviour
             isGameRunning = false;
             return;
         }
+        OnRoundChanged?.Invoke(currentRound, maxRounds);
         Debug.Log($"{currentRound}라운드 시작!");
+        
+        
         roundTimer = roundDuration;
         
         //WaveManager에게 현재 라운드에 맞는 적 소환 요청

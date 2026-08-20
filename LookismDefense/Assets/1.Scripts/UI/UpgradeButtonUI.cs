@@ -19,14 +19,14 @@ public class UpgradeButtonUI : MonoBehaviour
         // 실시간 구독
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.OnResourceChanged += UpdateUI;
+            //UIManager.Instance.OnResourceChanged += UpdateUI;
         }
     }
     private void OnDestroy()
     {
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.OnResourceChanged -= UpdateUI;
+            //UIManager.Instance.OnResourceChanged -= UpdateUI;
         }
     }
     //[신규] 프리팹이 생성될 때 최초 1회 호출되는 세팅 함수
