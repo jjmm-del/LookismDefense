@@ -1,7 +1,5 @@
 using UnityEngine;
-using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -13,9 +11,7 @@ public class GameManager : Singleton<GameManager>
     [Header("Debug/Resources")]
     [SerializeField] private int startGold = 500;   // 초기 골드 (난이도 별로 다르게 할 수도 있음)
     [SerializeField] private int startChoice = 10; //랜덤 흔함
-
-    [SerializeField] private SellRewardSettings sellRewardSettings;
-
+    
     //현재 적용된 난이도 (외부에서는 프로퍼티로 정보 가져간다)
     private DifficultyData currentDifficulty;
     public DifficultyData CurrentDifficulty => currentDifficulty;
@@ -162,44 +158,4 @@ public class GameManager : Singleton<GameManager>
         }
         base.OnDestroy();
     }
-    
-    public void SellUnit(UnitEntity unit)
-    {
-        if (unit == null || EntityRegistry.Instance == null || !EntityRegistry.Instance.ContainsUnit(unit))
-        {
-            return;
-        }
-
-        List<SellRewardSettings.RewardItem> rewardList = GetSellRewardInfo(unit.Data.Tier);
-
-        if (rewardList != null && rewardList.Count > 0) 
-        {
-            foreach (var reward in rewardList)
-            {
-                if (UnityEngine.Random.Range(0f, 100f) <= reward.chance)
-                {
-                    //확률 성공! 재화 지급
-                    CurrencyManager.Instance?.AddCurrency(reward.rewardType, reward.amount);
-                    Debug.Log("판매성공");
-                }
-                else
-                {
-                    //확률 실패
-                    Debug.Log("판매 실패");
-                }
-            }
-        }
-
-        EntityRegistry.Instance?.UnregisterUnit(unit);
-        Destroy(unit.gameObject);
-    }
-    
-    
-    [CanBeNull]
-    public List<SellRewardSettings.RewardItem> GetSellRewardInfo(UnitTier tier)
-    {
-        if (sellRewardSettings == null) return null;
-        return sellRewardSettings.GetRewards(tier);
-    }
-    
 }

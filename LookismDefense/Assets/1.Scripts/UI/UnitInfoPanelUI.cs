@@ -90,36 +90,26 @@ public class UnitInfoPanelUI: MonoBehaviour
 
         UpdateAbilities(data);
         UpdateRecipeList(data);
-
-        if (sellButton != null && GameManager.Instance != null)
+        if (sellButton != null && UnitSellService.Instance != null)
         {
-            List<SellRewardSettings.RewardItem> rewardList = GameManager.Instance.GetSellRewardInfo(data.Tier);
-            if (rewardList != null && rewardList.Count > 0)
-            {
-                sellButton.gameObject.SetActive(true);
-
-                string firstCurrencyName = GetCurrencyName(rewardList[0].rewardType);
-                if (rewardList.Count == 1)
-                {
-                    if (sellPriceText != null)
-                    {
-                        sellPriceText.text = $"판매 ({rewardList[0].chance}% {firstCurrencyName})";
-                    }
-                    else
-                    {
-                        if (sellPriceText != null)
-                        {
-                            sellPriceText.text = $"판매({firstCurrencyName}외 {rewardList.Count - 1}종)";
-                        }
-                            
-                    }
-                }
-            }
-            else
-            {
-                sellButton.gameObject.SetActive(false);
-            }
+            UpdateSellText(UnitSellService.Instance.GetSellRewardInfo(data.Tier));
         }
+    }
+
+    private void UpdateSellText(List<SellRewardSettings.RewardItem> rewards)
+    {
+        if (sellPriceText == null || rewards == null || rewards.Count == 0)
+        {
+            return;
+        }
+        string firstCurrencyName = GetCurrencyName(rewards[0].rewardType);
+        if (rewards.Count == 1)
+        {
+            sellPriceText.text = $"판매({rewards[0].chance}% {firstCurrencyName})";
+            return;
+        }
+        sellPriceText.text = $"판매({firstCurrencyName}외 {rewards.Count - 1}종)";
+
     }
     public void ShowEnemyInfo(EnemyData data, float currentHp)
     {
@@ -206,10 +196,10 @@ public class UnitInfoPanelUI: MonoBehaviour
 
     private void OnSellButtonClicked()
     {
-        if (currentTargetUnit != null && GameManager.Instance != null)
-        {
-            //GameManager.Instance.SellUnit(currentTargetUnit);
-        }
+        if (currentTargetUnit == null)
+            return;
+
+        UnitSellService.Instance?.SellUnit(currentTargetUnit);
     }
 
     private string GetCurrencyName(CurrencyType type)
