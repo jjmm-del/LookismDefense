@@ -160,7 +160,7 @@ public class EnemyEntity : MonoBehaviour
                     StoryManager.Instance.AdvanceStory(Data.StoryRewards);
                     break;
                 case EnemyType.Boss:
-                    GameManager.Instance.BossDefeated();
+                    RoundManager.Instance?.NotifyBossDefeated();
                     break;
                 case EnemyType.Mission:
                     //GameManager.Instance.ClearMission(int missionLevel, reward);

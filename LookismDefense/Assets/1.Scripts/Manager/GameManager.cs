@@ -1,9 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+using System;
 public class GameManager : Singleton<GameManager>
 {
     public bool IsGameStarted { get; private set; } = false;
+    
     [Header("Settings")]
     [SerializeField] private DifficultyData[] difficultyPresets; //에디터에서 Easy, Normal, Hard
     
@@ -18,14 +19,7 @@ public class GameManager : Singleton<GameManager>
     
     // [신규] 외부(UI)에서 난이도 목록을 읽어갈 수 있게 열어주는 프로퍼티
     public DifficultyData[] DifficultyPresets => difficultyPresets;
-    
-    //보스전 관련
-    private bool isBossRound = false;
-    private float bossTimer = 0f;
-
-    //스토리 관련(예시:1단계부터 시작)
-    private int currentStoryStep = 1;
-    
+    public event Action<string> OnGameOver;
     
 
     protected override void Awake()
@@ -41,52 +35,39 @@ public class GameManager : Singleton<GameManager>
         }
         StartGame(SessionManager.SelectedDifficultyIndex);
 
-        if (CurrencyManager.Instance != null)
-        {
-            CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, startGold);
-            CurrencyManager.Instance.AddCurrency(CurrencyType.RandomCommon, startChoice);
-        }
+        
     }
 
     public void StartGame(int difficultyIndex)
     {
         if (IsGameStarted)
-        {
             return;
-        }
+        
         
         // [난이도 세팅]
         SetDifficulty(difficultyIndex);
+        InitializeResources();
+        
         // 게임 시작 플래그 ON
         IsGameStarted = true;
-        Debug.Log($"[{difficultyPresets[difficultyIndex].name}] 난이도로 게임이 시작 되었습니다.");
 
-        if (RoundManager.Instance != null)
-        {
-            RoundManager.Instance.StartGameRounds();
-        }
-
-        if (StoryManager.Instance != null)
-        {
-            StoryManager.Instance.StartStory();
-        }
         
-
+        RoundManager.Instance?.StartGameRounds();
+        StoryManager.Instance?.StartStory();
+        
+        Debug.Log($"[{difficultyPresets[difficultyIndex].name}] 난이도로 게임이 시작 되었습니다.");
     }
-    private void Update()
+
+    private void InitializeResources()
     {
-        //보스 라운드 일 때만 타이머 작동-> 수정 예정 모든 라운드 시간 체크 
-        if (isBossRound)
-        {
-            bossTimer -= Time.deltaTime;
-
-            //보스사 체크
-            if (bossTimer <= 0)
-            {
-                TriggerGameOver("보스 제한 시간 초과!(보스사");
-            }
-        }
+        if (CurrencyManager.Instance == null)
+            return;
+        
+        CurrencyManager.Instance.AddCurrency(CurrencyType.Gold, startGold);
+        CurrencyManager.Instance.AddCurrency(CurrencyType.RandomCommon, startChoice);
+        CurrencyManager.Instance.AddCurrency(CurrencyType.SelectCommon, 1);
     }
+    
     public void SetDifficulty(int index)
     {
         if (index >= 0 && index < difficultyPresets.Length)
@@ -111,43 +92,18 @@ public class GameManager : Singleton<GameManager>
         }
     }
     
-    // --- 스토리사 관련 ---
-    public void CheckStoryCondition(int currentRound)
-    {
-        if (currentRound == 40)
-        {
-            if (currentStoryStep < currentDifficulty.StoryLimit) //예: 현재 스토리 3 < 스토리 제한 
-            {
-                TriggerGameOver("정해진 라운드 내에 스토리 클리어 실패!");
-            }
-        }
-    }
-
     
-    // --- 3. 보스전 관리 ---
-    public void StartBossRound()
-    {
-        isBossRound = true;
-        bossTimer = currentDifficulty.BossTimeLimit;
-        Debug.Log($"보스 라운드 시작! {bossTimer}초 안에 잡으세요");
-    }
-
-    public void BossDefeated()
-    {
-        isBossRound = false;
-        Debug.Log("보스 처치 성공!");
-    }
-
     public void TriggerGameOver(string reason)
     {
-        Debug.LogError("GameOver"+reason);
-        Time.timeScale = 0;//게임 정지
+        if (!IsGameStarted)
+            return;
+        IsGameStarted = false;
         
-        //여기에 GameOverUI 팝업 띄우는 로직 추가
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ShowGameOverPanel();
-        }
+        Debug.LogError("GameOver"+reason);
+        
+        Time.timeScale = 0;//게임 정지
+
+        OnGameOver?.Invoke(reason);
     }
 
     protected override void OnDestroy()
