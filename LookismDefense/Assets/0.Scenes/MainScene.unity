@@ -1803,6 +1803,7 @@ MonoBehaviour:
   goldText: {fileID: 2073165163}
   waveText: {fileID: 1067917266}
   unitCountText: {fileID: 1694126676}
+  roundTimeText: {fileID: 1031407187}
 --- !u!1 &371494597
 GameObject:
   m_ObjectHideFlags: 0
@@ -10372,10 +10373,6 @@ MonoBehaviour:
   gameOverPanel: {fileID: 1988838827}
   singleTeleportButton: {fileID: 430865297}
   multiTeleportButton: {fileID: 1537526898}
-  tabButtonContainer: {fileID: 1284773381}
-  tabClosedY: 0
-  tabOpenedY: 280
-  tabMoveSpeed: 15
 --- !u!4 &1814384901
 Transform:
   m_ObjectHideFlags: 0
