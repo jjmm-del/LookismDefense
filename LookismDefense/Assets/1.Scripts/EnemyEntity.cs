@@ -63,9 +63,9 @@ public class EnemyEntity : MonoBehaviour
         
         if (data.Type == EnemyType.Normal)
         {
-            if (GameManager.Instance != null)
+            if (EntityRegistry.Instance != null)
             {
-                GameManager.Instance.RegisterEnemy(this);
+                EntityRegistry.Instance.RegisterEnemy(this);
             }
         }
         //enemyMovement에게 "이 속도로, 이 길을 따라가라"고 명령
@@ -166,7 +166,7 @@ public class EnemyEntity : MonoBehaviour
                     //GameManager.Instance.ClearMission(int missionLevel, reward);
                     break;
                 case EnemyType.Normal:
-                    GameManager.Instance.UnRegisterEnemy(this);
+                    EntityRegistry.Instance?.UnregisterEnemy(this);
                     break;
             }
         }
@@ -180,5 +180,14 @@ public class EnemyEntity : MonoBehaviour
         {
             selectionIndicator.SetActive(isSelected);
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (enemyData != null && enemyData.Type == EnemyType.Normal)
+        {
+            EntityRegistry.Instance?.UnregisterEnemy(this);
+        }
+            
     }
 }

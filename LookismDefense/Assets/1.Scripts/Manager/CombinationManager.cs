@@ -64,7 +64,7 @@ public class CombinationManager : MonoBehaviour
 
     private bool HasEnoughIngredients(CombinationRecipe recipe)
     {
-        List<UnitEntity> myUnits = GameManager.Instance.PlayerUnits;
+        IReadOnlyList<UnitEntity> myUnits = EntityRegistry.Instance.PlayerUnits;
         if (myUnits == null || myUnits.Count == 0)
         {
             Debug.LogError("오류: GameManager에 등록된 유닛이 0마리입니다.!");
@@ -137,24 +137,18 @@ public class CombinationManager : MonoBehaviour
 
     private void ConsumeIngredients(CombinationRecipe recipe)
     {
-        List<UnitEntity> myUnits = GameManager.Instance.PlayerUnits;
         foreach (Ingredient ingredient in recipe.Ingredients)
         {
-            int countToRemove = ingredient.count;
+            List<UnitEntity> unitsToRemove = EntityRegistry.Instance.PlayerUnits
+                                                           .Where(unit => unit != null && unit.Data == ingredient.unit)
+                                                           .Take(ingredient.count).ToList();
             
             //리스트를 뒤로 돌면서 삭제(안전한 삭제)
-            for (int i = myUnits.Count - 1; i >= 0; i--)
+            foreach (UnitEntity unit in unitsToRemove)
             {
-                if (countToRemove <= 0) break;
+                EntityRegistry.Instance.UnregisterUnit(unit);
                 
-                if(myUnits[i].Data == ingredient.unit)
-                {
-                    //파괴로직
-                    UnitEntity unitToRemove = myUnits[i];
-                    myUnits.RemoveAt(i); //리스트에서 제거
-                    Destroy(unitToRemove.gameObject); //오브젝트 파괴
-                    countToRemove--;
-                }
+                Destroy(unit.gameObject);
             }
         }
     }
