@@ -21,9 +21,6 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private UISummonPopup summonPopup;
     [SerializeField] private GameObject upgradePanel;
     
-    [Header("GameOver")]
-    [SerializeField] private GameObject gameOverPanel;
-    
     [Header("Story")]
     [SerializeField] private Button singleTeleportButton;
     [SerializeField] private Button multiTeleportButton;
@@ -83,43 +80,7 @@ public class UIManager : Singleton<UIManager>
             multiTeleportButton.onClick.AddListener(OnTeleportButtonClicked);
         }
     }
-    //--- 상단 정보 갱신 ---
-    
-
-    // private void UpdateGold(int gold)
-    // {
-    //     //goldText.text = $"Gold: {gold}";
-    // }
-    //
-    // private void RefreshGoldUI()
-    // {
-    //     if (GameManager.Instance == null)
-    //     {
-    //         return;
-    //     }
-    //     int currentGold = CurrencyManager.Instance.GetCurrency(CurrencyType.Gold);
-    //     UpdateGold(currentGold);
-    // }
-    // public void UpdateUnitCount(int current, int max)
-    // {
-    //     unitCountText.text =$"{current}/{max}";
-    //     
-    //     //위험 수치면 빨간색으로 변경하는 연출 가능
-    //     if (current >= max - 10)
-    //     {
-    //         unitCountText.color = Color.red;
-    //     }
-    //     else
-    //     {
-    //         unitCountText.color = Color.white;
-    //     }
-    // }
-
-    // public void UpdateWaveName(string name)
-    // {
-    //     waveNameText.text = name;
-    // }
-    
+  
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitEntity unit)
     {
@@ -138,14 +99,6 @@ public class UIManager : Singleton<UIManager>
         singleUnitInfoPanel.HideInfo();
         multiUnitInfoPanel.ShowInfo(selectedUnits, onPortraitClickCallback);
     }
-    public void ShowGameOverPanel()
-    {
-        if (gameOverPanel != null)
-        {
-            gameOverPanel.SetActive(true);
-        }
-    }
-    
     
     public void HideInfoPanel()
     {
