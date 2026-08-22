@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 public class UnitSelectorUI : MonoBehaviour
 {
@@ -9,11 +10,15 @@ public class UnitSelectorUI : MonoBehaviour
     [SerializeField] private GameObject unitButtonPrefab; // 유닛 아이콘/ 버튼 프리팹
     [SerializeField] private TextMeshProUGUI titleText; // "흔함 선택권"같은 제목
     
+    private Action<UnitData> onUnitSelected;
+    
     //팝업 열기(외부에서 호출)
-    public void OpenSelector(string title, List<UnitData> unitList)
+    public void OpenSelector(string title, IReadOnlyList<UnitData> unitList, Action<UnitData> selectedCallback)
     {
         gameObject.SetActive(true);
+        
         titleText.text = title;
+        onUnitSelected = selectedCallback;
         
         // 1. 기존 버튼 청소
         foreach (Transform child in contentArea)
@@ -24,22 +29,23 @@ public class UnitSelectorUI : MonoBehaviour
         //2. 목록에 있는 유닛만큼 버튼 생성
         foreach (UnitData unit in unitList)
         {
-            GameObject btnObj = Instantiate(unitButtonPrefab, contentArea);
+            GameObject buttonObject = Instantiate(unitButtonPrefab, contentArea);
             
             //버튼 택스트/이미지 설정(프리팹 구조에 따라 수정 필요)
-            btnObj.GetComponentInChildren<TextMeshProUGUI>().text = unit.EntityName;
-            btnObj.GetComponent<Image>().sprite = unit.PortraitIcon;
+            buttonObject.GetComponentInChildren<TextMeshProUGUI>().text = unit.EntityName;
+            buttonObject.GetComponent<Image>().sprite = unit.PortraitIcon;
             
             //3. 버튼 클릭 시 "이 유닛 소환해줘"라고 매니저에게 요청
-            Button btn = btnObj.GetComponent<Button>();
-            btn.onClick.AddListener(()=> OnUnitSelected(unit));
+            Button button = buttonObject.GetComponent<Button>();
+            UnitData capturedUnit = unit;
+            button.onClick.AddListener(()=> OnUnitSelected(capturedUnit));
         }
     }
 
     private void OnUnitSelected(UnitData unit)
     {
         //소환 로직 호출
-        UnitSpawnManager.Instance.SpawnSelectedUnit(unit);
+        onUnitSelected?.Invoke(unit);
         
         //팝업 닫기
         CloseSelector();
@@ -47,6 +53,7 @@ public class UnitSelectorUI : MonoBehaviour
 
     private void CloseSelector()
     {
+        onUnitSelected = null;
         gameObject.SetActive(false);
     }
 }

@@ -863,7 +863,7 @@ GameObject:
   - component: {fileID: 146023912}
   - component: {fileID: 146023911}
   m_Layer: 0
-  m_Name: UnitSpawnManager
+  m_Name: SummonService
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -881,15 +881,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b06866043445684dbeded940e82cf1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitSpawnManager
-  _commonUnits:
+  commonUnits:
   - {fileID: 11400000, guid: 1801d37c2b50409479427469f0cc96bc, type: 2}
   - {fileID: 11400000, guid: 2deb8f7e68971ce419a622f3e65dc604, type: 2}
-  _uncommonUnits:
+  uncommonUnits:
   - {fileID: 11400000, guid: f706b0d77ddc0e748864d43291e556eb, type: 2}
-  _specialUnits: []
-  _rareUnits: []
-  _legendaryUnits: []
-  selectorUI: {fileID: 2094216269}
+  specialUnits:
+  - {fileID: 11400000, guid: 67b04507b46cf7640be076241ff8479a, type: 2}
+  rareUnits: []
+  legendaryUnits: []
 --- !u!4 &146023912
 Transform:
   m_ObjectHideFlags: 0
@@ -5732,7 +5732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 894e7826a7a39cc40807aade21d16b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SummonButtonUI
-  targetCurrency: 2
+  targetCurrency: 9
   displayName: "\uD754\uD568\uC120\uD0DD"
   titleText: {fileID: 2126330570}
   countText: {fileID: 1600780568}
@@ -5903,7 +5903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 894e7826a7a39cc40807aade21d16b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SummonButtonUI
-  targetCurrency: 2
+  targetCurrency: 7
   displayName: "\uD754\uD568\uC120\uD0DD"
   titleText: {fileID: 1609964406}
   countText: {fileID: 548549498}
@@ -6568,7 +6568,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 894e7826a7a39cc40807aade21d16b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SummonButtonUI
-  targetCurrency: 2
+  targetCurrency: 8
   displayName: "\uD754\uD568\uC120\uD0DD"
   titleText: {fileID: 1417060188}
   countText: {fileID: 1153920927}
@@ -7166,6 +7166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a76c047032326e44da353a944b03971e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UISummonPopup
+  selectorUI: {fileID: 2094216269}
 --- !u!1 &1280760339
 GameObject:
   m_ObjectHideFlags: 0
@@ -10533,7 +10534,6 @@ MonoBehaviour:
   multiUnitInfoPanel: {fileID: 1150655261}
   summonPopup: {fileID: 1277956320}
   upgradePanel: {fileID: 1539185719}
-  gameOverPanel: {fileID: 1988838827}
   singleTeleportButton: {fileID: 430865297}
   multiTeleportButton: {fileID: 1537526898}
 --- !u!4 &1814384901
@@ -11465,8 +11465,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62be9a0c2c2d3f24fafd82a4ada306dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverUI
-  restartButton: {fileID: 1655993197}
-  exitButton: {fileID: 1515638590}
+  reasonText: {fileID: 0}
 --- !u!1 &1996362713
 GameObject:
   m_ObjectHideFlags: 0
@@ -11660,7 +11659,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 894e7826a7a39cc40807aade21d16b3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SummonButtonUI
-  targetCurrency: 2
+  targetCurrency: 6
   displayName: "\uD754\uD568\uC120\uD0DD"
   titleText: {fileID: 513271100}
   countText: {fileID: 2045104045}
