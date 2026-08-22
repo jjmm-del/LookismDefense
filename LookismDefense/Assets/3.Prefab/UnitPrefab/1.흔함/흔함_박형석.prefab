@@ -99,7 +99,7 @@ MonoBehaviour:
   unitData: {fileID: 0}
   enemyLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   selectionIndicator: {fileID: 5212428653241805569}
 --- !u!95 &1815012408426344368
 Animator:

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 5157206977674452203}
   - component: {fileID: 7363619955239055945}
   - component: {fileID: -2566932272023001223}
+  - component: {fileID: 6474769355576028625}
   m_Layer: 6
   m_Name: "\uC548\uD754\uD568_\uCC44\uC6D0\uC11D"
   m_TagString: Untagged
@@ -168,3 +169,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2053c3235ba5074eb1210bb6bf773ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityController
+--- !u!114 &6474769355576028625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2429226078545084339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 608442927442eb243b84ed6c0aa4f5ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UnitAIController
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  detectionRange: 5
+  leashRange: 7
+  scanInterval: 0.2
+  homeArrivalDistance: 0.15

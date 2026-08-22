@@ -81,24 +81,19 @@ public class UnitAIController : MonoBehaviour
 
         nextScanTime = Time.time + scanInterval;
 
-        Debug.Log(
-            $"[{name}] Idle 탐색 실행 / " +
-            $"Home = {homeCell.WorldPosition}"
-        );
+        //Debug.Log($"[{name}] Idle 탐색 실행 / Home = {homeCell.WorldPosition}");
 
         currentTarget = FindTarget();
 
         if (currentTarget != null)
         {
-            Debug.Log(
-                $"[{name}] 새로운 타겟 발견 : {currentTarget.name}"
-            );
+            //Debug.Log($"[{name}] 새로운 타겟 발견 : {currentTarget.name}");
 
             ChangeState(UnitAIState.Chase);
         }
         else
         {
-            Debug.Log($"[{name}] 탐색했지만 적 없음");
+            //Debug.Log($"[{name}] 탐색했지만 적 없음");
         }
     }
 
@@ -192,7 +187,7 @@ public class UnitAIController : MonoBehaviour
             detectionRange,
             enemyLayer
         );
-        Debug.Log($"[{name}] OverlapSphere 감지 Collider 수 : {hits.Length}");
+        //Debug.Log($"[{name}] OverlapSphere 감지 Collider 수 : {hits.Length}");
         
         EnemyEntity nearestEnemy = null;
         float nearestDistance = Mathf.Infinity;
@@ -294,9 +289,7 @@ public class UnitAIController : MonoBehaviour
         if (currentState == newState)
             return;
         
-        Debug.Log(
-            $"[{name}] State : {currentState} -> {newState}"
-        );
+        //Debug.Log($"[{name}] State : {currentState} -> {newState}");
         currentState = newState;
 
         switch (currentState)
