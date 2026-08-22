@@ -4920,6 +4920,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 903788957}
   m_CullTransparentMesh: 1
+--- !u!1 &907927619
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 907927620}
+  m_Layer: 0
+  m_Name: Manager============================ (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &907927620
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907927619}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &967354938
 GameObject:
   m_ObjectHideFlags: 0
@@ -4952,7 +4983,6 @@ MonoBehaviour:
   allRecipes:
   - {fileID: 11400000, guid: eb09f422c94427044ad175a64fc9990c, type: 2}
   - {fileID: 11400000, guid: f668271c97ffee94b91d2b045f5a695a, type: 2}
-  CombinationZone: {fileID: 1499065471}
 --- !u!4 &967354940
 Transform:
   m_ObjectHideFlags: 0
@@ -5829,7 +5859,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1053257122}
   m_Layer: 0
-  m_Name: Manager============================
+  m_Name: Service=========================
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9604,7 +9634,7 @@ Transform:
   m_GameObject: {fileID: 1610209240}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -30.16886, y: 0, z: -3.61118}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12591,17 +12621,18 @@ SceneRoots:
   - {fileID: 1610209242}
   - {fileID: 118748613}
   - {fileID: 1053257122}
+  - {fileID: 767176441}
+  - {fileID: 146023912}
+  - {fileID: 907927620}
   - {fileID: 200037645}
   - {fileID: 276437759}
   - {fileID: 1814384901}
   - {fileID: 1931857254}
   - {fileID: 136659106}
   - {fileID: 1312219525}
-  - {fileID: 146023912}
   - {fileID: 661533865}
   - {fileID: 1262867978}
   - {fileID: 1765106972}
   - {fileID: 967354940}
   - {fileID: 174089324}
-  - {fileID: 767176441}
   - {fileID: 2088451758}
