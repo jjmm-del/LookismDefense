@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 public class UISummonPopup : UIPopup
 {
+    [SerializeField] private UnitSelectorUI selectorUI;
     private enum Buttons
     {
         RandomCommon,
@@ -31,21 +32,6 @@ public class UISummonPopup : UIPopup
         { Buttons.SelectSpecial, CurrencyType.SelectSpecial },
         { Buttons.SelectRare, CurrencyType.SelectRare },
     };
-    // [Header("Random Summon")] 
-    // [SerializeField] private Button randomCommonButton;
-    // [SerializeField] private Button randomUncommonButton;
-    // [SerializeField] private Button randomSpecialButton;
-    // [SerializeField] private Button randomRareButton;
-    // [SerializeField] private Button randomLegendaryButton;
-    //
-    // [Header("Select Summon")]
-    // [SerializeField] private Button selectCommonButton;
-    // [SerializeField] private Button selectUncommonButton;
-    // [SerializeField] private Button selectSpecialButton;
-    // [SerializeField] private Button selectRareButton;
-    //
-    // [Header("Popup")]
-    // [SerializeField] private Button closeButton;
     
     private void Awake()
     {
@@ -58,21 +44,39 @@ public class UISummonPopup : UIPopup
         foreach (var pair in summonMap)
         {
             CurrencyType type = pair.Value;
-            GetButton((int)pair.Key).onClick.AddListener(()=>UnitSpawnManager.Instance.TrySummon(type));
+            GetButton((int)pair.Key).onClick.AddListener(()=>HandleSummon(type));
         }
         GetButton((int)Buttons.CloseButton).onClick.AddListener(Close);
     }
 
-    // private void TrySummon(CurrencyType type)
-    // {
-    //     if (UnitSpawnManager.Instance == null)
-    //     {
-    //         Debug.LogError("UnitSpawnManager가 존재하지 않습니다.");
-    //         return;
-    //     }
-    //     UnitSpawnManager.Instance.TrySummon(type);
-    // }
+    private void HandleSummon(CurrencyType type)
+    {
+        if (SummonService.Instance == null)
+            return;
 
+        if (!SummonService.Instance.IsSelectSummon(type))
+        {
+            SummonService.Instance.TryRandomSummon(type);
+            return;
+        }
+
+        IReadOnlyList<UnitData> units = SummonService.Instance.GetSelectableUnits(type);
+        
+        selectorUI.OpenSelector(GetSelectorTitle(type),units, unit=>SummonService.Instance.TrySelectedSummon(unit,type));
+    }
+    
+    //helper
+    private string GetSelectorTitle(CurrencyType type)
+    {
+        switch (type)
+        {
+            case CurrencyType.SelectCommon: return "흔함 선택";
+            case CurrencyType.SelectUncommon: return "안흔함 선택";
+            case CurrencyType.SelectSpecial: return "특별함 선택";
+            case CurrencyType.SelectRare: return "희귀함 선택";
+            default: return "유닛 선택";
+        }
+    }
     private void OnDestroy()
     {
         foreach (var pair in summonMap)
