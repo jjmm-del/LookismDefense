@@ -116,7 +116,7 @@ public class UnitSelectionController : MonoBehaviour
                 selectedEnemy = enemy;
                 enemy.SetSelected(true);
                 Debug.Log($"적 유닛{enemy.Data.EntityName} 선택됨");
-                UIManager.Instance?.ShowEnemyInfo(enemy.Data, enemy.CurrentHealth);
+                //UIManager.Instance?.ShowEnemyInfo(enemy.Data, enemy.CurrentHealth);
                 OnSelectionChanged?.Invoke();
                 return;
             }

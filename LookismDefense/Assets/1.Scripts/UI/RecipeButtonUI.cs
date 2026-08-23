@@ -12,7 +12,7 @@ public class RecipeButtonUI : MonoBehaviour
     private TooltipTrigger tooltipTrigger;
     private CombinationRecipe myRecipe;
 
-    private void Awake()
+    private void Start()
     {
         tooltipTrigger = GetComponent<TooltipTrigger>();
     }
