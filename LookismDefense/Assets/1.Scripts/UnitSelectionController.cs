@@ -44,6 +44,8 @@ public class UnitSelectionController : MonoBehaviour
         if (EntityRegistry.Instance != null)
         {
             EntityRegistry.Instance.OnUnitUnregistered += HandleUnitRemoved;
+            EntityRegistry.Instance.OnEnemyUnregistered += HandleEnemyRemoved;
+            
         }
     }
 
@@ -96,7 +98,7 @@ public class UnitSelectionController : MonoBehaviour
             UnitEntity unit = hit.collider.GetComponentInParent<UnitEntity>();
 			if(unit != null)
             {
-                ClearSelection(); // 기존 선택 해제
+                ClearSelection(false); // 기존 선택 해제
 				selectedUnits.Add(unit);
                 unit.SetSelected(true);
             	Debug.Log($"{unit.Data.EntityName}선택됨");
@@ -110,13 +112,14 @@ public class UnitSelectionController : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 100f, enemyLayer))
         {
             EnemyEntity enemy = hit.collider.GetComponentInParent<EnemyEntity>();
+            
             if (enemy != null)
             {
-                ClearSelection();
+                ClearSelection(false);
                 selectedEnemy = enemy;
                 enemy.SetSelected(true);
                 Debug.Log($"적 유닛{enemy.Data.EntityName} 선택됨");
-                //UIManager.Instance?.ShowEnemyInfo(enemy.Data, enemy.CurrentHealth);
+                UIManager.Instance?.ShowEnemyInfo(enemy);
                 OnSelectionChanged?.Invoke();
                 return;
             }
@@ -127,7 +130,7 @@ public class UnitSelectionController : MonoBehaviour
 
     private void SelectMultipleUnits(Vector2 start, Vector2 end)
     {
-        ClearSelection();
+        ClearSelection(false);
         
         //1. 드래그 박스의 크기와 위치 계산(어느 방향으로 드래그하든 사각형이 정상적으로 만들어 지도록 함)
         float minX = Mathf.Min(start.x, end.x);
@@ -140,7 +143,14 @@ public class UnitSelectionController : MonoBehaviour
         //2. 씬에 있는 모든 유닛 리스트를 가져옴
         //최적화 팁: 실제 게임에서는 매번 FindObjectsByTpe을 호출하면 느려질 수 있습니다.
         //GameManager 등에서 '전체 유닛 리스트'를 미리 관리하고 그걸 가져오는 것이 좋습니다.
-        UnitEntity[] allUnits = FindObjectsByType<UnitEntity>(FindObjectsSortMode.None);
+        if (EntityRegistry.Instance == null)
+        {
+            RefreshSelectionUI();
+            OnSelectionChanged?.Invoke();
+            return;
+        }
+
+        IReadOnlyList<UnitEntity> allUnits = EntityRegistry.Instance.PlayerUnits;
         foreach (UnitEntity unit in allUnits)
         {
             //3. 유닛들의 월드 좌표를 화면 좌표로 전환
@@ -168,7 +178,7 @@ public class UnitSelectionController : MonoBehaviour
         if (unit == null)
             return;
         
-        ClearSelection();
+        ClearSelection(false);
         selectedUnits.Add(unit);
         unit.SetSelected(true);
         UIManager.Instance?.ShowUnitInfo(unit);
@@ -177,7 +187,7 @@ public class UnitSelectionController : MonoBehaviour
     
 	
 
-    private void ClearSelection()
+    private void ClearSelection(bool notify = true)
     {
         // 리스트를 비우기 전에, 현재 담겨있는 모든 유닛의 원을 꺼줍니다.
         foreach (UnitEntity unit in selectedUnits)
@@ -197,7 +207,11 @@ public class UnitSelectionController : MonoBehaviour
         
         //(추가)UI 닫기 등 처리
         UIManager.Instance?.HideInfoPanel();
-        OnSelectionChanged?.Invoke();
+
+        if (notify)
+        {
+            OnSelectionChanged?.Invoke();
+        }
     }
 
     private void RefreshSelectionUI()
@@ -233,6 +247,21 @@ public class UnitSelectionController : MonoBehaviour
             OnSelectionChanged?.Invoke();
         }
     }
+
+    private void HandleEnemyRemoved(EnemyEntity enemy)
+    {
+        if (enemy == null)
+            return;
+        
+        if (selectedEnemy != enemy)
+            return;
+
+        selectedEnemy = null;
+        
+        UIManager.Instance?.HideInfoPanel();
+
+        OnSelectionChanged?.Invoke();
+    }
     // 드래그 박스를 화면에 그리기 위한 변수 (기존 변수 활용)
     private void OnGUI()
     {
@@ -266,6 +295,8 @@ public class UnitSelectionController : MonoBehaviour
         if (EntityRegistry.Instance != null)
         {
             EntityRegistry.Instance.OnUnitUnregistered -= HandleUnitRemoved;
+            EntityRegistry.Instance.OnEnemyUnregistered -= HandleEnemyRemoved;
+            
         }
     }
 }

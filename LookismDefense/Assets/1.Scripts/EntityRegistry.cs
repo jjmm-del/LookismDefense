@@ -16,6 +16,7 @@ public class EntityRegistry : Singleton<EntityRegistry>
     public event Action<UnitEntity> OnUnitRegistered;
     public event Action<UnitEntity> OnUnitUnregistered;
 
+    public event Action<EnemyEntity> OnEnemyUnregistered;
     public event Action<int> OnEnemyCountChanged;
     
     //unit
@@ -42,7 +43,7 @@ public class EntityRegistry : Singleton<EntityRegistry>
         
         OnUnitUnregistered?.Invoke(unit);
     }
-
+    
     public bool ContainsUnit(UnitEntity unit)
     {
         return unit != null && playerUnits.Contains(unit);
@@ -70,6 +71,7 @@ public class EntityRegistry : Singleton<EntityRegistry>
         if (!activeEnemies.Remove(enemy))
             return;
 
+        OnEnemyUnregistered?.Invoke(enemy);
         OnEnemyCountChanged?.Invoke(activeEnemies.Count);
     }
 }
