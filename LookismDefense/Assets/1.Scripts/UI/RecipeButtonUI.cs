@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-[RequireComponent(typeof(TooltipTrigger))]
 public class RecipeButtonUI : MonoBehaviour
 {
    // [SerializeField] private TextMeshProUGUI resultNameText;

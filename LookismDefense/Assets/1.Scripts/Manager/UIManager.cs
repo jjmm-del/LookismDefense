@@ -17,6 +17,8 @@ public class UIManager : Singleton<UIManager>
     [Header("Bottom Multi Unit Info Panel(다중)")]
     [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
 
+    [Header("Bottom Enemy Info Panel")]
+    [SerializeField] private EnemyInfoPanelUI enemyInfoPanel;
     [Header("MainPanel")]
     [SerializeField] private UISummonPopup summonPopup;
     [SerializeField] private GameObject upgradePanel;
@@ -84,20 +86,35 @@ public class UIManager : Singleton<UIManager>
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitEntity unit)
     {
-        multiUnitInfoPanel.HideInfo();
-        singleUnitInfoPanel.ShowInfo(unit);
+        multiUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.HideInfo();
+        singleUnitInfoPanel?.ShowInfo(unit);
+    }
+
+    public void ShowEnemyInfo(EnemyEntity enemy)
+    {
+        if (enemy == null)
+        {
+            HideInfoPanel();
+            return;
+        }
+        singleUnitInfoPanel?.HideInfo();
+        multiUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.ShowInfo(enemy.Data, enemy.CurrentHealth);
     }
     
     public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
     {
-        singleUnitInfoPanel.HideInfo();
-        multiUnitInfoPanel.ShowInfo(selectedUnits, onPortraitClickCallback);
+        singleUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.HideInfo();
+        multiUnitInfoPanel?.ShowInfo(selectedUnits, onPortraitClickCallback);
     }
     
     public void HideInfoPanel()
     {
-        singleUnitInfoPanel.HideInfo();
-        multiUnitInfoPanel.HideInfo();
+        singleUnitInfoPanel?.HideInfo();
+        multiUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.HideInfo();
     }
     
     public void OnTeleportButtonClicked()
