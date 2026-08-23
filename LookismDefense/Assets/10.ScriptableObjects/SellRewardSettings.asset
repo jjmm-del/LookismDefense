@@ -29,3 +29,27 @@ MonoBehaviour:
     - rewardType: 1
       amount: 1
       chance: 50
+  - tier: 1
+    rewards:
+    - rewardType: 0
+      amount: 10
+      chance: 100
+    - rewardType: 1
+      amount: 1
+      chance: 50
+  - tier: 1
+    rewards:
+    - rewardType: 0
+      amount: 10
+      chance: 100
+    - rewardType: 1
+      amount: 1
+      chance: 50
+  - tier: 1
+    rewards:
+    - rewardType: 0
+      amount: 10
+      chance: 100
+    - rewardType: 1
+      amount: 1
+      chance: 50

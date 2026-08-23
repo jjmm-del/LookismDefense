@@ -2,13 +2,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-public class UnitInfoPanelUI: MonoBehaviour
+public class UnitInfoPanelUI: UIBase
 {
-    [Header("UI References")]
+    [Header("Unit Info")]
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private TextMeshProUGUI attackSpeedText;
     [SerializeField] private Image portraitImage;
+    
+    [Header("Tooltip")]
+    [SerializeField] private TooltipTrigger damageTooltip;
     
     [Header("Abilities")]
     [SerializeField] private Transform abilityIconContainer;    //아이콘 콘테이너
@@ -18,39 +21,15 @@ public class UnitInfoPanelUI: MonoBehaviour
     [SerializeField] private Transform recipeContents; // ScrollView의 Content
     [SerializeField] private GameObject recipeButtonPrefab; //위에서 만든 버튼 프리팹
 
-    [Header("Sell System")]
+    [Header("Sell")]
     [SerializeField] private Button sellButton;
     [SerializeField] private TextMeshProUGUI sellPriceText;
+    
+    [Header("Display Settings")]
+    [SerializeField] private UnitTierDisplaySettings tierDisplaySettings;
+    
     private UnitEntity currentTargetUnit;
     
-    [Header("TierSettings")]
-    [SerializeField] private List<TierDisplayInfo> tierSettings = new List<TierDisplayInfo>()
-    {
-        new TierDisplayInfo { tier = UnitTier.Common, displayName = "흔함", textColor = Color.white },
-        new TierDisplayInfo { tier = UnitTier.Uncommon, displayName = "안흔함", textColor = Color.green },
-        new TierDisplayInfo { tier = UnitTier.Special, displayName = "특별함", textColor = Color.dodgerBlue }, // 파란색
-        new TierDisplayInfo { tier = UnitTier.Rare, displayName = "희귀함", textColor = Color.purple },
-        new TierDisplayInfo { tier = UnitTier.Legendary, displayName = "전설적인", textColor = Color.orange }, // 주황색
-        new TierDisplayInfo { tier = UnitTier.Hidden, displayName = "히든조합", textColor = Color.crimson}, // 보라색
-        new TierDisplayInfo { tier = UnitTier.Changed, displayName = "변화된", textColor = Color.deepPink},
-        new TierDisplayInfo { tier = UnitTier.Transcendence, displayName = "초월함", textColor = Color.aquamarine},
-        new TierDisplayInfo { tier = UnitTier.Immortal, displayName = "불멸의", textColor = Color.plum}, // 진한 빨간색
-        new TierDisplayInfo { tier = UnitTier.Eternal, displayName = "영원함", textColor = Color.lightGoldenRod}, // 핑크색
-        new TierDisplayInfo { tier = UnitTier.Limited, displayName = "제한됨", textColor = Color.firebrick }
-    };
-	
-    private Dictionary<UnitTier, TierDisplayInfo> tierMap = new Dictionary<UnitTier, TierDisplayInfo>();
-    
-    private void Awake()
-    {
-        foreach (var setting in tierSettings)
-        {
-            if (!tierMap.ContainsKey(setting.tier))
-            {
-                tierMap.Add(setting.tier, setting);
-            }
-        }
-    }
 
     private void Start()
     {
@@ -58,42 +37,159 @@ public class UnitInfoPanelUI: MonoBehaviour
         {
             sellButton.onClick.AddListener(OnSellButtonClicked);
         }
+
+        Hide();
     }
     public void ShowInfo(UnitEntity unit)
     {
-        gameObject.SetActive(true);
+        if (unit == null || unit.Data == null)
+        {
+            HideInfo();
+            return;
+        }
+        
         currentTargetUnit = unit; // 클릭한 유닛 기억해두기
+        
         UnitData data = unit.Data;
-        
-        nameText.text = SetUnitName(data); //이름 세팅
-        
-        float baseDamage = data.AttackDamage;
-        float finalDamage = UpgradeManager.Instance.GetFinalDamage(baseDamage, data.Tier);
-        damageText.text = $"DMG:{finalDamage:F0}";
 
-        TooltipTrigger dmgTooltip = damageText.gameObject.GetComponent<TooltipTrigger>();
-        if (dmgTooltip == null) dmgTooltip = damageText.gameObject.AddComponent<TooltipTrigger>();
-        dmgTooltip.content = $"기본 공격력:{baseDamage}\n업그레이드 추가: +{finalDamage - baseDamage:F0}";
-
-        attackSpeedText.text = $"ASP:{data.AttackSpeed}";
-        
-        if (portraitImage != null && data.PortraitIcon != null)
-        {
-            portraitImage.sprite = data.PortraitIcon;
-            portraitImage.gameObject.SetActive(true);
-        }
-        else if (portraitImage != null)
-        {
-            // 아직 초상화가 안 들어간 유닛을 위해 임시로 꺼두기 
-            portraitImage.gameObject.SetActive(false);
-        }
-
+        UpdateBasicInfo(data);
+        UpdatePortrait(data);
         UpdateAbilities(data);
         UpdateRecipeList(data);
-        if (sellButton != null && UnitSellService.Instance != null)
+        UpdateSellUI(data.Tier);
+
+        Show();
+    }
+
+    private void UpdateBasicInfo(UnitData data)
+    {
+        if (nameText != null)
         {
-            UpdateSellText(UnitSellService.Instance.GetSellRewardInfo(data.Tier));
+            nameText.text = GetUnitDisplayName(data);
         }
+
+        float baseDamage = data.AttackDamage;
+        float finalDamage = baseDamage;
+
+        if (UpgradeManager.Instance != null)
+        {
+            finalDamage = UpgradeManager.Instance.GetFinalDamage(baseDamage, data.Tier);
+        }
+
+        if (damageText != null)
+        {
+            damageText.text = $"DMG: {finalDamage:F0}";
+        }
+
+        if (damageTooltip != null)
+        {
+            float bonusDamage = finalDamage - baseDamage;
+            damageTooltip.content = $"기본공격력 : {baseDamage:F0}\n" +
+                                    $"업그레이드 추가 : {bonusDamage:F0}";
+        }
+
+        if (attackSpeedText != null)
+        {
+            attackSpeedText.text = $"ASP:{data.AttackSpeed}";
+        }
+        
+    }
+
+    private void UpdatePortrait(UnitData data)
+    {
+        if (portraitImage == null)
+            return;
+
+        bool hasPortrait = data.PortraitIcon != null;
+        portraitImage.gameObject.SetActive(hasPortrait);
+
+        if (hasPortrait)
+        {
+            portraitImage.sprite = data.PortraitIcon;
+        }
+
+    }
+    
+    private void UpdateAbilities(UnitData data)
+    {
+        ClearChildren(abilityIconContainer);
+        
+        if (data.Abilities == null)
+            return;
+        
+        foreach (AbilityData ability in data.Abilities)
+        {
+            if (ability == null || ability.abilityIcon == null)
+            {
+                continue;
+            }
+            
+            GameObject iconObject = Instantiate(abilityIconPrefab, abilityIconContainer);
+            Image iconImage = iconObject.GetComponent<Image>();
+
+            if (iconImage != null)
+            {
+                iconImage.sprite = ability.abilityIcon;
+            }
+
+            TooltipTrigger tooltip = iconObject.GetComponent<TooltipTrigger>();
+            if (tooltip != null)
+            {
+                tooltip.content = $"<color=yellow><b>" +
+                                  $"{ability.abilityName}" +
+                                  $"</b></color>\n" +
+                                  $"확률: {ability.chance}%";
+            }
+            
+        }
+    }
+    public void UpdateRecipeList(UnitData unit)
+    {
+        ClearChildren(recipeContents);
+        if (CombinationManager.Instance == null)
+            return;
+        
+        List<CombinationRecipe> recipes = CombinationManager.Instance.GetRecipesForUnit(unit);
+        
+        // 버튼 생성하기
+        foreach (CombinationRecipe recipe in recipes)
+        {
+            GameObject buttonObject = Instantiate(recipeButtonPrefab, recipeContents);
+            
+            RecipeButtonUI buttonUI = buttonObject.GetComponent<RecipeButtonUI>();
+            if (buttonUI != null)
+            {
+                buttonUI.Setup(recipe);
+            }
+        }
+    }
+    
+    private void UpdateSellUI(UnitTier tier)
+    {
+        if (sellButton == null)
+            return;
+
+        if (UnitSellService.Instance == null)
+        {
+            sellButton.gameObject.SetActive(false);
+            return;
+        }
+
+        List<SellRewardSettings.RewardItem> rewards = UnitSellService.Instance.GetSellRewardInfo(tier);
+        
+        bool canSell = rewards != null && rewards.Count > 0;
+        
+        sellButton.gameObject.SetActive(canSell);
+        if (!canSell)
+        {
+            if (sellPriceText != null)
+            {
+                sellPriceText.text = string.Empty;
+            }
+
+            return;
+        }
+        UpdateSellText(rewards);
     }
 
     private void UpdateSellText(List<SellRewardSettings.RewardItem> rewards)
@@ -102,96 +198,34 @@ public class UnitInfoPanelUI: MonoBehaviour
         {
             return;
         }
+
         string firstCurrencyName = GetCurrencyName(rewards[0].rewardType);
         if (rewards.Count == 1)
         {
-            sellPriceText.text = $"판매({rewards[0].chance}% {firstCurrencyName})";
+            sellPriceText.text = $"판매 ({rewards[0].chance}% {firstCurrencyName})";
             return;
         }
-        sellPriceText.text = $"판매({firstCurrencyName}외 {rewards.Count - 1}종)";
+
+        sellPriceText.text = $"판매 ({firstCurrencyName}외 {rewards.Count - 1}종)";
 
     }
-    public void ShowEnemyInfo(EnemyData data, float currentHp)
-    {
-        gameObject.SetActive(true);
-        currentTargetUnit = null;
-        
-        nameText.text = data.EntityName;
-        damageText.text = "Enemy";
-        attackSpeedText.text = $"HP:{currentHp}/{data.MaxHealth}";
-        foreach (Transform child in abilityIconContainer)
-        {
-            Destroy(child.gameObject);
-        }
 
-        foreach (Transform child in recipeContents)
-        {
-            Destroy(child.gameObject);
-        }
-
-        if (sellButton != null)
-        {
-            sellButton.gameObject.SetActive(false);
-        }
-    }
-
-    private void UpdateAbilities(UnitData data)
-    {
-        foreach (Transform child in abilityIconContainer)
-        {
-            Destroy(child.gameObject);
-        }
-
-        if (data.Abilities == null)
-        {
-            return;
-        }
-        foreach (AbilityData ability in data.Abilities)
-        {
-            if (ability.abilityIcon != null)
-            {
-                GameObject iconObj = Instantiate(abilityIconPrefab, abilityIconContainer);
-                iconObj.GetComponent<Image>().sprite = ability.abilityIcon;
-
-                TooltipTrigger tooltip = iconObj.AddComponent<TooltipTrigger>();
-                tooltip.content = $"<color=yellow><b>{ability.abilityName}</b></color>\n확률: {ability.chance}%";
-            }
-        }
-    }
-    public void UpdateRecipeList(UnitData unit)
-    {
-        foreach (Transform child in recipeContents)
-        {
-            Destroy(child.gameObject);
-        }
-        // 레시피 가져오기
-        List<CombinationRecipe> recipes = CombinationManager.Instance.GetRecipesForUnit(unit);
-        
-        // 버튼 생성하기
-        foreach (CombinationRecipe recipe in recipes)
-        {
-            GameObject buttonObj = Instantiate(recipeButtonPrefab, recipeContents);
-            buttonObj.GetComponent<RecipeButtonUI>().Setup(recipe);
-        }
-    }
-    private string SetUnitName(UnitData unit)
+    private string GetUnitDisplayName(UnitData unit)
     {
         string tierName = unit.Tier.ToString();
-        string colorHex = "FFFFFF"; //기본 색상
+        Color tierColor = Color.white;
 
-        if (tierMap.TryGetValue(unit.Tier, out TierDisplayInfo info))
+        if (tierDisplaySettings != null)
         {
-            tierName = info.displayName;
-            colorHex = ColorUtility.ToHtmlStringRGB(info.textColor);
+            tierName = tierDisplaySettings.GetDisplayName(unit.Tier);
+            tierColor = tierDisplaySettings.GetColor(unit.Tier);
         }
 
-        string titleStr = string.IsNullOrEmpty(unit.Title) ? "" : $"[{unit.Title}]";
-        return $"<color=#{colorHex}>{titleStr}{unit.EntityName} - {tierName}</color>";
-    }
-
-    public void HideInfo()
-    {
-        gameObject.SetActive(false);
+        string colorHex = ColorUtility.ToHtmlStringRGB(tierColor);
+        string title = string.IsNullOrEmpty(unit.Title) ? string.Empty : $"[{unit.Title}]"; 
+        return $"<color=#{colorHex}>" +
+               $"{title}{unit.EntityName} - {tierName}" +
+               $"</color>";
     }
 
     private void OnSellButtonClicked()
@@ -199,19 +233,46 @@ public class UnitInfoPanelUI: MonoBehaviour
         if (currentTargetUnit == null)
             return;
 
-        UnitSellService.Instance?.SellUnit(currentTargetUnit);
-    }
+        bool sold = UnitSellService.Instance?.SellUnit(currentTargetUnit) ?? false;
 
+        if (sold)
+        {
+            currentTargetUnit = null;
+            HideInfo();
+        }
+    }
+    public void HideInfo()
+    {
+        currentTargetUnit = null;
+        ClearChildren(abilityIconContainer);
+        ClearChildren(recipeContents);
+        Hide();
+    }
+    
+    private void ClearChildren(Transform container)
+    {
+        if (container == null)
+            return;
+        
+        foreach (Transform child in container)
+        {
+            Destroy(child.gameObject);
+        }
+    }
     private string GetCurrencyName(CurrencyType type)
     {
         switch (type)
         {
             case CurrencyType.Gold: return "골드";
             case CurrencyType.RandomCommon: return "랜덤흔함";
-            case CurrencyType.SelectCommon: return "흔함선택";
+            case CurrencyType.RandomUncommon: return "랜덤안흔함";
             case CurrencyType.RandomSpecial: return "랜덤특별함";
             case CurrencyType.RandomRare: return "랜덤희귀함";
             case CurrencyType.RandomLegendary: return "랜덤전설";
+            case CurrencyType.SelectCommon: return "흔함선택";
+            case CurrencyType.SelectUncommon: return "안흔함선택";
+            case CurrencyType.SelectSpecial: return "특별함선택";
+            case CurrencyType.SelectRare: return "희귀함선택";
             default: return type.ToString();
         }
     }
