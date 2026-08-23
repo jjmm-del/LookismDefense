@@ -11286,6 +11286,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   singleUnitInfoPanel: {fileID: 1961729662}
   multiUnitInfoPanel: {fileID: 1150655261}
+  enemyInfoPanel: {fileID: 0}
   summonPopup: {fileID: 1277956320}
   upgradePanel: {fileID: 1539185719}
   singleTeleportButton: {fileID: 430865297}
