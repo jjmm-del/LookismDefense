@@ -87,13 +87,7 @@ public class UIManager : Singleton<UIManager>
         multiUnitInfoPanel.HideInfo();
         singleUnitInfoPanel.ShowInfo(unit);
     }
-
-    public void ShowEnemyInfo(EnemyData data, float currentHp)
-    {
-        multiUnitInfoPanel.HideInfo();
-        singleUnitInfoPanel.ShowEnemyInfo(data, currentHp);
-    }
-
+    
     public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
     {
         singleUnitInfoPanel.HideInfo();
