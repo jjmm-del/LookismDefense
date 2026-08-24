@@ -3,7 +3,7 @@ using UnityEngine.Pool;
 using System.Collections.Generic;
 using System;
 
-public class MultiUnitInfoPanelUI : MonoBehaviour
+public class MultiUnitInfoPanelUI : UIPanel
 {
     [Header("UI References")]
     [SerializeField] private Transform multiUnitContents;
@@ -53,7 +53,7 @@ public class MultiUnitInfoPanelUI : MonoBehaviour
     }
 
     // --- 실제 사용 부분 ---
-    public void ShowInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
+    public void SetData(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
     {
         gameObject.SetActive(true);
         
@@ -100,7 +100,7 @@ public class MultiUnitInfoPanelUI : MonoBehaviour
 
     public void HideInfo()
     {
-        gameObject.SetActive(false);
+        Close();
     }
     
 }
