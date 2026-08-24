@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-public class UnitInfoPanelUI: UIBase
+public class UnitInfoPanelUI: UIPanel
 {
     [Header("Unit Info")]
     [SerializeField] private TextMeshProUGUI nameText;
@@ -40,11 +40,11 @@ public class UnitInfoPanelUI: UIBase
 
         Hide();
     }
-    public void ShowInfo(UnitEntity unit)
+    public void SetData(UnitEntity unit)
     {
         if (unit == null || unit.Data == null)
         {
-            HideInfo();
+            Close();
             return;
         }
         
