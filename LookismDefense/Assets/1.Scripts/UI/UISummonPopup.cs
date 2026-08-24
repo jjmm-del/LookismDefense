@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
-public class UISummonPopup : UIPopup
+public class UISummonPanel : UIPanel
 {
     [SerializeField] private UnitSelectorUI selectorUI;
     private enum Buttons

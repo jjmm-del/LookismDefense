@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using System;
 [RequireComponent(typeof(EnemyMovement))]
 public class EnemyEntity : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class EnemyEntity : MonoBehaviour
     [SerializeField] private EnemyHealthBar healthBar;
     [SerializeField] private GameObject selectionIndicator;
 
+    public event Action<float, float> HealthChanged;
     private EnemyMovement movement;
     // 실시간 체력 관리
     private float currentHealth;
@@ -17,8 +18,6 @@ public class EnemyEntity : MonoBehaviour
     private bool isArmorBroken = false;
     private float stunTimer = 0f;
     private bool isStunned = false;
-    
-    
     
     public float CurrentHealth => currentHealth;
     
@@ -129,17 +128,18 @@ public class EnemyEntity : MonoBehaviour
         float actualDamage = damage * Mathf.Ceil(1 - currentDefense / (100 + currentDefense)); 
         if(actualDamage < 1) actualDamage = 1; //최소데미지 1 보장
 
-        currentHealth -= actualDamage;
+        currentHealth = Mathf.Max(0,currentHealth - actualDamage);
         
         //UI 표시용(체력바 등 나중에 구현)
         if (healthBar != null)
         {
             healthBar.UpdateHealth(currentHealth, enemyData.MaxHealth);
         }
+        
         Debug.Log($"{enemyData.EntityName}피격! 남은 체력: {currentHealth}");
         //(선택, 추가) 피격 효과음이나 이펙트 재생 위치
         //SoundManager.Instance.PlayHurtSound();
-        
+        HealthChanged?.Invoke(currentHealth, enemyData.MaxHealth);
         if (currentHealth <= 0)
         {
             OnDeath();
