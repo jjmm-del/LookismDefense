@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-[RequireComponent(typeof(TooltipTrigger))]
 public class RecipeButtonUI : MonoBehaviour
 {
    // [SerializeField] private TextMeshProUGUI resultNameText;
@@ -11,15 +10,14 @@ public class RecipeButtonUI : MonoBehaviour
 
     private TooltipTrigger tooltipTrigger;
     private CombinationRecipe myRecipe;
-
-    private void Start()
-    {
-        tooltipTrigger = GetComponent<TooltipTrigger>();
-    }
+    
     public void Setup(CombinationRecipe recipe)
     {
+        if (!TryGetComponent(out tooltipTrigger))
+        {
+            tooltipTrigger = gameObject.AddComponent<TooltipTrigger>();
+        }
         myRecipe = recipe;
-        //resultNameText.text = recipe.ResultUnit.EntityName;
         resultImage.sprite = recipe.ResultUnit.PortraitIcon; 
         
         // 재료 텍스트 생성 (예: 박형석(1) + 이진성(1)")
