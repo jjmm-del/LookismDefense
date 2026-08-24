@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class EnemyInfoPanelUI : UIBase
+public class EnemyInfoPanelUI : UIPanel
 {
     [Header("Enemy Info")]
     [SerializeField] private TextMeshProUGUI nameText;

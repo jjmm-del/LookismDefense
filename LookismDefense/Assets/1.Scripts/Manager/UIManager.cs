@@ -8,8 +8,10 @@ using System;
 
 public class UIManager : Singleton<UIManager>
 {
-    private readonly Stack<UIPopup> popupStack = new();
     public Action OnTeleportRequested; 
+    
+    [Header("Panel Root")]
+    [SerializeField] private Transform panelRoot;
     
     [Header("Bottom Unit Info Panel(단일)")]
     [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
@@ -17,6 +19,8 @@ public class UIManager : Singleton<UIManager>
     [Header("Bottom Multi Unit Info Panel(다중)")]
     [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
 
+    [Header("Bottom Enemy Info Panel")]
+    [SerializeField] private EnemyInfoPanelUI enemyInfoPanel;
     [Header("MainPanel")]
     [SerializeField] private UISummonPopup summonPopup;
     [SerializeField] private GameObject upgradePanel;
@@ -24,13 +28,89 @@ public class UIManager : Singleton<UIManager>
     [Header("Story")]
     [SerializeField] private Button singleTeleportButton;
     [SerializeField] private Button multiTeleportButton;
+    
+    private readonly Dictionary<Type, UIPanel> panels = new();
+    private readonly Stack<UIPopup> popupStack = new();
 
-    private UIPopup _currentPopup;
+    private UIPanel currentPanel;
+    private UIPopup currentPopup;
     protected override void Awake()
     {
         base.Awake();
+        RegisterPanels();
     }
 
+    private void RegisterPanels()
+    {
+        Transform root = panelRoot != null ? panelRoot : transform;
+        
+        UIPanel[] foundPanels = root.GetComponentsInChildren<UIPanel>(true);
+
+        foreach (UIPanel panel in foundPanels)
+        {
+            Type panelType = panel.GetType();
+
+            if (panels.ContainsKey(panelType))
+            {
+                Debug.LogError($"[UIManager]중복된 패널 타입: {panelType.Name}", panel);
+                continue;
+            }
+
+            panels.Add(panelType, panel);
+            panel.Hide();
+        }
+        
+    }
+
+    public T ShowPanel<T>(Action<T> setup = null) where T : UIPanel
+    {
+        if (!panels.TryGetValue(typeof(T), out UIPanel panel))
+        {
+            Debug.LogError($"[UIManager] 등록되지 않은 패널: {typeof(T).Name}");
+            return null;
+        }
+
+        if (currentPanel != null && currentPanel != panel)
+        {
+            currentPanel.Hide();
+        }
+
+        T typedPanel = panel as T;
+        
+        setup?.Invoke(typedPanel);
+
+        typedPanel.Show();
+        currentPanel = typedPanel;
+
+        return typedPanel;
+    }
+
+    public void ClosePanel(UIPanel panel)
+    {
+        if (panel == null)
+            return;
+
+        panel.Hide();
+
+        if (currentPanel == panel)
+        {
+            currentPanel = null;
+        }
+    }
+
+    public void CloseCurrentPanel()
+    {
+        if (currentPanel == null)
+            return;
+
+        currentPanel.Hide();
+        currentPanel = null;
+    }
+
+    public bool IsCurrentPanel<T>() where T : UIPanel
+    {
+        return currentPanel is T;
+    }
     public T OpenPopup<T>(T popup) where T : UIPopup
     {
         popup.Show();
@@ -84,20 +164,35 @@ public class UIManager : Singleton<UIManager>
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitEntity unit)
     {
-        multiUnitInfoPanel.HideInfo();
-        singleUnitInfoPanel.ShowInfo(unit);
+        multiUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.HideInfo();
+        singleUnitInfoPanel?.SetData(unit);
+    }
+
+    public void ShowEnemyInfo(EnemyEntity enemy)
+    {
+        if (enemy == null)
+        {
+            HideInfoPanel();
+            return;
+        }
+        singleUnitInfoPanel?.HideInfo();
+        multiUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.ShowInfo(enemy.Data, enemy.CurrentHealth);
     }
     
     public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
     {
-        singleUnitInfoPanel.HideInfo();
-        multiUnitInfoPanel.ShowInfo(selectedUnits, onPortraitClickCallback);
+        singleUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.HideInfo();
+        multiUnitInfoPanel?.ShowInfo(selectedUnits, onPortraitClickCallback);
     }
     
     public void HideInfoPanel()
     {
-        singleUnitInfoPanel.HideInfo();
-        multiUnitInfoPanel.HideInfo();
+        singleUnitInfoPanel?.HideInfo();
+        multiUnitInfoPanel?.HideInfo();
+        enemyInfoPanel?.HideInfo();
     }
     
     public void OnTeleportButtonClicked()
