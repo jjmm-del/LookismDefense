@@ -13,18 +13,6 @@ public class UIManager : Singleton<UIManager>
     [Header("Panel Root")]
     [SerializeField] private Transform panelRoot;
     
-    // [Header("Bottom Unit Info Panel(단일)")]
-    // [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
-    //
-    // [Header("Bottom Multi Unit Info Panel(다중)")]
-    // [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
-    //
-    // [Header("Bottom Enemy Info Panel")]
-    // [SerializeField] private EnemyInfoPanelUI enemyInfoPanel;
-    // [Header("MainPanel")]
-    // [SerializeField] private UISummonPanel summonPanel;
-    [SerializeField] private GameObject upgradePanel;
-    
     [Header("Story")]
     [SerializeField] private Button singleTeleportButton;
     [SerializeField] private Button multiTeleportButton;
@@ -143,12 +131,6 @@ public class UIManager : Singleton<UIManager>
     private void Start()
     {
         //시작할 때 꺼두기
-
-        if (upgradePanel != null)
-        {
-            upgradePanel.SetActive(false);
-        }
-
         if (singleTeleportButton != null)
         {
             singleTeleportButton.onClick.AddListener(OnTeleportButtonClicked);
@@ -195,27 +177,14 @@ public class UIManager : Singleton<UIManager>
     {
         ShowPanel<UISummonPanel>();
     }
+    
+    public void ToggleUpgradePanel()
+    {
+        ShowPanel<UpgradePanelUI>();
+    }
+    
     public void OnTeleportButtonClicked()
     {
         OnTeleportRequested?.Invoke();
-    }
-    
-
-    public void ToggleUpgradePanel()
-    {
-        bool isActive = upgradePanel.activeSelf;
-        CloseAllPanels();
-        upgradePanel.SetActive(!isActive);
-    }
-
-    public void CloseAllPanels()
-    {
-        
-
-        if (upgradePanel != null)
-        {
-            upgradePanel.SetActive(false);
-        }
-        //unitInfoPanel.SetActive(false);
     }
 }

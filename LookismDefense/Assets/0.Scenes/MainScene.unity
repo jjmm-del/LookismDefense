@@ -2992,7 +2992,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2094216268}
   m_Father: {fileID: 1077842968}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -6227,8 +6228,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2094216268}
-  - {fileID: 1539185720}
   - {fileID: 1284773381}
   - {fileID: 359850840}
   - {fileID: 529637555}
@@ -7140,7 +7139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a76c047032326e44da353a944b03971e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UISummonPopup
-  selectorUI: {fileID: 2094216269}
+  selectorPopup: {fileID: 2094216269}
 --- !u!1 &1280760339
 GameObject:
   m_ObjectHideFlags: 0
@@ -8313,17 +8312,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1539185719}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1077842968}
+  m_Father: {fileID: 1619493981}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -320, y: 200}
+  m_AnchoredPosition: {x: 0, y: -490}
+  m_SizeDelta: {x: 1500, y: 200}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1539185721
 MonoBehaviour:
@@ -9504,6 +9503,7 @@ RectTransform:
   - {fileID: 1128499634}
   - {fileID: 1961729659}
   - {fileID: 1150655258}
+  - {fileID: 1539185720}
   m_Father: {fileID: 1077842968}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -10870,7 +10870,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager
   panelRoot: {fileID: 1619493981}
-  upgradePanel: {fileID: 1539185719}
   singleTeleportButton: {fileID: 430865297}
   multiTeleportButton: {fileID: 1537526898}
 --- !u!4 &1814384901
@@ -12541,7 +12540,7 @@ GameObject:
   - component: {fileID: 2094216270}
   - component: {fileID: 2094216269}
   m_Layer: 5
-  m_Name: UnitSelector
+  m_Name: UnitSelectorPopup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12554,18 +12553,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2094216267}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 869389590}
-  m_Father: {fileID: 1077842968}
+  m_Father: {fileID: 529637555}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -320, y: 200}
+  m_AnchoredPosition: {x: 0, y: -490}
+  m_SizeDelta: {x: 1500, y: 200}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &2094216269
 MonoBehaviour:
@@ -12579,9 +12578,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b97196ce2c9be546b3a9f6bed67be10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitSelectorUI
+  titleText: {fileID: 869389591}
   contentArea: {fileID: 2094216268}
   unitButtonPrefab: {fileID: 2843957371061685774, guid: 2ceaaae30b30b2e49a039798bee18877, type: 3}
-  titleText: {fileID: 869389591}
 --- !u!114 &2094216270
 MonoBehaviour:
   m_ObjectHideFlags: 0

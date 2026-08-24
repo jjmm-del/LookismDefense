@@ -3,7 +3,8 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 public class UISummonPanel : UIPanel
 {
-    [SerializeField] private UnitSelectorUI selectorUI;
+
+    [SerializeField] private UnitSelectorPopup selectorPopup;
     private enum Buttons
     {
         RandomCommon,
@@ -60,9 +61,22 @@ public class UISummonPanel : UIPanel
             return;
         }
 
+        OpenSelector(type);
+
+
+    }
+
+    private void OpenSelector(CurrencyType type)
+    {
         IReadOnlyList<UnitData> units = SummonService.Instance.GetSelectableUnits(type);
-        
-        selectorUI.OpenSelector(GetSelectorTitle(type),units, unit=>SummonService.Instance.TrySelectedSummon(unit,type));
+
+        selectorPopup.SetData(GetSelectorTitle(type), units, unit => HandleSelectedSummon(unit, type));
+        UIManager.Instance.OpenPopup(selectorPopup);
+    }
+
+    private void HandleSelectedSummon(UnitData unit, CurrencyType type)
+    {
+        SummonService.Instance.TrySelectedSummon(unit, type);
     }
     
     //helper
