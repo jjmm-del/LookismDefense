@@ -10,19 +10,21 @@ public class EnemyInfoPanelUI : UIPanel
     [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private Image portraitImage;
 
-    private void Start()
+    private EnemyEntity currentEnemy;
+    public void SetData(EnemyEntity enemy)
     {
-        Hide();
-    }
+        UnsubscribeCurrentEnemy();
 
-    public void ShowInfo(EnemyData data, float currentHp)
-    {
-        if (data == null)
+        if (enemy == null || enemy.Data == null)
         {
-            HideInfo();
+            Close();
             return;
         }
 
+        currentEnemy = enemy;
+        currentEnemy.HealthChanged += HandleHealthChanged;
+
+        EnemyData data = currentEnemy.Data;
         if (nameText != null)
         {
             nameText.text = data.EntityName;
@@ -33,17 +35,32 @@ public class EnemyInfoPanelUI : UIPanel
             typeText.text = "Enemy";
         }
 
-        if (hpText != null)
-        {
-            hpText.text = $"HP:{currentHp}/{data.MaxHealth:F0}";
-        }
+        HandleHealthChanged(currentEnemy.CurrentHealth, data.MaxHealth);
 
         Show();
     }
 
-    public void HideInfo()
+    private void HandleHealthChanged(float currentHealth, float maxHealth)
     {
-        Hide();
+        if (hpText != null)
+        {
+            hpText.text = $"HP:{currentHealth:F0}/{maxHealth:F0}";
+        }
     }
 
+    private void UnsubscribeCurrentEnemy()
+    {
+        if (currentEnemy != null)
+        {
+            currentEnemy.HealthChanged -= HandleHealthChanged;
+        }
+
+        currentEnemy = null;
+    }
+
+    public override void Hide()
+    {
+        UnsubscribeCurrentEnemy();
+        base.Hide();
+    }
 }

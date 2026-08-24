@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -31,14 +32,13 @@ public class UnitInfoPanelUI: UIPanel
     private UnitEntity currentTargetUnit;
     
 
-    private void Start()
+    private void Awake()
     {
         if (sellButton != null)
         {
             sellButton.onClick.AddListener(OnSellButtonClicked);
         }
-
-        Hide();
+        
     }
     public void SetData(UnitEntity unit)
     {
@@ -57,8 +57,6 @@ public class UnitInfoPanelUI: UIPanel
         UpdateAbilities(data);
         UpdateRecipeList(data);
         UpdateSellUI(data.Tier);
-
-        Show();
     }
 
     private void UpdateBasicInfo(UnitData data)
@@ -274,6 +272,14 @@ public class UnitInfoPanelUI: UIPanel
             case CurrencyType.SelectSpecial: return "특별함선택";
             case CurrencyType.SelectRare: return "희귀함선택";
             default: return type.ToString();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (sellButton != null)
+        {
+            sellButton.onClick.RemoveListener(OnSellButtonClicked);
         }
     }
 }
