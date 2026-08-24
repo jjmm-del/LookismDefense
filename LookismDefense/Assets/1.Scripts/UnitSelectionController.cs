@@ -181,7 +181,7 @@ public class UnitSelectionController : MonoBehaviour
         ClearSelection(false);
         selectedUnits.Add(unit);
         unit.SetSelected(true);
-        UIManager.Instance?.ShowUnitInfo(unit);
+        UIManager.Instance?.ShowPanel<UnitInfoPanelUI>(panel => panel.SetData(unit));
         OnSelectionChanged?.Invoke();
     }
     
@@ -206,7 +206,7 @@ public class UnitSelectionController : MonoBehaviour
         }
         
         //(추가)UI 닫기 등 처리
-        UIManager.Instance?.HideInfoPanel();
+        UIManager.Instance?.CloseCurrentPanel();
 
         if (notify)
         {
@@ -226,7 +226,7 @@ public class UnitSelectionController : MonoBehaviour
         }
         else
         {
-            UIManager.Instance?.HideInfoPanel();
+            UIManager.Instance?.CloseCurrentPanel();
         }
     }
 
@@ -258,7 +258,7 @@ public class UnitSelectionController : MonoBehaviour
 
         selectedEnemy = null;
         
-        UIManager.Instance?.HideInfoPanel();
+        UIManager.Instance?.CloseCurrentPanel();
 
         OnSelectionChanged?.Invoke();
     }

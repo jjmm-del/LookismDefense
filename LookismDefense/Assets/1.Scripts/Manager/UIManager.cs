@@ -13,16 +13,16 @@ public class UIManager : Singleton<UIManager>
     [Header("Panel Root")]
     [SerializeField] private Transform panelRoot;
     
-    [Header("Bottom Unit Info Panel(단일)")]
-    [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
-    
-    [Header("Bottom Multi Unit Info Panel(다중)")]
-    [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
-
-    [Header("Bottom Enemy Info Panel")]
-    [SerializeField] private EnemyInfoPanelUI enemyInfoPanel;
-    [Header("MainPanel")]
-    [SerializeField] private UISummonPopup summonPopup;
+    // [Header("Bottom Unit Info Panel(단일)")]
+    // [SerializeField] private UnitInfoPanelUI singleUnitInfoPanel; // 패널 전체 (켜고 끄기용)
+    //
+    // [Header("Bottom Multi Unit Info Panel(다중)")]
+    // [SerializeField] private MultiUnitInfoPanelUI multiUnitInfoPanel; //다중 선택 패널 전체
+    //
+    // [Header("Bottom Enemy Info Panel")]
+    // [SerializeField] private EnemyInfoPanelUI enemyInfoPanel;
+    // [Header("MainPanel")]
+    // [SerializeField] private UISummonPanel summonPanel;
     [SerializeField] private GameObject upgradePanel;
     
     [Header("Story")]
@@ -143,7 +143,6 @@ public class UIManager : Singleton<UIManager>
     private void Start()
     {
         //시작할 때 꺼두기
-        HideInfoPanel();
 
         if (upgradePanel != null)
         {
@@ -164,56 +163,43 @@ public class UIManager : Singleton<UIManager>
     // --- 하단 유닛 정보 갱신 ---
     public void ShowUnitInfo(UnitEntity unit)
     {
-        multiUnitInfoPanel?.HideInfo();
-        enemyInfoPanel?.HideInfo();
-        singleUnitInfoPanel?.SetData(unit);
+        if (unit == null)
+        {
+            CloseCurrentPanel();
+            return;
+        }
+        ShowPanel<UnitInfoPanelUI>(panel => panel.SetData(unit));
     }
-
+    
     public void ShowEnemyInfo(EnemyEntity enemy)
     {
         if (enemy == null)
         {
-            HideInfoPanel();
+            CloseCurrentPanel();
             return;
         }
-        singleUnitInfoPanel?.HideInfo();
-        multiUnitInfoPanel?.HideInfo();
-        enemyInfoPanel?.ShowInfo(enemy.Data, enemy.CurrentHealth);
+        ShowPanel<EnemyInfoPanelUI>(panel => panel.SetData(enemy));
     }
     
-    public void ShowMultiUnitInfo(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
+    public void ShowMultiUnitInfo(List<UnitEntity> units, Action<UnitEntity> onPortraitClicked)
     {
-        singleUnitInfoPanel?.HideInfo();
-        enemyInfoPanel?.HideInfo();
-        multiUnitInfoPanel?.ShowInfo(selectedUnits, onPortraitClickCallback);
+        if (units == null || units.Count == 0)
+        {
+            CloseCurrentPanel();
+            return;
+        }
+        ShowPanel<MultiUnitInfoPanelUI>(panel => panel.SetData(units, onPortraitClicked));
     }
     
-    public void HideInfoPanel()
+    public void ShowSummonPanel()
     {
-        singleUnitInfoPanel?.HideInfo();
-        multiUnitInfoPanel?.HideInfo();
-        enemyInfoPanel?.HideInfo();
+        ShowPanel<UISummonPanel>();
     }
-    
     public void OnTeleportButtonClicked()
     {
         OnTeleportRequested?.Invoke();
     }
-
-    public void ToggleSummonPanel()
-    {
-        if (summonPopup == null)
-            return;
-
-        if (summonPopup.gameObject.activeSelf)
-        {
-            ClosePopup(summonPopup);
-        }
-        else
-        {
-            OpenPopup(summonPopup);
-        }
-    }
+    
 
     public void ToggleUpgradePanel()
     {
