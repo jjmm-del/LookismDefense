@@ -10,11 +10,11 @@ public class UnitSelectorPopup : UIPopup
     [SerializeField] private Transform contentArea; //버튼들이 생길 부모 객체
     [SerializeField] private GameObject unitButtonPrefab; // 유닛 아이콘/ 버튼 프리팹
     
-    private Action<UnitData> onUnitSelected;
+    private Action<UnitRecord> onUnitSelected;
     
     
     //팝업 열기(외부에서 호출)
-    public void SetData(string title, IReadOnlyList<UnitData> unitList, Action<UnitData> callback)
+    public void SetData(string title, IReadOnlyList<UnitRecord> unitList, Action<UnitRecord> callback)
     {
         ClearButtons();
 
@@ -28,7 +28,7 @@ public class UnitSelectorPopup : UIPopup
             return;
         
         //2. 목록에 있는 유닛만큼 버튼 생성
-        foreach (UnitData unit in unitList)
+        foreach (UnitRecord unit in unitList)
         {
             if (unit == null)
                 return; 
@@ -39,21 +39,21 @@ public class UnitSelectorPopup : UIPopup
     
  
 
-    private void CreateUnitButton(UnitData unit)
+    private void CreateUnitButton(UnitRecord unit)
     {
         GameObject buttonObject = Instantiate(unitButtonPrefab, contentArea);
         
         TextMeshProUGUI unitNameText = buttonObject.GetComponent<TextMeshProUGUI>();
         if (unitNameText != null)
         {
-            unitNameText.text = unit.EntityName;
+            unitNameText.text = unit.DisplayName;
         }
             
         //버튼 택스트/이미지 설정(프리팹 구조에 따라 수정 필요)
         Image portraitImage = buttonObject.GetComponent<Image>();
         if (portraitImage != null)
         {
-            portraitImage.sprite = unit.PortraitIcon;
+            portraitImage.sprite = UnitAssetProvider.LoadPortrait(unit);
         }
             
         //3. 버튼 클릭 시 "이 유닛 소환해줘"라고 매니저에게 요청
@@ -64,9 +64,9 @@ public class UnitSelectorPopup : UIPopup
         }
     }
 
-    private void HandleUnitSelected(UnitData unit)
+    private void HandleUnitSelected(UnitRecord unit)
     {
-        Action<UnitData> callback = onUnitSelected;
+        Action<UnitRecord> callback = onUnitSelected;
         Close();
         callback?.Invoke(unit);
     }

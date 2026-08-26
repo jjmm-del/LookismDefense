@@ -7,9 +7,11 @@ using System.Collections.Generic;
 public class UnitEntity : MonoBehaviour
 {
     [SerializeField]private UnitData unitData;
+
+    private UnitRecord runtimeData;
     public UnitData Data => unitData;
+    public UnitRecord RuntimeData => runtimeData;    
     
-    //public GridCell HomeCell { get; private set; }
     
     
     [Header("Attack Settings")]
@@ -33,10 +35,36 @@ public class UnitEntity : MonoBehaviour
     private float currentAttackRange;
     private float currentAttackSpeed;
 
+    public string DisplayName
+    {
+        get
+        {
+            if (runtimeData != null)
+                return runtimeData.DisplayName;
+
+            if (unitData != null)
+            {
+                return string.IsNullOrEmpty(unitData.Title)
+                    ? unitData.EntityName
+                    : $"[{unitData.Title}]{unitData.EntityName}";
+                
+            }
+
+            return gameObject.name;
+        }
+    }
     public float AttackDamage => currentAttackDamage;
     public float AttackRange => currentAttackRange;
 
     public float AttackSpeed => currentAttackSpeed;
+
+    public UnitTier Tier => runtimeData != null ? runtimeData.tier : unitData != null ? unitData.Tier : default;
+
+    public int MaxAttackTargets => runtimeData != null ? runtimeData.maxAttackTargets :
+        unitData != null ? unitData.MaxAttackTargets : 1;
+    
+    
+    
     //상태 관리 변수
     //private UnitState currentState = UnitState.Idle;
     //private Vector3 attackMoveDest; //어택땅 목적지 기억용
@@ -52,17 +80,18 @@ public class UnitEntity : MonoBehaviour
     public void Initialize(UnitData data)
     {
         // [초기화 ] 유닛 데이터
+        runtimeData = null;
         unitData = data;
 
         // [초기화] 생성시 유닛 데이터의 기본 스탯;
-        currentAttackDamage = unitData.AttackDamage;
-        currentAttackRange = unitData.AttackRange;
-        currentAttackSpeed = unitData.AttackSpeed;
+        currentAttackDamage = data.AttackDamage;
+        currentAttackRange = data.AttackRange;
+        currentAttackSpeed = data.AttackSpeed;
         
         // [초기화] 이동속도
         if (agent != null)
         {
-            agent.speed = unitData.MoveSpeed;
+            agent.speed = data.MoveSpeed;
             
         }
         // [초기화] 유닛 특수능력
@@ -72,13 +101,44 @@ public class UnitEntity : MonoBehaviour
         }
     }
 
+    public void Initialize(UnitRecord data)
+    {
+        runtimeData = data;
+        // [초기화] 생성시 유닛 데이터의 기본 스탯;
+        currentAttackDamage = data.attackDamage;
+        currentAttackRange = data.attackRange;
+        currentAttackSpeed = data.attackSpeed;
+
+        if (unitData != null)
+        {
+            // [초기화] 이동속도
+            if (agent != null)
+            {
+                agent.speed = unitData.MoveSpeed;
+            
+            }
+            // [초기화] 유닛 특수능력
+            if (abilityController != null)
+            {
+                abilityController.Initialize(unitData.Abilities, this);
+            }
+        }
+        else if (abilityController != null)
+        {
+            abilityController.Initialize(null, this);
+        }
+        
+        
+        
+    }
+
     private void Start()
     {
         //태어날 때 게임매니저에 나를 등록
         if (EntityRegistry.Instance != null)
         {
             EntityRegistry.Instance.RegisterUnit(this);
-            Debug.Log($"{this.unitData.name} 등록");
+            Debug.Log($"{this.DisplayName} 등록");
         }
     }
 
@@ -132,7 +192,7 @@ public class UnitEntity : MonoBehaviour
             return;
         
         // 업그레이드 적용 데미지 계산
-        float baseFinalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, unitData.Tier) * buffDamageMultiplier;
+        float baseFinalDamage = UpgradeManager.Instance.GetFinalDamage(currentAttackDamage, Tier) * buffDamageMultiplier;
         
         // 공격할 타겟 리스트 만들기
         List<EnemyEntity> targetsToHit = new();
@@ -140,12 +200,12 @@ public class UnitEntity : MonoBehaviour
         targetsToHit.Add(primaryEnemy);
         
         // 다중 공격 처리
-        if (unitData.MaxAttackTargets > 1)
+        if (MaxAttackTargets > 1)
         {
             Collider[] hits = Physics.OverlapSphere(transform.position, currentAttackRange, enemyLayer);
             foreach (Collider hit in hits)
             {
-                if (targetsToHit.Count >= unitData.MaxAttackTargets)
+                if (targetsToHit.Count >= MaxAttackTargets)
                 {
                     break; // 최종 타겟 수 도달 시 종료
                 }
@@ -176,7 +236,7 @@ public class UnitEntity : MonoBehaviour
             
             //(선택, 추가) 이펙트, 타격음 추가
             //EffectManager.Instance.PlayHitEffect(currentTarget.Position);
-            Debug.Log($"{unitData.EntityName}이 {target.Data.EntityName}을 공격!");
+            Debug.Log($"{DisplayName}이 {primaryEnemy.Data.EntityName}을 공격!");
         }
     }
     // [UI] 선택 상태를 켜고 끄는 함수

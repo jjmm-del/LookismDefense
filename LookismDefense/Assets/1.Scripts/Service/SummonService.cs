@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 public class SummonService : Singleton<SummonService>
 {
-    [Header("Gacha Data")]
-    [SerializeField] private List<UnitData> commonUnits;
-    [SerializeField] private List<UnitData> uncommonUnits;
-    [SerializeField] private List<UnitData> specialUnits;
-    [SerializeField] private List<UnitData> rareUnits;
-    [SerializeField] private List<UnitData> legendaryUnits;
+    // [Header("Gacha Data")]
+    // [SerializeField] private List<UnitData> commonUnits;
+    // [SerializeField] private List<UnitData> uncommonUnits;
+    // [SerializeField] private List<UnitData> specialUnits;
+    // [SerializeField] private List<UnitData> rareUnits;
+    // [SerializeField] private List<UnitData> legendaryUnits;
 
     private UnitFactory unitFactory;
     protected override void Awake()
@@ -17,18 +17,24 @@ public class SummonService : Singleton<SummonService>
         base.Awake();
         unitFactory = new UnitFactory();
     }
-    public IReadOnlyList<UnitData> GetUnitsForTier(UnitTier tier)
+    public IReadOnlyList<UnitRecord> GetUnitsForTier(UnitTier tier)
     {
         // -- 순수 생성 로직 --
-        switch (tier)
+        // switch (tier)
+        // {
+        //     case UnitTier.Common: return commonUnits;
+        //     case UnitTier.Uncommon: return uncommonUnits;
+        //     case UnitTier.Special: return specialUnits;
+        //     case UnitTier.Rare: return rareUnits;
+        //     case UnitTier.Legendary: return legendaryUnits;
+        //     default: return Array.Empty<UnitData>();
+        // }
+        if (GameDatabase.Instance == null || !GameDatabase.Instance.IsReady)
         {
-            case UnitTier.Common: return commonUnits;
-            case UnitTier.Uncommon: return uncommonUnits;
-            case UnitTier.Special: return specialUnits;
-            case UnitTier.Rare: return rareUnits;
-            case UnitTier.Legendary: return legendaryUnits;
-            default: return Array.Empty<UnitData>();
+            return Array.Empty<UnitRecord>();
         }
+        return GameDatabase.Instance.GetSummonableUnitsForTier(tier);
+        
     }
 
     public bool IsSelectSummon(CurrencyType type)
@@ -47,7 +53,7 @@ public class SummonService : Singleton<SummonService>
             return false;
         }
 
-        IReadOnlyList<UnitData> pool = GetUnitsForTier(tier);
+        IReadOnlyList<UnitRecord> pool = GetUnitsForTier(tier);
 
         if (pool == null || pool.Count == 0)
         {
@@ -55,10 +61,11 @@ public class SummonService : Singleton<SummonService>
             return false;
         }
 
-        return TrySummonInternal(pool[Random.Range(0, pool.Count)], costType, costAmount);
+        UnitRecord selected = pool[Random.Range(0, pool.Count)];
+        return TrySummonInternal(selected, costType, costAmount);
     }
 
-    public bool TrySelectedSummon(UnitData unit, CurrencyType costType, int costAmount = 1)
+    public bool TrySelectedSummon(UnitRecord unit, CurrencyType costType, int costAmount = 1)
     {
         if (unit == null)
             return false;
@@ -68,9 +75,9 @@ public class SummonService : Singleton<SummonService>
             return false;
         }
 
-        if (unit.Tier != expectedTier)
+        if (unit.tier != expectedTier)
         {
-            Debug.LogError($"선택권 등급 불일치: {costType}/{unit.Tier}");
+            Debug.LogError($"선택권 등급 불일치: {costType}/{unit.tier}");
             return false;
         }
 
@@ -78,17 +85,17 @@ public class SummonService : Singleton<SummonService>
 
     }
 
-    public IReadOnlyList<UnitData> GetSelectableUnits(CurrencyType type)
+    public IReadOnlyList<UnitRecord> GetSelectableUnits(CurrencyType type)
     {
         if (!TryGetSelectTier(type, out UnitTier tier))
-            return Array.Empty<UnitData>();
+            return Array.Empty<UnitRecord>();
 
         return GetUnitsForTier(tier);
     }
 
-    private bool TrySummonInternal(UnitData unit, CurrencyType costType, int costAmount)
+    private bool TrySummonInternal(UnitRecord unit, CurrencyType costType, int costAmount)
     {
-        if (GridManager.Instance == null || CurrencyManager.Instance == null)
+        if (unit == null || GridManager.Instance == null || CurrencyManager.Instance == null)
         {
             return false;
         }
@@ -111,7 +118,7 @@ public class SummonService : Singleton<SummonService>
 
         if (unitFactory.TryCreate(unit, emptyCell, out UnitEntity createdUnit))
         {
-            Debug.Log($"{createdUnit.Data.EntityName} 소환 완료 [{emptyCell.Coordinate}]");
+            Debug.Log($"{createdUnit.DisplayName} 소환 완료 [{emptyCell.Coordinate}]");
             return true;
         }
         
