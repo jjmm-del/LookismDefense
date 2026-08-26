@@ -42,7 +42,9 @@ public class UnitInfoPanelUI: UIPanel
     }
     public void SetData(UnitEntity unit)
     {
-        if (unit == null || unit.Data == null)
+        bool hasAnyData = unit != null && (unit.RuntimeData != null || unit.Data != null);
+        
+        if (!hasAnyData)
         {
             Close();
             return;
@@ -50,28 +52,38 @@ public class UnitInfoPanelUI: UIPanel
         
         currentTargetUnit = unit; // 클릭한 유닛 기억해두기
         
-        UnitData data = unit.Data;
+        //UnitData data = unit.Data;
 
-        UpdateBasicInfo(data);
-        UpdatePortrait(data);
-        UpdateAbilities(data);
-        UpdateRecipeList(data);
-        UpdateSellUI(data.Tier);
+        UpdateBasicInfo(unit);
+        UpdatePortrait(unit);
+        if (unit.Data != null)
+        {
+            UpdateAbilities(unit.Data);
+            UpdateRecipeList(unit.Data);
+
+        }
+        else
+        {
+            ClearChildren(abilityIconContainer);
+            ClearChildren(recipeContents);
+        }
+        
+        UpdateSellUI(unit.Tier);
     }
 
-    private void UpdateBasicInfo(UnitData data)
+    private void UpdateBasicInfo(UnitEntity unit)
     {
         if (nameText != null)
         {
-            nameText.text = GetUnitDisplayName(data);
+            nameText.text = GetUnitDisplayName(unit);
         }
 
-        float baseDamage = data.AttackDamage;
+        float baseDamage = unit.AttackDamage;
         float finalDamage = baseDamage;
 
         if (UpgradeManager.Instance != null)
         {
-            finalDamage = UpgradeManager.Instance.GetFinalDamage(baseDamage, data.Tier);
+            finalDamage = UpgradeManager.Instance.GetFinalDamage(baseDamage, unit.Tier);
         }
 
         if (damageText != null)
@@ -88,23 +100,31 @@ public class UnitInfoPanelUI: UIPanel
 
         if (attackSpeedText != null)
         {
-            attackSpeedText.text = $"ASP:{data.AttackSpeed}";
+            attackSpeedText.text = $"ASP:{unit.AttackSpeed}";
         }
         
     }
 
-    private void UpdatePortrait(UnitData data)
+    private void UpdatePortrait(UnitEntity unit)
     {
         if (portraitImage == null)
             return;
 
-        bool hasPortrait = data.PortraitIcon != null;
-        portraitImage.gameObject.SetActive(hasPortrait);
-
-        if (hasPortrait)
+        Sprite portrait = null;
+        if (unit.RuntimeData != null)
         {
-            portraitImage.sprite = data.PortraitIcon;
+            portrait = UnitAssetProvider.LoadPortrait(unit.RuntimeData);
         }
+
+        if (portrait == null && unit.Data != null)
+        {
+            portrait = unit.Data.PortraitIcon;
+        }
+        
+        bool hasPortrait = portrait != null;
+        portraitImage.gameObject.SetActive(hasPortrait);
+        portraitImage.sprite = portrait;
+
 
     }
     
@@ -208,21 +228,22 @@ public class UnitInfoPanelUI: UIPanel
 
     }
 
-    private string GetUnitDisplayName(UnitData unit)
+    private string GetUnitDisplayName(UnitEntity unit)
     {
+        UnitTier tier = unit.Tier;
         string tierName = unit.Tier.ToString();
         Color tierColor = Color.white;
 
         if (tierDisplaySettings != null)
         {
-            tierName = tierDisplaySettings.GetDisplayName(unit.Tier);
-            tierColor = tierDisplaySettings.GetColor(unit.Tier);
+            tierName = tierDisplaySettings.GetDisplayName(tier);
+            tierColor = tierDisplaySettings.GetColor(tier);
         }
 
         string colorHex = ColorUtility.ToHtmlStringRGB(tierColor);
-        string title = string.IsNullOrEmpty(unit.Title) ? string.Empty : $"[{unit.Title}]"; 
+         
         return $"<color=#{colorHex}>" +
-               $"{title}{unit.EntityName} - {tierName}" +
+               $"{unit.DisplayName} - {tierName}" +
                $"</color>";
     }
 

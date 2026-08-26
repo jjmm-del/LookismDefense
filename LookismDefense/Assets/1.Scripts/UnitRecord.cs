@@ -20,5 +20,5 @@ public class UnitRecord
 
     public bool enabled;
 
-    public string DisplayName => string.IsNullOrEmpty(title) ? characterName : $"[{title}{characterName}";
+    public string DisplayName => string.IsNullOrEmpty(title) ? characterName : $"[{title}{characterName}]";
 }

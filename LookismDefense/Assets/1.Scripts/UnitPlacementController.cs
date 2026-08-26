@@ -105,7 +105,7 @@ public class UnitPlacementController : MonoBehaviour
         selectedAI.SetHomeCell(targetCell);
 
         Debug.Log(
-            $"{selectedUnit.Data.EntityName} 이동 : {currentCell.Coordinate} → {targetCell.Coordinate}"
+            $"{selectedUnit.DisplayName} 이동 : {currentCell.Coordinate} → {targetCell.Coordinate}"
         );
     }
 

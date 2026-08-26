@@ -23,7 +23,7 @@ public class UnitSellService : Singleton<UnitSellService>
             return false;
         }
 
-        List<SellRewardSettings.RewardItem> rewards = GetSellRewardInfo(unit.Data.Tier);
+        List<SellRewardSettings.RewardItem> rewards = GetSellRewardInfo(unit.Tier);
 
         if (rewards != null)
         {
