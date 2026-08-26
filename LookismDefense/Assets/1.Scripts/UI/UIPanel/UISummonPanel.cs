@@ -68,13 +68,13 @@ public class UISummonPanel : UIPanel
 
     private void OpenSelector(CurrencyType type)
     {
-        IReadOnlyList<UnitData> units = SummonService.Instance.GetSelectableUnits(type);
+        IReadOnlyList<UnitRecord> units = SummonService.Instance.GetSelectableUnits(type);
 
         selectorPopup.SetData(GetSelectorTitle(type), units, unit => HandleSelectedSummon(unit, type));
         UIManager.Instance.OpenPopup(selectorPopup);
     }
 
-    private void HandleSelectedSummon(UnitData unit, CurrencyType type)
+    private void HandleSelectedSummon(UnitRecord unit, CurrencyType type)
     {
         SummonService.Instance.TrySelectedSummon(unit, type);
     }

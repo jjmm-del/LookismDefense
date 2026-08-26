@@ -101,7 +101,7 @@ public class UnitSelectionController : MonoBehaviour
                 ClearSelection(false); // 기존 선택 해제
 				selectedUnits.Add(unit);
                 unit.SetSelected(true);
-            	Debug.Log($"{unit.Data.EntityName}선택됨");
+            	Debug.Log($"{unit.DisplayName}선택됨");
                 UIManager.Instance?.ShowUnitInfo(unit);
                 OnSelectionChanged?.Invoke();
                 return;

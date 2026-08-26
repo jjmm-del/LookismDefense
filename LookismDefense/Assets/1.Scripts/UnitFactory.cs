@@ -1,7 +1,25 @@
 using UnityEngine;
-
+using System;
 public sealed class UnitFactory
 {
+    public bool TryCreate(UnitRecord data, GridCell cell, out UnitEntity createdUnit)
+    {
+        createdUnit = null;
+        if (data == null || !data.enabled)
+        {
+            Debug.LogError("생성할 UnitRecord가 없거나 비활성 상태입니다.");
+            return false;
+        }
+
+        if (!UnitAssetProvider.TryLoadPrefab(data, out GameObject prefab))
+        {
+            return false;
+        }
+
+        return TryCreateInternal(prefab, cell, entity => entity.Initialize(data), data.DisplayName, out createdUnit);
+    }
+    
+    //기존 SO 기반 생성
     public bool TryCreate(UnitData data, GridCell cell, out UnitEntity createdUnit)
     {
         createdUnit = null;
@@ -12,17 +30,26 @@ public sealed class UnitFactory
             return false;
         }
 
+        return TryCreateInternal(data.Prefab, cell, entity => entity.Initialize(data), data.EntityName, out createdUnit);
+    }
+
+    private bool TryCreateInternal(GameObject prefab, GridCell cell, Action<UnitEntity> initialize, string displayName,
+        out UnitEntity createdUnit)
+
+    {
+        createdUnit = null;
+        
         if (cell == null || cell.IsOccupied)
         {
             Debug.Log("유닛을 배치할 수 없는 GridCell입니다.");
             return false;
         }
 
-        GameObject unitObject = Object.Instantiate(data.Prefab, cell.WorldPosition, Quaternion.identity);
+        GameObject unitObject = UnityEngine.Object.Instantiate(prefab, cell.WorldPosition, Quaternion.identity);
 
         if (!cell.TryPlaceUnit(unitObject))
         {
-            Object.Destroy(unitObject);
+            UnityEngine.Object.Destroy(unitObject);
             return false;
         }
         
@@ -32,15 +59,15 @@ public sealed class UnitFactory
 
         if (entity == null || ai == null)
         {
-            Debug.LogError($"{data.name} Prefab에 UnitEntity 또는 UnitController가 없습니다.");
+            Debug.LogError($"{displayName} Prefab에 UnitEntity 또는 UnitController가 없습니다.");
             
             cell.RemoveUnit();
-            Object.Destroy(unitObject);
+            UnityEngine.Object.Destroy(unitObject);
 
             return false;
         }
 
-        entity.Initialize(data);
+        initialize(entity);
         ai.SetHomeCell(cell);
 
         createdUnit = entity;
