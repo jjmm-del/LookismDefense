@@ -1018,15 +1018,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b06866043445684dbeded940e82cf1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UnitSpawnManager
-  commonUnits:
-  - {fileID: 11400000, guid: 1801d37c2b50409479427469f0cc96bc, type: 2}
-  - {fileID: 11400000, guid: 2deb8f7e68971ce419a622f3e65dc604, type: 2}
-  uncommonUnits:
-  - {fileID: 11400000, guid: f706b0d77ddc0e748864d43291e556eb, type: 2}
-  specialUnits:
-  - {fileID: 11400000, guid: 67b04507b46cf7640be076241ff8479a, type: 2}
-  rareUnits: []
-  legendaryUnits: []
 --- !u!4 &146023912
 Transform:
   m_ObjectHideFlags: 0
@@ -10860,9 +10851,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoogleSheetDataLoader
   spreadsheetId: 1flUhRIkUODdIhxkN6Jozh-dK05TfQRuJh3rmmRjpBl4
-  apiKey: AIzaSyAnP8LoRl2DIQp4LJWSgRwCtioHJ-EHpGw
-  sheetName: "\uC720\uB2DB_DB"
-  cellRange: A1:L
+  unitSheetName: "\uC720\uB2DB_DB"
+  unitCellRange: A1:L
+  recipeSheetName: Unity_Recipe
+  recipeCellRange: A1:H
   loadOnStart: 1
 --- !u!4 &1798971454
 Transform:
