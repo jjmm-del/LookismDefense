@@ -21,30 +21,40 @@ public class MultiUnitPortraitUI : MonoBehaviour
             portraitButton.onClick.AddListener(OnClickPortrait);
         }
     }
-    public void Setup(UnitData data, int count, UnitEntity target, Action<UnitEntity> onClickCallback)
+    public void Setup(UnitEntity target, int count, Action<UnitEntity> onClickCallback)
     {
-        this.targetUnit = target;
-        this.onPortraitClickedCallback = onClickCallback;
-        if (data.PortraitIcon != null)
+        targetUnit = target;
+        onPortraitClickedCallback = onClickCallback;
+        Sprite portrait = null;
+        
+        if (target != null && target.RuntimeData != null)
         {
-            portraitImage.sprite = data.PortraitIcon;
-            portraitImage.gameObject.SetActive(true);
-        }
-        else
-        {
-            portraitImage.gameObject.SetActive(false);
+            portrait = UnitAssetProvider.LoadPortrait(target.RuntimeData);
         }
 
-        //1개일 때는 숫자 숨기고, 2개 이상일 때만 표시
-        if (count > 1)
+        if (portrait == null && target != null && target.Data != null)
         {
-            countText.text = count.ToString();
-            countText.gameObject.SetActive(true);
+            portrait = target.Data.PortraitIcon;
         }
-        else
+
+        if (portraitImage != null)
         {
-            countText.gameObject.SetActive(false);
+            portraitImage.sprite = portrait;
+            portraitImage.gameObject.SetActive(portrait != null);
         }
+
+        if (countText != null)
+        {
+            bool showCount = count > 1;
+            countText.gameObject.SetActive(showCount);
+            if (showCount)
+            {
+                countText.text = count.ToString();
+            }
+            
+        }
+
+        
     }
 
     private void OnClickPortrait()

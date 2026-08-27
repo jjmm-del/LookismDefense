@@ -256,16 +256,15 @@ public class UnitInfoPanelUI: UIPanel
 
         if (sold)
         {
-            currentTargetUnit = null;
-            HideInfo();
+            Close();
         }
     }
-    public void HideInfo()
+    public override void Hide()
     {
         currentTargetUnit = null;
         ClearChildren(abilityIconContainer);
         ClearChildren(recipeContents);
-        Hide();
+        base.Hide();
     }
     
     private void ClearChildren(Transform container)

@@ -55,7 +55,7 @@ public class MultiUnitInfoPanelUI : UIPanel
     // --- 실제 사용 부분 ---
     public void SetData(List<UnitEntity> selectedUnits, Action<UnitEntity> onPortraitClickCallback)
     {
-        gameObject.SetActive(true);
+        ReleaseActivePortraits();
         
         // 기존 초상화 싹 파괴하지 않고, 풀에 반납합니다.
         foreach (GameObject portrait in activePortraits)
@@ -63,44 +63,74 @@ public class MultiUnitInfoPanelUI : UIPanel
             portraitPool.Release(portrait);
         }
         activePortraits.Clear();
+
+        if (selectedUnits == null)
+            return;
+
+        Dictionary<string, List<UnitEntity>> groupedUnits = new(StringComparer.OrdinalIgnoreCase);
         
-        Dictionary<UnitData, List<UnitEntity>> groupedUnits = new Dictionary<UnitData, List<UnitEntity>>();
         foreach (UnitEntity unit in selectedUnits)
         {
-            if (!groupedUnits.ContainsKey(unit.Data))
+            if (unit == null)
+                continue;
+            
+            string unitKey = unit.UnitKey;
+            
+            if (!groupedUnits.TryGetValue(unitKey, out List<UnitEntity> group))
             {
-                groupedUnits[unit.Data] = new List<UnitEntity>();
+                group = new List<UnitEntity>();
+                groupedUnits.Add(unitKey, group);
             }
-            groupedUnits[unit.Data].Add(unit);
+
+            group.Add(unit);
         }
         // 3. 종류별로 프리팹 찍어내기
-        foreach (var kvp in groupedUnits)
+        foreach (KeyValuePair<string, List<UnitEntity>> pair in groupedUnits)
         {
-            UnitData data = kvp.Key;
-            List<UnitEntity> unitList = kvp.Value;
-
-            GameObject portraitObj = portraitPool.Get();
-            activePortraits.Add(portraitObj);
             
-            MultiUnitPortraitUI portraitUI = portraitObj.GetComponent<MultiUnitPortraitUI>();
+            List<UnitEntity> unitList = pair.Value;
+
+            if (unitList.Count == 0)
+                continue;
+            
+            UnitEntity representative = unitList[0];
+            
+            GameObject portraitObject = portraitPool.Get();
+            
+            activePortraits.Add(portraitObject);
+            
+            MultiUnitPortraitUI portraitUI = portraitObject.GetComponent<MultiUnitPortraitUI>();
             if (portraitUI != null)
             {
                 // 생성할 때 넘겨받은 콜백을 함께 건내줌
-                portraitUI.Setup(data, unitList.Count, unitList[0], onPortraitClickCallback);
+                portraitUI.Setup(representative, unitList.Count, onPortraitClickCallback);
             }
             
-            TooltipTrigger tooltip = portraitObj.GetComponent<TooltipTrigger>();
+            TooltipTrigger tooltip = portraitObject.GetComponent<TooltipTrigger>();
             if (tooltip != null)
             {
-                string title = string.IsNullOrEmpty(data.Title) ? "" : $"[{data.Title}] ";
-                tooltip.content = $"<b>{title}{data.EntityName}</b>\n<size=80%>{data.Tier}</size>";
+                tooltip.content = $"<b>{representative.DisplayName}</b>\n" +
+                                  $"<size=80%>{representative.Tier}</size>";
             }
         }
     }
 
-    public void HideInfo()
+    private void ReleaseActivePortraits()
     {
-        Close();
+        foreach (GameObject portrait in activePortraits)
+        {
+            if (portrait != null)
+            {
+                portraitPool.Release(portrait);
+            }
+        }
+
+        activePortraits.Clear();
+    }
+    public override void Hide()
+    {
+        ReleaseActivePortraits();
+        base.Hide();
     }
     
 }

@@ -65,10 +65,12 @@ public class UIManager : Singleton<UIManager>
 
         T typedPanel = panel as T;
         
+        currentPanel = typedPanel;
+        
+        typedPanel?.Show();
+        
         setup?.Invoke(typedPanel);
 
-        typedPanel.Show();
-        currentPanel = typedPanel;
 
         return typedPanel;
     }
