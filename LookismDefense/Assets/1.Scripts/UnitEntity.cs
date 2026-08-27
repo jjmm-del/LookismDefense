@@ -72,6 +72,19 @@ public class UnitEntity : MonoBehaviour
 
         }
     }
+
+    public string UnitId
+    {
+        get
+        {
+            if (runtimeData != null)
+            {
+                return runtimeData.id;
+            }
+
+            return string.Empty;
+        }
+    }
     public float AttackDamage => currentAttackDamage;
     public float AttackRange => currentAttackRange;
 

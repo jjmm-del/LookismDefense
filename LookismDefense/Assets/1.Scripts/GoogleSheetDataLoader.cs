@@ -150,11 +150,6 @@ public class GoogleSheetDataLoader : MonoBehaviour
         PrintSamples(loadedUnits);
 
         UnitsLoaded?.Invoke(loadedUnits);
-
-        // if (GameDatabase.Instance.TryGetUnit("C001", out UnitRecord unit))
-        // {
-        //     Debug.Log($"DB조회 성공 : {unit.DisplayName}");
-        // }
     }
 
     private IEnumerator LoadRecipeData()
@@ -183,28 +178,7 @@ public class GoogleSheetDataLoader : MonoBehaviour
             yield break;
         }
         
-        
         GameDatabase.Instance.SetRecipes(parsedRecipes);
-        #if UNITY_EDITOR
-        if (GameDatabase.Instance.TryGetRecipe(
-                "REC_U001_01",
-                out CombinationRecord testRecipe))
-        {
-            Debug.Log(
-                $"[RecipeTest] 조회 성공: " +
-                $"{testRecipe.id} → " +
-                $"{testRecipe.resultUnitId}, " +
-                $"메인 재료 {testRecipe.MainIngredientId}, " +
-                $"재료 종류 {testRecipe.ingredients.Count}"
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                "[RecipeTest] REC_U001_01 조회 실패"
-            );
-        }
-        #endif
     }
 
     private bool TryParseUnitData(string json, out List<UnitRecord> result)
