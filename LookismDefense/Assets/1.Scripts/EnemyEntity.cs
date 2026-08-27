@@ -22,7 +22,6 @@ public class EnemyEntity : MonoBehaviour
     public float CurrentHealth => currentHealth;
     
     
-    
     private void Awake()
     {
         movement = GetComponent<EnemyMovement>();

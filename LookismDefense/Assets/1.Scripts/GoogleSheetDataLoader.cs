@@ -11,8 +11,14 @@ public class GoogleSheetDataLoader : MonoBehaviour
     [Header("Google Sheet")]
     [SerializeField] private string spreadsheetId;
     //[SerializeField] private string apiKey;
-    [SerializeField] private string sheetName = "유닛_DB";
-    [SerializeField] private string cellRange = "A1:L";
+    
+    [Header("Unit Sheet")]
+    [SerializeField] private string unitSheetName = "유닛_DB";
+    [SerializeField] private string unitCellRange = "A1:L";
+    
+    [Header("Recipe Sheet")]
+    [SerializeField] private string recipeSheetName = "Unity_Recipe";
+    [SerializeField] private string recipeCellRange = "A1:H";
     private const string ApiKeyEnvironmentVariable = "LOOKISM_SHEETS_API_KEY";
     
     [Header("Loading")]
@@ -25,8 +31,7 @@ public class GoogleSheetDataLoader : MonoBehaviour
 
     public bool IsLoaded { get; private set; }
 
-    public event Action<IReadOnlyList<UnitRecord>>
-        UnitsLoaded;
+    public event Action<IReadOnlyList<UnitRecord>> UnitsLoaded;
 
     private void Start()
     {
@@ -36,13 +41,26 @@ public class GoogleSheetDataLoader : MonoBehaviour
         }
     }
 
-    [ContextMenu("Reload Unit Data")]
+    [ContextMenu("Reload All Data")]
     public void Reload()
     {
         StopAllCoroutines();
-        StartCoroutine(LoadUnitData());
+        StartCoroutine(LoadAllData());
     }
 
+    private IEnumerator LoadAllData()
+    {
+        yield return LoadUnitData();
+
+        if (GameDatabase.Instance == null || !GameDatabase.Instance.IsReady)
+        {
+            Debug.LogError("[GoogleSheet]유닛 로딩 실패로 조합 로딩을 중단합니다.");
+            yield break;
+        }
+
+        yield return LoadRecipeData();
+
+    }
     private IEnumerator LoadUnitData()
     {
         string apiKey = Environment.GetEnvironmentVariable(ApiKeyEnvironmentVariable);
@@ -65,7 +83,7 @@ public class GoogleSheetDataLoader : MonoBehaviour
         }
 
         string range =
-            $"'{sheetName}'!{cellRange}";
+            $"'{unitSheetName}'!{unitCellRange}";
 
         string escapedRange =
             UnityWebRequest.EscapeURL(range);
@@ -137,6 +155,56 @@ public class GoogleSheetDataLoader : MonoBehaviour
         // {
         //     Debug.Log($"DB조회 성공 : {unit.DisplayName}");
         // }
+    }
+
+    private IEnumerator LoadRecipeData()
+    {
+        //1. Unity_Recipe 다운로드
+        string recipeJson = null;
+
+        yield return DownloadSheetRange(recipeSheetName, recipeCellRange, json => recipeJson = json);
+
+        if (string.IsNullOrWhiteSpace(recipeJson))
+        {
+            Debug.LogError("[GoogleSheet] 조합 데이터 응답이 없습니다.");
+            yield break;
+        }
+
+        
+        if (!TryParseRecipeData(recipeJson, out List<CombinationRecord> parsedRecipes))
+        {
+            Debug.LogError("[GoogleSheet]조합 데이터 파싱 실패");
+            yield break;
+        }
+
+        if (!CombinationRecordValidator.Validate(parsedRecipes,GameDatabase.Instance))
+        {
+            Debug.LogError("[GoogleSheet] 조합 데이터 검증 실패");
+            yield break;
+        }
+        
+        
+        GameDatabase.Instance.SetRecipes(parsedRecipes);
+        #if UNITY_EDITOR
+        if (GameDatabase.Instance.TryGetRecipe(
+                "REC_U001_01",
+                out CombinationRecord testRecipe))
+        {
+            Debug.Log(
+                $"[RecipeTest] 조회 성공: " +
+                $"{testRecipe.id} → " +
+                $"{testRecipe.resultUnitId}, " +
+                $"메인 재료 {testRecipe.MainIngredientId}, " +
+                $"재료 종류 {testRecipe.ingredients.Count}"
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "[RecipeTest] REC_U001_01 조회 실패"
+            );
+        }
+        #endif
     }
 
     private bool TryParseUnitData(string json, out List<UnitRecord> result)
@@ -563,13 +631,9 @@ public class GoogleSheetDataLoader : MonoBehaviour
         
         return false;
     }
-    private static void LogRowError(
-        int sheetRow,
-        string message)
-    {
-        Debug.LogError(
-            $"[GoogleSheet][행 {sheetRow}] {message}"
-        );
+    private static void LogRowError(int sheetRow, string message)
+    { 
+        Debug.LogError($"[GoogleSheet][행 {sheetRow}] {message}");
     }
 
     private static void PrintSamples(
@@ -588,5 +652,340 @@ public class GoogleSheetDataLoader : MonoBehaviour
                 $"DMG {unit.attackDamage}"
             );
         }
+    }
+
+    private bool TryParseRecipeData(string json, out List<CombinationRecord> result)
+    {
+        result = new List<CombinationRecord>();
+        JObject root;
+        try
+        {
+            root = JObject.Parse(json);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError("[GoogleSheet] 조합 Json파싱 오류:"+exception.Message);
+            return false;
+        }
+        if (root["values"] is not JArray rows || rows.Count < 2)
+        {
+            Debug.LogError("[GoogleSheet] 조합 헤더 또는 데이터가 없습니다.");
+            return false;
+        }
+        if (rows[0] is not JArray headerRow)
+        {
+            Debug.LogError("[GoogleSheet] 조합 헤더 형식이 잘못되었습니다.");
+            return false;
+            
+        }
+        
+        Dictionary<string, int> headers = BuildHeaderMap(headerRow);
+        Debug.Log("[GoogleSheet] 조합 헤더: " + string.Join(", ", headers.Keys));
+        if (!ValidateRequiredRecipeHeaders(headers))
+        {
+            return false;
+        }
+        Dictionary<string, CombinationRecord> recipeMap = new(StringComparer.OrdinalIgnoreCase);
+        bool parseSucceeded = true;
+        
+        for (int i = 1; i < rows.Count; i++)
+        {
+            if (rows[i] is not JArray row)
+                continue;
+            
+            int sheetRow = i + 1;
+            if (IsEmptyRow(row))
+                continue;
+
+            
+            bool enabled = GetBool(row, headers, false, "사용", "Enabled");
+            if (!enabled)
+                continue;
+            
+            string recipeId = GetCell(row, headers, "RecipeID").Trim();
+        string resultUnitId =
+            GetCell(
+                row,
+                headers,
+                "ResultUnitID"
+            ).Trim();
+
+        string materialUnitId =
+            GetCell(
+                row,
+                headers,
+                "MaterialUnitID"
+            ).Trim();
+
+        if (string.IsNullOrWhiteSpace(recipeId))
+        {
+            LogRowError(
+                sheetRow,
+                "RecipeID가 비어 있습니다."
+            );
+
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (string.IsNullOrWhiteSpace(resultUnitId) ||
+            resultUnitId.Equals(
+                "ID없음",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            LogRowError(
+                sheetRow,
+                $"잘못된 ResultUnitID: '{resultUnitId}'"
+            );
+
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (string.IsNullOrWhiteSpace(materialUnitId) ||
+            materialUnitId.Equals(
+                "ID없음",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            LogRowError(
+                sheetRow,
+                $"잘못된 MaterialUnitID: '{materialUnitId}'"
+            );
+
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (!TryGetInt(
+                row,
+                headers,
+                sheetRow,
+                out int materialOrder,
+                "MaterialOrder"))
+        {
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (!TryGetInt(
+                row,
+                headers,
+                sheetRow,
+                out int count,
+                "Count"))
+        {
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (materialOrder <= 0)
+        {
+            LogRowError(
+                sheetRow,
+                "MaterialOrder는 1 이상이어야 합니다."
+            );
+
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (count <= 0)
+        {
+            LogRowError(
+                sheetRow,
+                "Count는 1 이상이어야 합니다."
+            );
+
+            parseSucceeded = false;
+            continue;
+        }
+
+        if (!recipeMap.TryGetValue(
+                recipeId,
+                out CombinationRecord recipe))
+        {
+            recipe = new CombinationRecord
+            {
+                id = recipeId,
+                    resultUnitId = resultUnitId,
+                    enabled = true,
+                    ingredients =
+                        new List<RecipeIngredientRecord>()
+                };
+        
+                recipeMap.Add(recipeId, recipe);
+            }
+            else if (!recipe.resultUnitId.Equals(
+                         resultUnitId,
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                LogRowError(
+                    sheetRow,
+                    $"RecipeID '{recipeId}'의 ResultUnitID가 " +
+                    "행마다 다릅니다."
+                );
+        
+                parseSucceeded = false;
+                continue;
+            }
+        
+            // 같은 재료가 여러 슬롯에 있으면 Count를 합친다.
+            RecipeIngredientRecord existingIngredient =
+                recipe.ingredients.Find(
+                    ingredient =>
+                        ingredient.unitId.Equals(
+                            materialUnitId,
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                );
+        
+            if (existingIngredient != null)
+            {
+                existingIngredient.count += count;
+        
+                existingIngredient.order =
+                    Math.Min(
+                        existingIngredient.order,
+                        materialOrder
+                    );
+            }
+            else
+            {
+                recipe.ingredients.Add(
+                    new RecipeIngredientRecord
+                    {
+                        order = materialOrder,
+                        unitId = materialUnitId,
+                        count = count
+                    }
+                );
+            }
+        }
+
+        foreach (CombinationRecord recipe
+             in recipeMap.Values)
+        {
+            recipe.ingredients.Sort(
+                (left, right) =>
+                left.order.CompareTo(right.order)
+        );
+
+        result.Add(recipe);
+        }
+
+        if (result.Count == 0)
+        {
+            Debug.LogError("[GoogleSheet] 사용할 조합법이 없습니다.");
+            return false;
+        }
+        return parseSucceeded;
+    }
+    private static bool ValidateRequiredRecipeHeaders(
+        Dictionary<string, int> headers)
+    {
+        bool valid = true;
+
+        valid &= RequireAnyHeaders(
+            headers,
+            "RecipeID"
+        );
+
+        valid &= RequireAnyHeaders(
+            headers,
+            "ResultUnitID"
+        );
+
+        valid &= RequireAnyHeaders(
+            headers,
+            "MaterialOrder"
+        );
+
+        valid &= RequireAnyHeaders(
+            headers,
+            "MaterialUnitID"
+        );
+
+        valid &= RequireAnyHeaders(
+            headers,
+            "Count"
+        );
+
+        valid &= RequireAnyHeaders(
+            headers,
+            "사용",
+            "Enabled"
+        );
+
+        return valid;
+    }
+    
+    private IEnumerator DownloadSheetRange(string targetSheetName, string targetCellRange, Action<string> onSuccess)
+    {
+        if (string.IsNullOrWhiteSpace(spreadsheetId))
+        {
+            Debug.LogError(
+                "[GoogleSheet] Spreadsheet ID가 비어 있습니다."
+            );
+
+            yield break;
+        }
+
+        string apiKey =
+            Environment.GetEnvironmentVariable(
+                ApiKeyEnvironmentVariable
+            );
+
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            Debug.LogError(
+                $"[GoogleSheet] 환경변수 " +
+                $"'{ApiKeyEnvironmentVariable}'가 없습니다."
+            );
+
+            yield break;
+        }
+
+        string range =
+            $"'{targetSheetName}'!{targetCellRange}";
+
+        string escapedRange =
+            UnityWebRequest.EscapeURL(range);
+
+        string url =
+            "https://sheets.googleapis.com/v4/" +
+            $"spreadsheets/{spreadsheetId}/" +
+            $"values/{escapedRange}" +
+            "?majorDimension=ROWS" +
+            "&valueRenderOption=UNFORMATTED_VALUE";
+
+        using UnityWebRequest request =
+            UnityWebRequest.Get(url);
+
+        request.SetRequestHeader(
+            "x-goog-api-key",
+            apiKey
+        );
+
+        request.timeout = 15;
+
+        yield return request.SendWebRequest();
+
+        if (request.result !=
+            UnityWebRequest.Result.Success)
+        {
+            Debug.LogError(
+                $"[GoogleSheet] '{targetSheetName}' " +
+                $"다운로드 실패\n" +
+                $"HTTP: {request.responseCode}\n" +
+                $"Error: {request.error}\n" +
+                $"Response: {request.downloadHandler.text}"
+            );
+
+            yield break;
+        }
+
+        onSuccess?.Invoke(
+            request.downloadHandler.text
+        );
     }
 }
