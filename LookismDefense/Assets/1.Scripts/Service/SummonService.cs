@@ -4,13 +4,6 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 public class SummonService : Singleton<SummonService>
 {
-    // [Header("Gacha Data")]
-    // [SerializeField] private List<UnitData> commonUnits;
-    // [SerializeField] private List<UnitData> uncommonUnits;
-    // [SerializeField] private List<UnitData> specialUnits;
-    // [SerializeField] private List<UnitData> rareUnits;
-    // [SerializeField] private List<UnitData> legendaryUnits;
-
     private UnitFactory unitFactory;
     protected override void Awake()
     {
@@ -19,16 +12,7 @@ public class SummonService : Singleton<SummonService>
     }
     public IReadOnlyList<UnitRecord> GetUnitsForTier(UnitTier tier)
     {
-        // -- 순수 생성 로직 --
-        // switch (tier)
-        // {
-        //     case UnitTier.Common: return commonUnits;
-        //     case UnitTier.Uncommon: return uncommonUnits;
-        //     case UnitTier.Special: return specialUnits;
-        //     case UnitTier.Rare: return rareUnits;
-        //     case UnitTier.Legendary: return legendaryUnits;
-        //     default: return Array.Empty<UnitData>();
-        // }
+        
         if (GameDatabase.Instance == null || !GameDatabase.Instance.IsReady)
         {
             return Array.Empty<UnitRecord>();
@@ -126,6 +110,32 @@ public class SummonService : Singleton<SummonService>
         
         Debug.LogError("유닛 생성 실패 - 사용한 소환권 환불");
         return false;
+    }
+
+    public bool TryDebugSummon(UnitRecord unit)
+    {
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (unit == null || GridManager.Instance == null)
+            return false;
+
+        GridCell emptyCell = GridManager.Instance.GetRandomEmptyCell();
+
+        if (emptyCell == null)
+        {
+            Debug.LogWarning("[DebugSummon] 빈 Cell이없습니다.");
+            return false;
+        }
+
+        if (!unitFactory.TryCreate(unit, emptyCell, out UnitEntity createdUnit))
+            return false;
+
+        Debug.Log($"[DebugSummon] {createdUnit.DisplayName} 소환 완료");
+        return true;
+
+    #else
+    Debug.LogWarning("디버그 소환은 Editor 또는 DevelopmentBuild에서만 사용할 수 있습니다.");
+    return false;
+    #endif
     }
 
     private bool TryGetRandomTier(CurrencyType type, out UnitTier tier)

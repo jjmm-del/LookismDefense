@@ -52,17 +52,17 @@ public class UnitTierDisplaySettings : ScriptableObject
         new TierDisplayInfo 
         { tier = UnitTier.Immortal,
             displayName = "불멸의",
-            textColor = Color.plum
+            textColor = Color.firebrick
         }, 
         new TierDisplayInfo 
         { tier = UnitTier.Eternal,
             displayName = "영원함",
-            textColor = Color.lightGoldenRod
+            textColor = Color.mediumPurple
         },
         new TierDisplayInfo 
-        { tier = UnitTier.Limited,
+        { tier = UnitTier.Exclusive,
             displayName = "제한됨",
-            textColor = Color.firebrick
+            textColor = Color.darkGoldenRod
         }
     };
 
