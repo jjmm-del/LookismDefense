@@ -140,15 +140,15 @@ public class UnitEntity : MonoBehaviour
         currentAttackDamage = data.attackDamage;
         currentAttackRange = data.attackRange;
         currentAttackSpeed = data.attackSpeed;
-
+        if (agent != null)
+        {
+            agent.speed = data.moveSpeed;
+            
+        }
+        
         if (unitData != null)
         {
-            // [초기화] 이동속도
-            if (agent != null)
-            {
-                agent.speed = unitData.MoveSpeed;
             
-            }
             // [초기화] 유닛 특수능력
             if (abilityController != null)
             {
@@ -173,11 +173,6 @@ public class UnitEntity : MonoBehaviour
             Debug.Log($"{this.DisplayName} 등록");
         }
     }
-
-    // public void SetHomeCell(GridCell cell)
-    // {
-    //     HomeCell = cell;
-    // }
     
     private void Update()
     {

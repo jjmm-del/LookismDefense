@@ -53,7 +53,7 @@ public class RecipeButtonUI : MonoBehaviour
             $"{resultUnit.DisplayName}조합법" +
             $"</color></b>"
         );
-        tooltipText.AppendLine();
+        //tooltipText.AppendLine();
         
         foreach (RecipeIngredientRecord ingredient in recipe.ingredients)
         {

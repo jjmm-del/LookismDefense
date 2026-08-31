@@ -18,21 +18,6 @@ public sealed class UnitFactory
 
         return TryCreateInternal(prefab, cell, entity => entity.Initialize(data), data.DisplayName, out createdUnit);
     }
-    
-    //기존 SO 기반 생성
-    public bool TryCreate(UnitData data, GridCell cell, out UnitEntity createdUnit)
-    {
-        createdUnit = null;
-
-        if (data == null || data.Prefab == null)
-        {
-            Debug.LogError("생성할 UnitData 또는 Prefab이 없습니다.");
-            return false;
-        }
-
-        return TryCreateInternal(data.Prefab, cell, entity => entity.Initialize(data), data.EntityName, out createdUnit);
-    }
-
     private bool TryCreateInternal(GameObject prefab, GridCell cell, Action<UnitEntity> initialize, string displayName,
         out UnitEntity createdUnit)
 

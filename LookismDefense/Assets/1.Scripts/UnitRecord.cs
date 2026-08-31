@@ -14,10 +14,10 @@ public class UnitRecord
     public float attackSpeed;
     public int attackRange;
     public int maxAttackTargets;
-
+    public float moveSpeed;
     public string prefabKey;
     public string portraitKey;
-
+    
     public bool enabled;
 
     public string DisplayName => string.IsNullOrEmpty(title) ? characterName : $"[{title}]{characterName}";
