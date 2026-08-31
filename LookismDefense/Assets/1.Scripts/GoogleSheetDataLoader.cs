@@ -10,7 +10,6 @@ public class GoogleSheetDataLoader : MonoBehaviour
 {
     [Header("Google Sheet")]
     [SerializeField] private string spreadsheetId;
-    //[SerializeField] private string apiKey;
     
     [Header("Unit Sheet")]
     [SerializeField] private string unitSheetName = "유닛_DB";
@@ -364,6 +363,10 @@ public class GoogleSheetDataLoader : MonoBehaviour
             return false;
         }
 
+        if (!TryGetFloat(row, headers, sheetRow, out float moveSpeed, "이동속도", "MoveSpeed"))
+        {
+            return false;
+        }
         bool enabled = GetBool(
             row,
             headers,
@@ -384,6 +387,7 @@ public class GoogleSheetDataLoader : MonoBehaviour
             attackSpeed = attackSpeed,
             attackRange = attackRange,
             maxAttackTargets = maxTargets,
+            moveSpeed =  moveSpeed,
 
             prefabKey = GetCell(
                 row,
