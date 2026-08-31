@@ -31,7 +31,8 @@ public class UnitSelectorPopup : UIPopup
         foreach (UnitRecord unit in unitList)
         {
             if (unit == null)
-                return; 
+                continue;
+            
             CreateUnitButton(unit);
         }
     }
