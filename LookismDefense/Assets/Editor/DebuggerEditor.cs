@@ -38,6 +38,12 @@ public class DebuggerEditor : Editor
             if (Application.isPlaying) debugger.AddSelectCommon(1);
             else Debug.LogWarning("게임 실행 중에만 작동합니다!");
         }
+        EditorGUILayout.Space(5);
+        if (GUILayout.Button("디버깅 소환 패널 열기", GUILayout.Height(30)))
+        {
+            if (Application.isPlaying) debugger.OpenUnitCatalog();
+            else Debug.LogWarning("게임 실행 중에만 작동합니다!");
+        }
 
     }
 }

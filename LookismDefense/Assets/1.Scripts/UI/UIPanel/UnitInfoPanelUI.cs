@@ -51,23 +51,19 @@ public class UnitInfoPanelUI: UIPanel
         }
         
         currentTargetUnit = unit; // 클릭한 유닛 기억해두기
-        
-        //UnitData data = unit.Data;
 
         UpdateBasicInfo(unit);
         UpdatePortrait(unit);
         if (unit.Data != null)
         {
             UpdateAbilities(unit.Data);
-            UpdateRecipeList(unit.Data);
-
+            
         }
         else
         {
             ClearChildren(abilityIconContainer);
-            ClearChildren(recipeContents);
         }
-        
+        UpdateRecipeList(unit);
         UpdateSellUI(unit.Tier);
     }
 
@@ -161,16 +157,19 @@ public class UnitInfoPanelUI: UIPanel
             
         }
     }
-    public void UpdateRecipeList(UnitData unit)
+    public void UpdateRecipeList(UnitEntity unit)
     {
         ClearChildren(recipeContents);
-        if (CombinationManager.Instance == null)
+
+        if (unit == null || CombinationManager.Instance == null)
+        {
             return;
+        }
         
-        List<CombinationRecipe> recipes = CombinationManager.Instance.GetRecipesForUnit(unit);
+        IReadOnlyList<CombinationRecord> recipes = CombinationManager.Instance.GetRecipesForUnit(unit);
         
         // 버튼 생성하기
-        foreach (CombinationRecipe recipe in recipes)
+        foreach (CombinationRecord recipe in recipes)
         {
             GameObject buttonObject = Instantiate(recipeButtonPrefab, recipeContents);
             
@@ -256,16 +255,15 @@ public class UnitInfoPanelUI: UIPanel
 
         if (sold)
         {
-            currentTargetUnit = null;
-            HideInfo();
+            Close();
         }
     }
-    public void HideInfo()
+    public override void Hide()
     {
         currentTargetUnit = null;
         ClearChildren(abilityIconContainer);
         ClearChildren(recipeContents);
-        Hide();
+        base.Hide();
     }
     
     private void ClearChildren(Transform container)

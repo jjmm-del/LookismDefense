@@ -53,6 +53,38 @@ public class UnitEntity : MonoBehaviour
             return gameObject.name;
         }
     }
+
+    public string UnitKey
+    {
+        get
+        {
+            if (runtimeData != null && !string.IsNullOrWhiteSpace(runtimeData.id))
+            {
+                return $"DB:{runtimeData.id}";
+            }
+
+            if (unitData != null)
+            {
+                return $"SO:{unitData.GetEntityId()}";
+            }
+
+            return $"INSTANCE:{GetEntityId()}";
+
+        }
+    }
+
+    public string UnitId
+    {
+        get
+        {
+            if (runtimeData != null)
+            {
+                return runtimeData.id;
+            }
+
+            return string.Empty;
+        }
+    }
     public float AttackDamage => currentAttackDamage;
     public float AttackRange => currentAttackRange;
 

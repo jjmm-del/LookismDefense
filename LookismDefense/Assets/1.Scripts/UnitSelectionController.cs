@@ -232,7 +232,19 @@ public class UnitSelectionController : MonoBehaviour
 
     private bool IsPointerOverUI()
     {
-        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+        if (EventSystem.current == null || Mouse.current == null)
+            return false;
+
+        PointerEventData eventData =
+            new PointerEventData(EventSystem.current)
+            {
+                position = Mouse.current.position.ReadValue()
+            };
+
+        List<RaycastResult> results = new();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        return results.Count > 0;
     }
     
     

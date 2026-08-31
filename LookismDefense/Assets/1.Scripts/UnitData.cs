@@ -13,7 +13,7 @@ public enum UnitTier
     Transcendence,  //초월함
     Immortal,       //불멸의
     Eternal,        //영원함
-    Limited         //제한됨
+    Exclusive         //제한됨
 }
 [CreateAssetMenu(menuName = "LookismDefense/UnitData")]
 public class UnitData : EntityData
